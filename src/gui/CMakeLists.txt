@@ -6,6 +6,10 @@ find_package(sdl2-ttf CONFIG REQUIRED)
 add_library(gui
     src/gui.h
     src/gui.cpp
+    src/button.h
+    src/button.cpp
+    src/common.h
+    src/common.cpp
 )
 
 target_link_libraries(gui PUBLIC
