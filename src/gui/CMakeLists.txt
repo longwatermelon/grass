@@ -8,10 +8,9 @@ add_library(gui
     src/gui.cpp
 )
 
-target_link_libraries(grass PUBLIC
+target_link_libraries(gui PUBLIC
     SDL2::SDL2 SDL2::SDL2main
     SDL2::SDL2_ttf
 )
 
-
-target_include_directories(grass PUBLIC src)
+target_include_directories(grass PRIVATE src)
