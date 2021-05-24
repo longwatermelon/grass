@@ -3,8 +3,8 @@
 
 int main(int argc, char** argv)
 {
-	Grass g;
-	g.mainloop();
+    Grass g;
+    g.mainloop();
 
-	return 0;
+    return 0;
 }

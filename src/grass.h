@@ -5,13 +5,13 @@
 class Grass
 {
 public:
-	Grass();
-	~Grass();
+    Grass();
+    ~Grass();
 
 public:
-	void mainloop();
+    void mainloop();
 
 private:
-	SDL_Window* m_window;
-	SDL_Renderer* m_rend;
+    SDL_Window* m_window;
+    SDL_Renderer* m_rend;
 };
