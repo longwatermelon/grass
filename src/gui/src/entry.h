@@ -14,6 +14,10 @@ namespace gui
 
     public:
         void render(SDL_Renderer* rend);
+        void add_char(char c);
+        void remove_char(int count);
+
+        bool check_clicked(int mx, int my);
 
     private:
         SDL_Rect m_rect;

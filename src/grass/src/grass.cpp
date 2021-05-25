@@ -42,9 +42,9 @@ void Grass::mainloop()
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 400, 600, 300, 20 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 400, 600, 300, 100 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
 
-    gui::TextEntry* selected_entry;
+    gui::TextEntry* selected_entry{ nullptr };
     
     bool running = true;
     SDL_Event evt;
@@ -62,17 +62,52 @@ void Grass::mainloop()
                 running = false;
                 break;
             case SDL_MOUSEBUTTONDOWN:
+            {
                 for (auto& btn : buttons)
                 {
                     btn.check_clicked(mx, my);
                 }
-                break;
+
+                bool has_selected_item{ false };
+
+                for (auto& e : text_entries)
+                {
+                    if (e.check_clicked(mx, my))
+                    {
+                        selected_entry = &e;
+                        has_selected_item = true;
+                    }
+                }
+
+                if (!has_selected_item)
+                    selected_entry = nullptr;
+            } break;
             case SDL_MOUSEBUTTONUP:
                 for (auto& btn : buttons)
                 {
                     btn.set_down(false);
                 }
                 break;
+            case SDL_TEXTINPUT:
+                if (selected_entry)
+                {
+                    selected_entry->add_char(evt.text.text[0]);
+                }
+                break;
+            case SDL_KEYDOWN:
+            {
+                if (selected_entry)
+                {
+                    switch (evt.key.keysym.scancode)
+                    {
+                    case SDL_SCANCODE_RETURN:
+                        selected_entry->add_char('\n');
+                        break;
+                    case SDL_SCANCODE_BACKSPACE:
+                        break;
+                    }
+                }
+            } break;
             }
         }
 
