@@ -60,6 +60,7 @@ void Grass::mainloop()
             case SDL_QUIT:
                 running = false;
                 break;
+
             case SDL_MOUSEBUTTONDOWN:
             {
                 for (auto& btn : buttons)
@@ -80,19 +81,23 @@ void Grass::mainloop()
 
                 if (!has_selected_item)
                     selected_entry = nullptr;
+
             } break;
+
             case SDL_MOUSEBUTTONUP:
                 for (auto& btn : buttons)
                 {
                     btn.set_down(false);
                 }
                 break;
+
             case SDL_TEXTINPUT:
                 if (selected_entry)
                 {
                     selected_entry->add_char(evt.text.text[0]);
                 }
                 break;
+
             case SDL_KEYDOWN:
             {
                 if (selected_entry)
