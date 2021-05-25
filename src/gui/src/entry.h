@@ -19,6 +19,15 @@ namespace gui
 
         bool check_clicked(int mx, int my);
 
+        std::vector<std::string> get_visible_content();
+        void move_cursor(int x, int y);
+
+        void move_bounds(int x, int y);
+        void reset_bounds_x();
+        void reset_bounds_y();
+
+        void draw_cursor(SDL_Renderer* rend);
+
     private:
         SDL_Rect m_rect;
         Text m_text;
@@ -26,5 +35,11 @@ namespace gui
         int m_line_limit{ -1 };
         bool m_show_line_numbers;
         SDL_Color m_background_color;
+
+        SDL_Point m_cursor_pos;
+
+        // indexes of strings and vectors not pixel coordinates
+        SDL_Point m_min_visible, m_max_visible;
+        std::vector<std::string> m_visible_content;
     };
 }

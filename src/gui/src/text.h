@@ -29,6 +29,8 @@ namespace gui
         std::vector<std::string> contents() const { return m_contents; }
         SDL_Point char_dim() const { return m_char_dim; }
 
+        void set_contents(std::vector<std::string>& contents) { m_contents = contents; }
+
     private:
         SDL_Rect m_rect;
 

@@ -11,6 +11,9 @@ gui::Text::Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_
     std::string line;
     std::stringstream ss(contents);
     while (std::getline(ss, line)) m_contents.emplace_back(line);
+
+    if (m_contents.empty())
+        m_contents.emplace_back("");
 }
 
 
@@ -33,7 +36,12 @@ void gui::Text::render(SDL_Renderer* rend)
 
 void gui::Text::render_centered(SDL_Renderer* rend, SDL_Rect rect)
 {
-    common::draw_centered_text(rend, m_font, str().c_str(), { m_rect.x, m_rect.y }, rect, m_char_dim, m_color);
+    std::string s = str();
+
+    if (s.size() == 0)
+        return;
+
+    common::draw_centered_text(rend, m_font, s.c_str(), { m_rect.x, m_rect.y }, rect, m_char_dim, m_color);
 }
 
 
@@ -62,8 +70,7 @@ void gui::Text::pop_back()
 
     if (last_string.size() > 0)
         last_string.pop_back();
-
-    if (last_string.size() == 0)
+    else
         m_contents.pop_back();
 
     if (m_contents.size() == 0)
@@ -106,6 +113,9 @@ std::string gui::Text::str()
     {
         s += line + '\n';
     }
+
+    if (s.size() == 0)
+        return "";
 
     s.pop_back();
     return s;
