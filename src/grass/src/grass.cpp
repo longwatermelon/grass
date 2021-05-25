@@ -32,7 +32,8 @@ Grass::~Grass()
 void Grass::mainloop()
 {
     std::vector<gui::Button> buttons;
-    buttons.emplace_back(gui::Button("test", { 100, 100, 100, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
+    buttons.emplace_back(gui::Button("test", { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
+    buttons.emplace_back(gui::Button("sample text", { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
 
     TTF_Font* font_light = TTF_OpenFont("res/Montserrat-Light.ttf", 50);
     TTF_Font* font_medium = TTF_OpenFont("res/Montserrat-Medium.ttf", 50);

@@ -13,6 +13,18 @@ void gui::common::draw_text(SDL_Renderer* rend, TTF_Font* font, const char* text
 }
 
 
+void gui::common::draw_centered_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Point pos, SDL_Rect enclosing_rect, SDL_Point char_dim, SDL_Color col)
+{
+    int text_len = strlen(text) * char_dim.x;
+    int text_height = char_dim.y;
+
+    int x_offset = (enclosing_rect.w - text_len) / 2;
+    int y_offset = (enclosing_rect.h - text_height) / 2;
+
+    draw_text(rend, font, text, { pos.x + x_offset, pos.y + y_offset, text_len, text_height }, col);
+}
+
+
 bool gui::common::within_rect(SDL_Rect rect, int x, int y)
 {
     return x > rect.x && x < rect.x + rect.w
