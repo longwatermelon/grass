@@ -34,13 +34,19 @@ void Grass::mainloop()
     std::vector<gui::Button> buttons;
     buttons.emplace_back(gui::Button("test", { 100, 100, 100, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
 
-    TTF_Font* font_medium = TTF_OpenFont("res/Montserrat-Medium.ttf", 100);
+    TTF_Font* font_light = TTF_OpenFont("res/Montserrat-Light.ttf", 50);
+    TTF_Font* font_medium = TTF_OpenFont("res/Montserrat-Medium.ttf", 50);
+    TTF_Font* font_regular = TTF_OpenFont("res/Montserrat-Regular.ttf", 100);
+    TTF_Font* font_thin = TTF_OpenFont("res/Montserrat-Thin.ttf", 50);
 
     bool running = true;
     SDL_Event evt;
 
     while (running)
     {
+        int mx, my;
+        SDL_GetMouseState(&mx, &my);
+
         while (SDL_PollEvent(&evt))
         {
             switch (evt.type)
@@ -51,10 +57,7 @@ void Grass::mainloop()
             case SDL_MOUSEBUTTONDOWN:
                 for (auto& btn : buttons)
                 {
-                    int x, y;
-                    SDL_GetMouseState(&x, &y);
-
-                    btn.check_clicked(x, y);
+                    btn.check_clicked(mx, my);
                 }
                 break;
             case SDL_MOUSEBUTTONUP:
@@ -70,7 +73,8 @@ void Grass::mainloop()
 
         for (auto& btn : buttons)
         {
-            btn.render(m_rend, font_medium);
+            btn.check_hover(mx, my);
+            btn.render(m_rend, font_regular);
         }
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
@@ -78,5 +82,8 @@ void Grass::mainloop()
         SDL_RenderPresent(m_rend);
     }
 
+    TTF_CloseFont(font_light);
     TTF_CloseFont(font_medium);
+    TTF_CloseFont(font_regular);
+    TTF_CloseFont(font_thin);
 }

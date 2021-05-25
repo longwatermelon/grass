@@ -16,6 +16,7 @@ namespace gui
         void render(SDL_Renderer* rend, TTF_Font* font);
 
         void check_clicked(int mx, int my);
+        void check_hover(int mx, int my);
 
         void set_down(bool b) { m_down = b; }
 
@@ -27,5 +28,6 @@ namespace gui
 
         std::function<void()> m_function;
         bool m_down{ false };
+        bool m_hover{ false };
     };
 }

@@ -4,8 +4,6 @@ find_package(SDL2 CONFIG REQUIRED)
 find_package(sdl2-ttf CONFIG REQUIRED)
 
 add_library(gui
-    src/gui.h
-    src/gui.cpp
     src/button.h
     src/button.cpp
     src/common.h
