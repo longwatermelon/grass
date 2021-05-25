@@ -4,7 +4,6 @@
 #include "entry.h"
 #include <iostream>
 #include <any>
-#include <memory>
 
 
 Grass::Grass()
@@ -42,8 +41,8 @@ void Grass::mainloop()
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
 
-    std::vector<std::unique_ptr<gui::TextEntry>> text_entries;
-    text_entries.emplace_back(std::make_unique<gui::TextEntry>(SDL_Rect{ 400, 600, 300, 20 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
+    std::vector<gui::TextEntry> text_entries;
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 400, 600, 300, 20 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
 
     gui::TextEntry* selected_entry;
     
@@ -87,7 +86,7 @@ void Grass::mainloop()
 
         for (auto& e : text_entries)
         {
-            e->render(m_rend);
+            e.render(m_rend);
         }
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
