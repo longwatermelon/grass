@@ -8,6 +8,10 @@ add_library(gui
     src/button.cpp
     src/common.h
     src/common.cpp
+    src/entry.h
+    src/entry.cpp
+    src/text.h
+    src/text.cpp
 )
 
 target_link_libraries(gui PUBLIC

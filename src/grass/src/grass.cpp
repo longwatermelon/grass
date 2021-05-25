@@ -1,8 +1,10 @@
 #include "grass.h"
 #include "common.h"
 #include "button.h"
+#include "entry.h"
 #include <iostream>
-#include <SDL_ttf.h>
+#include <any>
+#include <memory>
 
 
 Grass::Grass()
@@ -31,15 +33,20 @@ Grass::~Grass()
 
 void Grass::mainloop()
 {
-    std::vector<gui::Button> buttons;
-    buttons.emplace_back(gui::Button("test", { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
-    buttons.emplace_back(gui::Button("sample text", { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
-
     TTF_Font* font_light = TTF_OpenFont("res/Montserrat-Light.ttf", 50);
     TTF_Font* font_medium = TTF_OpenFont("res/Montserrat-Medium.ttf", 50);
-    TTF_Font* font_regular = TTF_OpenFont("res/Montserrat-Regular.ttf", 100);
+    TTF_Font* font_regular = TTF_OpenFont("res/Montserrat-Regular.ttf", 50);
     TTF_Font* font_thin = TTF_OpenFont("res/Montserrat-Thin.ttf", 50);
 
+    std::vector<gui::Button> buttons;
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
+
+    std::vector<std::unique_ptr<gui::TextEntry>> text_entries;
+    text_entries.emplace_back(std::make_unique<gui::TextEntry>(SDL_Rect{ 400, 600, 300, 20 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
+
+    gui::TextEntry* selected_entry;
+    
     bool running = true;
     SDL_Event evt;
 
@@ -75,7 +82,12 @@ void Grass::mainloop()
         for (auto& btn : buttons)
         {
             btn.check_hover(mx, my);
-            btn.render(m_rend, font_regular);
+            btn.render(m_rend);
+        }
+
+        for (auto& e : text_entries)
+        {
+            e->render(m_rend);
         }
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
