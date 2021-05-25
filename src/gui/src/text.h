@@ -22,6 +22,7 @@ namespace gui
         void move_to(int x, int y);
 
         std::string get_longest_string();
+        std::string& get_last_string();
 
         std::string str();
 

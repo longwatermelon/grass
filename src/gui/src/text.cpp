@@ -39,18 +39,18 @@ void gui::Text::render_centered(SDL_Renderer* rend, SDL_Rect rect)
 
 void gui::Text::append(char c)
 {
-    m_contents[m_contents.size() - 1] += c;
+    get_last_string() += c;
 
     if (c == '\n')
     {
-        m_contents[m_contents.size() - 1].pop_back();
+        get_last_string().pop_back();
 
         m_contents.emplace_back("");
         m_rect.h += m_char_dim.y;
     }
     else
     {
-        if (get_longest_string() == m_contents[m_contents.size() - 1])
+        if (get_longest_string() == get_last_string())
             m_rect.w += m_char_dim.x;
     }
 }
@@ -58,7 +58,16 @@ void gui::Text::append(char c)
 
 void gui::Text::pop_back()
 {
-    m_contents.pop_back();
+    std::string& last_string = get_last_string();
+
+    if (last_string.size() > 0)
+        last_string.pop_back();
+
+    if (last_string.size() == 0)
+        m_contents.pop_back();
+
+    if (m_contents.size() == 0)
+        m_contents.emplace_back("");
 }
 
 
@@ -80,6 +89,12 @@ std::string gui::Text::get_longest_string()
     }
 
     return largest;
+}
+
+
+std::string& gui::Text::get_last_string()
+{
+    return m_contents[m_contents.size() - 1];
 }
 
 

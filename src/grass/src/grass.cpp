@@ -17,6 +17,8 @@ Grass::Grass()
     SDL_RenderPresent(m_rend);
 
     TTF_Init();
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
 
 
@@ -32,17 +34,14 @@ Grass::~Grass()
 
 void Grass::mainloop()
 {
-    TTF_Font* font_light = TTF_OpenFont("res/Montserrat-Light.ttf", 50);
-    TTF_Font* font_medium = TTF_OpenFont("res/Montserrat-Medium.ttf", 50);
-    TTF_Font* font_regular = TTF_OpenFont("res/Montserrat-Regular.ttf", 50);
-    TTF_Font* font_thin = TTF_OpenFont("res/Montserrat-Thin.ttf", 50);
+    TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
 
     std::vector<gui::Button> buttons;
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 400, 600, 300, 100 }, 1, gui::Text(font_regular, { 400, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 100, 600, 700, 200 }, 1, gui::Text(font_regular, { 100, 600 }, "sample text", { 10, 20 }, { 0, 0, 0 })));
 
     gui::TextEntry* selected_entry{ nullptr };
     
@@ -104,6 +103,7 @@ void Grass::mainloop()
                         selected_entry->add_char('\n');
                         break;
                     case SDL_SCANCODE_BACKSPACE:
+                        selected_entry->remove_char(1);
                         break;
                     }
                 }
@@ -129,8 +129,5 @@ void Grass::mainloop()
         SDL_RenderPresent(m_rend);
     }
 
-    TTF_CloseFont(font_light);
-    TTF_CloseFont(font_medium);
     TTF_CloseFont(font_regular);
-    TTF_CloseFont(font_thin);
 }
