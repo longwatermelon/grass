@@ -25,6 +25,8 @@ void gui::TextEntry::render(SDL_Renderer* rend)
     tmp.set_contents(m_visible_content);
 
     tmp.render(rend);
+
+    std::cout << real_to_char_pos(m_real_cursor_pos).x << " | " << real_to_char_pos(m_real_cursor_pos).y << "\n";
 }
 
 
@@ -37,7 +39,9 @@ void gui::TextEntry::add_char(char c)
     if (c == '\n')
     {
         reset_bounds_x();
-        move_cursor(-((m_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
+        /*move_cursor(-((m_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);*/
+        move_real_cursor_to(m_rect.x, m_real_cursor_pos.y + m_text.char_dim().y);
+        move_display_cursor_to(m_rect.x, m_cursor_pos.y + m_text.char_dim().y);
     }
 
     m_visible_content = get_visible_content();
@@ -131,17 +135,25 @@ void gui::TextEntry::move_cursor(int x, int y)
     if (m_cursor_pos.y < m_rect.y || m_cursor_pos.y >= m_rect.y + m_rect.h)
         move_bounds(0, y);
 
-    int end_of_line = (int)(m_rect.x + m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() * m_text.char_dim().x);
+    int real_end_of_line = (int)(m_rect.x + m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() * m_text.char_dim().x);
 
     m_cursor_pos = {
-        std::min(std::min(std::max(m_cursor_pos.x, m_rect.x), m_rect.x + m_rect.w), end_of_line),
+        std::min(std::max(m_cursor_pos.x, m_rect.x), m_rect.x + m_rect.w),
         std::min(std::max(m_cursor_pos.y, m_rect.y), m_rect.y + m_rect.h - m_text.char_dim().y)
     };
 
     m_real_cursor_pos = {
-        std::min(std::max(m_rect.x, m_real_cursor_pos.x), end_of_line),
+        std::max(m_rect.x, m_real_cursor_pos.x),
         std::max(m_rect.y, m_real_cursor_pos.y)
     };
+
+    m_visible_content = get_visible_content();
+
+    if (m_real_cursor_pos.x > real_end_of_line)
+    {
+        m_real_cursor_pos.x = real_end_of_line;
+        m_cursor_pos.x = m_rect.x + m_visible_content[(m_cursor_pos.y - m_rect.y) / m_text.char_dim().y].size() * m_text.char_dim().x;
+    }
 }
 
 SDL_Point gui::TextEntry::real_to_char_pos(SDL_Point pos)
@@ -174,6 +186,20 @@ void gui::TextEntry::reset_bounds_y()
 {
     m_min_visible.y = 0;
     m_max_visible.y = m_rect.h / m_text.char_dim().y;
+}
+
+
+void gui::TextEntry::move_real_cursor_to(int x, int y)
+{
+    m_real_cursor_pos.x = x;
+    m_real_cursor_pos.y = y;
+}
+
+
+void gui::TextEntry::move_display_cursor_to(int x, int y)
+{
+    m_cursor_pos.x = x;
+    m_cursor_pos.y = y;
 }
 
 

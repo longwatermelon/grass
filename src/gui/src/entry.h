@@ -27,6 +27,9 @@ namespace gui
         void reset_bounds_x();
         void reset_bounds_y();
 
+        void move_real_cursor_to(int x, int y);
+        void move_display_cursor_to(int x, int y);
+
         void draw_cursor(SDL_Renderer* rend);
 
     private:
