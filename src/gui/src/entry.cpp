@@ -51,7 +51,6 @@ void gui::TextEntry::add_char(char c)
         move_real_cursor(-(m_real_cursor_pos.x / m_text.char_dim().x), 1);
         move_display_cursor(-(m_display_cursor_pos.x / m_text.char_dim().x), 1);
         check_bounds(0, 1);
-        
 
         m_text.set_line(coords.y + 1, copied);
     }
@@ -125,27 +124,6 @@ std::vector<std::string> gui::TextEntry::get_visible_content()
 
 void gui::TextEntry::move_cursor(int x, int y)
 {
-    /*m_real_cursor_pos.x += x * m_text.char_dim().x;
-    m_real_cursor_pos.y += y * m_text.char_dim().y;
-
-    m_display_cursor_pos.x += x * m_text.char_dim().x;
-    m_display_cursor_pos.y += y * m_text.char_dim().y;
-
-    if (m_display_cursor_pos.x < m_rect.x || m_display_cursor_pos.x > m_rect.x + m_rect.w)
-        move_bounds(x, 0);
-
-    if (m_display_cursor_pos.y < m_rect.y || m_display_cursor_pos.y >= m_rect.y + m_rect.h)
-        move_bounds(0, y);
-    
-    m_display_cursor_pos = {
-        std::min(std::max(m_display_cursor_pos.x, m_rect.x), m_rect.x + m_rect.w),
-        std::min(std::max(m_display_cursor_pos.y, m_rect.y), m_rect.y + m_rect.h - m_text.char_dim().y)
-    };
-
-    m_real_cursor_pos = {
-        std::max(m_rect.x, m_real_cursor_pos.x),
-        std::max(m_rect.y, m_real_cursor_pos.y)
-    };*/
     move_display_cursor(x, y);
     move_real_cursor(x, y);
     check_bounds(x, y);
@@ -211,9 +189,7 @@ void gui::TextEntry::move_real_cursor(int x, int y)
     };
 
     if (m_real_cursor_pos.y >= m_rect.y + m_text.contents().size() * m_text.char_dim().y)
-    {
         m_real_cursor_pos.y = m_rect.y + (m_text.contents().size() - 1) * m_text.char_dim().y;
-    }
 }
 
 
@@ -222,15 +198,8 @@ void gui::TextEntry::move_display_cursor(int x, int y)
     m_display_cursor_pos.x += x * m_text.char_dim().x;
     m_display_cursor_pos.y += y * m_text.char_dim().y;
 
-    /*m_display_cursor_pos = {
-        std::min(std::max(m_display_cursor_pos.x, m_rect.x), m_rect.x + m_rect.w),
-        std::min(std::max(m_display_cursor_pos.y, m_rect.y), m_rect.y + m_rect.h - m_text.char_dim().y)
-    };*/
-
     if (m_display_cursor_pos.y >= m_rect.y + m_text.contents().size() * m_text.char_dim().y)
-    {
         m_display_cursor_pos.y = m_rect.y + (m_text.contents().size() - 1) * m_text.char_dim().y;
-    }
 }
 
 
