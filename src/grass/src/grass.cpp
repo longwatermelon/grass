@@ -42,6 +42,7 @@ void Grass::mainloop()
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 100, 600, 700, 200 }, 1, gui::Text(font_regular, { 100, 600 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 700, 300, 100, 100 }, 1, gui::Text(font_regular, { 700, 300 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     gui::TextEntry* selected_entry{ nullptr };
     

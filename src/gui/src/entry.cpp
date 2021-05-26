@@ -25,8 +25,6 @@ void gui::TextEntry::render(SDL_Renderer* rend)
     tmp.set_contents(m_visible_content);
 
     tmp.render(rend);
-
-    std::cout << real_to_char_pos(m_real_cursor_pos).x << " | " << real_to_char_pos(m_real_cursor_pos).y << "\n";
 }
 
 
@@ -118,7 +116,7 @@ std::vector<std::string> gui::TextEntry::get_visible_content()
 
         for (int j = 0; j < m_text.contents()[i].size(); ++j)
         {
-            if (j >= m_min_visible.x && j <= m_max_visible.x)
+            if (j >= m_min_visible.x && j < m_max_visible.x)
             {
                 line += m_text.contents()[i][j];
             }
