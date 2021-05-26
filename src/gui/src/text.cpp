@@ -133,6 +133,11 @@ std::string gui::Text::get_line(int i)
     return m_contents[i];
 }
 
+std::string& gui::Text::get_line_ref(int i)
+{
+    return m_contents[i];
+}
+
 
 std::string gui::Text::str()
 {

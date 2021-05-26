@@ -26,6 +26,7 @@ namespace gui
         std::string get_longest_string();
         std::string& get_last_string();
         std::string get_line(int i);
+        std::string& get_line_ref(int i);
 
         std::string str();
 
@@ -33,6 +34,7 @@ namespace gui
         SDL_Point char_dim() const { return m_char_dim; }
 
         void set_contents(std::vector<std::string>& contents) { m_contents = contents; }
+        void set_line(int i, const std::string& text) { m_contents[i] = text; }
 
     private:
         SDL_Rect m_rect;

@@ -38,10 +38,21 @@ void gui::TextEntry::add_char(char c)
 
     if (c == '\n')
     {
+        coords = real_to_char_pos(m_real_cursor_pos);
+        std::string line = m_text.get_line(coords.y);
+        std::string copied;
+
+        if (coords.x > 0)
+        {
+            copied = line.substr(coords.x - 1, line.size());
+            m_text.get_line_ref(coords.y).erase(coords.x - 1, line.size());
+        }        
+
         reset_bounds_x();
-        /*move_cursor(-((m_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);*/
         move_real_cursor_to(m_rect.x, m_real_cursor_pos.y + m_text.char_dim().y);
         move_display_cursor_to(m_rect.x, m_cursor_pos.y + m_text.char_dim().y);
+        
+        m_text.set_line(coords.y + 1, copied);
     }
 
     m_visible_content = get_visible_content();
