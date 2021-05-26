@@ -27,7 +27,7 @@ namespace gui
         SDL_Rect m_rect;
         SDL_Color m_color;
 
-        std::function<void()> m_function;
+        std::function<void(void)> m_function;
         bool m_down{ false };
         bool m_hover{ false };
     };

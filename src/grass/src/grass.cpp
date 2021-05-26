@@ -4,6 +4,7 @@
 #include "entry.h"
 #include <iostream>
 #include <any>
+#include <fstream>
 
 
 Grass::Grass()
@@ -36,13 +37,22 @@ void Grass::mainloop()
 {
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
 
-    std::vector<gui::Button> buttons;
-    /*buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
-    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));*/
-
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 1000, 1000 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
-    //text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 700, 300, 100, 100 }, gui::Text(font_regular, { 700, 300 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 50, 1000, 1000 }, gui::Text(font_regular, { 0, 50 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
+
+    std::vector<gui::Button> buttons;
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 420, 0 }, "Save", { 10, 20 }, { 255, 255, 255 }), { 420, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
+        std::string fp = text_entries[1].text()->str();
+        std::ofstream ofs(fp);
+        
+        for (auto& s : text_entries[0].text()->contents())
+        {
+            ofs << s << "\n";
+        }
+
+        ofs.close();
+    }));
 
     gui::TextEntry* selected_entry{ nullptr };
     
