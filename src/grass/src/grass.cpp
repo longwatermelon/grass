@@ -112,6 +112,22 @@ void Grass::mainloop()
                         break;
                     }
                 }
+
+                switch (evt.key.keysym.sym)
+                {
+                case SDLK_RIGHT:
+                    selected_entry->move_cursor(1, 0);
+                    break;
+                case SDLK_LEFT:
+                    selected_entry->move_cursor(-1, 0);
+                    break;
+                case SDLK_UP:
+                    selected_entry->move_cursor(0, -1);
+                    break;
+                case SDLK_DOWN:
+                    selected_entry->move_cursor(0, 1);
+                    break;
+                }
             } break;
             }
         }

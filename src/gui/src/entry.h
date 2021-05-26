@@ -21,6 +21,7 @@ namespace gui
 
         std::vector<std::string> get_visible_content();
         void move_cursor(int x, int y);
+        SDL_Point real_to_char_pos(SDL_Point pos);
 
         void move_bounds(int x, int y);
         void reset_bounds_x();
@@ -37,8 +38,9 @@ namespace gui
         SDL_Color m_background_color;
 
         SDL_Point m_cursor_pos;
+        SDL_Point m_real_cursor_pos;
 
-        // indexes of strings and vectors not pixel coordinates
+        // indexes of strings not pixel coordinates
         SDL_Point m_min_visible, m_max_visible;
         std::vector<std::string> m_visible_content;
     };

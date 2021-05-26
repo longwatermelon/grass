@@ -78,6 +78,29 @@ void gui::Text::pop_back()
 }
 
 
+void gui::Text::insert(int x, int y, char c)
+{
+    if (c == '\n')
+        m_contents.insert(m_contents.begin() + y + 1, "");
+    else
+        m_contents[y].insert(m_contents[y].begin() + x, c);
+}
+
+
+void gui::Text::erase(int x, int y)
+{
+    if (m_contents[y].empty())
+    {
+        if (m_contents.size() > 1)
+            m_contents.erase(m_contents.begin() + y);
+    }
+    else
+    {
+        m_contents[y].erase(m_contents[y].begin() + x);
+    }
+}
+
+
 void gui::Text::move_to(int x, int y)
 {
     m_rect.x = x;
@@ -102,6 +125,12 @@ std::string gui::Text::get_longest_string()
 std::string& gui::Text::get_last_string()
 {
     return m_contents[m_contents.size() - 1];
+}
+
+
+std::string gui::Text::get_line(int i)
+{
+    return m_contents[i];
 }
 
 

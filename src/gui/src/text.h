@@ -18,11 +18,14 @@ namespace gui
 
         void append(char c);
         void pop_back();
+        void insert(int x, int y, char c);
+        void erase(int x, int y);
 
         void move_to(int x, int y);
 
         std::string get_longest_string();
         std::string& get_last_string();
+        std::string get_line(int i);
 
         std::string str();
 
