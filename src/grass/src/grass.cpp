@@ -117,8 +117,15 @@ void Grass::mainloop()
                 switch (evt.key.keysym.sym)
                 {
                 case SDLK_RIGHT:
-                    selected_entry->move_cursor(1, 0);
-                    break;
+                {
+                    gui::Text* t = selected_entry->text();
+                    std::string line = t->get_line(selected_entry->real_to_char_pos(selected_entry->real()).y);
+                    int cursor_pos = selected_entry->real_to_char_pos(selected_entry->real()).x;
+
+                    if (cursor_pos < line.size())
+                        selected_entry->move_cursor(1, 0);
+                    
+                } break;
                 case SDLK_LEFT:
                     selected_entry->move_cursor(-1, 0);
                     break;

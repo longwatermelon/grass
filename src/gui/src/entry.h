@@ -35,6 +35,10 @@ namespace gui
 
         void draw_cursor(SDL_Renderer* rend);
 
+        Text* text() { return &m_text; }
+        SDL_Point display() { return m_display_cursor_pos; }
+        SDL_Point real() { return m_real_cursor_pos; }
+
     private:
         SDL_Rect m_rect;
         Text m_text;
