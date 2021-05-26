@@ -33,11 +33,10 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 void gui::TextEntry::add_char(char c)
 {
     SDL_Point coords = real_to_char_pos(m_real_cursor_pos);
+    m_text.insert(coords.x, coords.y, c);
 
     if (c == '\n')
     {
-        m_text.insert(coords.x, coords.y, c);
-
         std::string line = m_text.get_line(coords.y);
         std::string copied;
 
@@ -52,7 +51,6 @@ void gui::TextEntry::add_char(char c)
     }
     else
     {
-        m_text.insert(coords.x, coords.y, c);
         move_cursor(1, 0);
     }
 
