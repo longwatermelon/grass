@@ -35,6 +35,7 @@ namespace gui
 
         void set_contents(std::vector<std::string>& contents) { m_contents = contents; }
         void set_line(int i, const std::string& text) { m_contents[i] = text; }
+        void insert_line(int i) { m_contents.insert(m_contents.begin() + i, ""); }
 
     private:
         SDL_Rect m_rect;

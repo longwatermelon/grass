@@ -10,7 +10,7 @@ namespace gui
     class TextEntry
     {
     public:
-        TextEntry(SDL_Rect rect, int line_limit, const Text& text, bool show_line_numbers = false, SDL_Color bg_col = { 255, 255, 255 });
+        TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col = { 255, 255, 255 });
 
     public:
         void render(SDL_Renderer* rend);
@@ -26,6 +26,7 @@ namespace gui
         void move_bounds(int x, int y);
         void reset_bounds_x();
         void reset_bounds_y();
+        void check_bounds(int x, int y);
 
         void move_real_cursor_to(int x, int y);
         void move_display_cursor_to(int x, int y);
@@ -35,9 +36,6 @@ namespace gui
     private:
         SDL_Rect m_rect;
         Text m_text;
-
-        int m_line_limit{ -1 };
-        bool m_show_line_numbers;
         SDL_Color m_background_color;
 
         SDL_Point m_cursor_pos;

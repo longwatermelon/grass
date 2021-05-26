@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-gui::TextEntry::TextEntry(SDL_Rect rect, int line_limit, const Text& text, bool show_line_numbers, SDL_Color bg_col)
-    : m_rect(rect), m_line_limit(line_limit), m_text(text), m_show_line_numbers(show_line_numbers), m_background_color(bg_col)
+gui::TextEntry::TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col)
+    : m_rect(rect), m_text(text), m_background_color(bg_col)
 {
     m_cursor_pos = { m_rect.x, m_rect.y };
     m_real_cursor_pos = { m_rect.x, m_rect.y };
@@ -46,6 +46,8 @@ void gui::TextEntry::add_char(char c)
         move_display_cursor_to(m_rect.x, m_cursor_pos.y + m_text.char_dim().y);
         
         m_text.set_line(coords.y + 1, copied);
+
+        check_bounds(0, -1);
     }
     else
     {
@@ -70,15 +72,15 @@ void gui::TextEntry::remove_char(int count)
                 new_line = true;
 
                 int diff = m_text.contents()[m_text.contents().size() - 2].size() * m_text.char_dim().x;
-                m_cursor_pos.x += diff;
-                m_real_cursor_pos.x += diff;
+                move_display_cursor_to(m_cursor_pos.x + diff, m_cursor_pos.y);
+                move_real_cursor_to(m_real_cursor_pos.x + diff, m_real_cursor_pos.y);
 
-                if (diff > m_rect.w)
+                /*if (diff > m_rect.w)
                 {
                     int tmp = m_max_visible.x;
                     m_max_visible.x = diff / m_text.char_dim().x;
                     m_min_visible.x += m_max_visible.x - tmp;
-                }
+                }*/
             }
         }
         else
@@ -197,10 +199,25 @@ void gui::TextEntry::reset_bounds_y()
 }
 
 
+void gui::TextEntry::check_bounds(int x, int y)
+{
+    if (m_cursor_pos.x < m_rect.x || m_cursor_pos.x > m_rect.x + m_rect.w)
+        move_bounds(x, 0);
+
+    if (m_cursor_pos.y < m_rect.y || m_cursor_pos.y >= m_rect.y + m_rect.h)
+        move_bounds(0, y);
+}
+
+
 void gui::TextEntry::move_real_cursor_to(int x, int y)
 {
     m_real_cursor_pos.x = x;
     m_real_cursor_pos.y = y;
+
+    m_real_cursor_pos = {
+        std::max(m_rect.x, m_real_cursor_pos.x),
+        std::max(m_rect.y, m_real_cursor_pos.y)
+    };
 }
 
 
@@ -208,6 +225,17 @@ void gui::TextEntry::move_display_cursor_to(int x, int y)
 {
     m_cursor_pos.x = x;
     m_cursor_pos.y = y;
+
+    if (m_cursor_pos.x < m_rect.x || m_cursor_pos.x > m_rect.x + m_rect.w)
+        move_bounds(x > 0 ? 1 : -1, 0);
+
+    if (m_cursor_pos.y < m_rect.y || m_cursor_pos.y >= m_rect.y + m_rect.h)
+        move_bounds(0, y > 0 ? 1 : -1);
+
+    m_cursor_pos = {
+        std::min(std::max(m_cursor_pos.x, m_rect.x), m_rect.x + m_rect.w),
+        std::min(std::max(m_cursor_pos.y, m_rect.y), m_rect.y + m_rect.h - m_text.char_dim().y)
+    };
 }
 
 
