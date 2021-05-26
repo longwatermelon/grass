@@ -37,11 +37,11 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
 
     std::vector<gui::Button> buttons;
-    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
-    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));
+    /*buttons.emplace_back(gui::Button(gui::Text(font_regular, { 100, 100 }, "test", { 10, 20 }, { 255, 255, 255 }), { 100, 100, 1000, 50 }, { 100, 50, 103 }, []() { std::cout << "text\n"; }));
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 50, 425 }, "sample text", { 10, 20 }, { 255, 255, 255 }), { 50, 425, 300, 30 }, { 100, 100, 0 }, []() { std::cout << "sample text button\n"; }));*/
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 100, 600, 700, 200 }, gui::Text(font_regular, { 100, 600 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 1000, 1000 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
     //text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 700, 300, 100, 100 }, gui::Text(font_regular, { 700, 300 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     gui::TextEntry* selected_entry{ nullptr };
@@ -137,6 +137,17 @@ void Grass::mainloop()
                     selected_entry->move_cursor(0, 1);
                     selected_entry->jump_to_eol();
                     break;
+                case SDLK_TAB:
+                {
+                    gui::Text* t = selected_entry->text();
+                    SDL_Point coords = selected_entry->real_to_char_pos(selected_entry->real());
+
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        t->insert(coords.x, coords.y, ' ');
+                        selected_entry->move_cursor(1, 0);
+                    }
+                } break;
                 }
             } break;
             }

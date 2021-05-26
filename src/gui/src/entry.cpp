@@ -68,13 +68,17 @@ void gui::TextEntry::remove_char(int count)
 {
     for (int i = 0; i < count; ++i)
     {
+        bool nl = false;
+
         if (m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() == 0)
         {
             if (real_to_char_pos(m_real_cursor_pos).y != 0) // only move up if not at top of text box
             {
+                nl = true;
                 int diff = m_text.contents()[m_text.contents().size() - 2].size();
                 move_cursor(diff, -1);
                 jump_to_eol();
+                move_cursor(0, 1);
             }
         }
         else
@@ -84,6 +88,9 @@ void gui::TextEntry::remove_char(int count)
 
         SDL_Point coords = real_to_char_pos(m_real_cursor_pos);
         m_text.erase(coords.x, coords.y);
+        
+        if (nl)
+            move_cursor(0, -1);
     }
 
     m_visible_content = get_visible_content();
@@ -128,6 +135,7 @@ void gui::TextEntry::move_cursor(int x, int y)
     move_real_cursor(x, y);
     check_bounds(x, y);
 }
+
 
 SDL_Point gui::TextEntry::real_to_char_pos(SDL_Point pos)
 {
@@ -210,8 +218,12 @@ void gui::TextEntry::jump_to_eol()
 
     if (m_real_cursor_pos.x != real_end_of_line)
     {
+        int orig = m_real_cursor_pos.x;
+
         m_real_cursor_pos.x = real_end_of_line;
         m_display_cursor_pos.x = m_rect.x + m_visible_content[(m_display_cursor_pos.y - m_rect.y) / m_text.char_dim().y].size() * m_text.char_dim().x;
+
+        check_bounds(m_real_cursor_pos.x - orig, 0);
     }
 }
 
