@@ -124,9 +124,11 @@ void Grass::mainloop()
                     break;
                 case SDLK_UP:
                     selected_entry->move_cursor(0, -1);
+                    selected_entry->jump_to_eol();
                     break;
                 case SDLK_DOWN:
                     selected_entry->move_cursor(0, 1);
+                    selected_entry->jump_to_eol();
                     break;
                 }
             } break;
