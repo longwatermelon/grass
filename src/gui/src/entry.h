@@ -28,8 +28,10 @@ namespace gui
         void reset_bounds_y();
         void check_bounds(int x, int y);
 
-        void move_real_cursor_to(int x, int y);
-        void move_display_cursor_to(int x, int y);
+        void move_display_cursor(int x, int y);
+        void move_real_cursor(int x, int y);
+
+        void jump_to_eol();
 
         void draw_cursor(SDL_Renderer* rend);
 
@@ -38,11 +40,10 @@ namespace gui
         Text m_text;
         SDL_Color m_background_color;
 
-        SDL_Point m_cursor_pos;
+        SDL_Point m_display_cursor_pos;
         SDL_Point m_real_cursor_pos;
 
-        // indexes of strings not pixel coordinates
-        SDL_Point m_min_visible, m_max_visible;
+        SDL_Point m_min_visible_indexes, m_max_visible_indexes;
         std::vector<std::string> m_visible_content;
     };
 }
