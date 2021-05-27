@@ -15,89 +15,52 @@ namespace gui
     public:
         void render(SDL_Renderer* rend);
 
-        /// <summary>
-        /// Add a character where the cursor currently is.
-        /// </summary>
-        /// <param name="c">The character to be inserted</param>
+        /* Add a character where the cursor currently is. */
         void add_char(char c);
 
-        /// <summary>
-        /// Remove a character where the cursor currently is.
-        /// </summary>
-        /// <param name="count">Number of characters to be removed</param>
+        /* Remove count number of characters where the cursor currently is. */
         void remove_char(int count);
 
-
-        /// <summary>
-        /// Checks if mouse is inside of m_rect.
-        /// </summary>
-        /// <param name="mx">Mouse x pos</param>
-        /// <param name="my">Mouse y pos</param>
-        /// <returns>If the mouse is inside of m_rect</returns>
+        /* Checks if mx, my is inside of m_rect. */
         bool check_clicked(int mx, int my);
 
-        /// <summary>
-        /// Gets all visible content determined by the bounds
-        /// </summary>
-        /// <returns>Vector of strings to be displayed in render()</returns>
+        /* Gets all visible text from the minimum and maximum visible boundaries. */
         std::vector<std::string> get_visible_content();
 
-        /// <summary>
-        /// Convenient method to move both the real and displayed cursors in one method.<para/>
-        /// Automatically checks for bounds after moving the cursors.<para/>
-        /// Doesnt execute if moving the cursor would go outside of the text.
-        /// </summary>
+        /* Moves both real and display cursors. 
+        * Automatically checks for bounds after moving cursors, can be turned off by setting parameter check to false.
+        */
         void move_cursor(int x, int y, bool check = true);
 
-        /// <summary>
-        /// Converts pixel coordinates to indexes.
-        /// </summary>
-        /// <param name="pos">The position measured in pixels</param>
-        /// <returns>
-        /// Y is the index of the string in the vector
-        /// X is the index of the character in the string
-        /// </returns>
+        /* Converts pixel coordinates to indexes
+        * Returned y value is the index of the string in the vector
+        * Returned x value is the index of the character in the string
+        */
         SDL_Point real_to_char_pos(SDL_Point pos);
 
-        /// <summary>
-        /// Moves visibility boundaries by (x, y)
-        /// </summary>
+        /* Moves minimum and maximum visible bounds by (x, y). Arguments are measured in indexes not pixel coordinates */
         void move_bounds(int x, int y);
-
-        /// <summary>
-        /// Resets horizontal visibility bounds to defaults
-        /// </summary>
+        /* Reset horizontal visibility to default */
         void reset_bounds_x();
-
-        /// <summary>
-        /// Resets vertical visibility bounds to defaults
-        /// </summary>
+        /* Reset vertical visibility to default */
         void reset_bounds_y();
 
-        /// <summary>
-        /// Moves the visible boundaries by (x, y) if the display cursor is about to move outside of the text box.
-        /// </summary>
-        /// <param name="x">X displacement if the display cursor is moving too far horizontally</param>
-        /// <param name="y">Y displacement if the display cursor is moving too far vertically</param>
+        /* Moves the visible boundaries by (x, y) if the display cursor is outside of the text box, then moves the display cursor back inside.
+        * x: x displacement if the display cursor x < m_rect.x or > m_rect.x + m_rect.w
+        * y: y displacement if the display cursor y < m_rect.y or >= m_rect.y + m_rect.h
+        */
         void check_bounds(int x, int y);
 
-        /// <summary>
-        /// Moves the displayed cursor's position.
-        /// Attaches to end of line if the x position is longer than the current line.
-        /// </summary>
+        /* Moves the display cursors position.
+        * Protects against moving lower than the amount of text stored.
+        */
         void move_display_cursor(int x, int y);
-
-        /// <summary>
-        /// Moves the real cursor's position.<para/>
-        /// If real cursor coordinates go below zero they are set to 0.<para/>
-        /// Attaches to end of line if the x position is longer than the current line.<para/>
-        /// </summary>
+        /* Moves the real cursors position. 
+        * Protects against moving lower than the amount of text stored.
+        */
         void move_real_cursor(int x, int y);
 
-        /// <summary>
-        /// Moves the real and display cursors to the end of the line, automatically checks for bounds.
-        /// </summary>
-        /// <param name="check">Check for bounds, defaults to true</param>
+        /* Moves real and display cursors to eol, automatically checks for bounds but can be toggled with the check parameter. */
         void jump_to_eol(bool check = true);
 
         void draw_cursor(SDL_Renderer* rend);
