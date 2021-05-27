@@ -150,40 +150,43 @@ void Grass::mainloop()
                     }
                 }
 
-                switch (evt.key.keysym.sym)
+                if (m_selected_entry)
                 {
-                case SDLK_RIGHT:
-                {
-                    gui::Text* t = m_selected_entry->text();
-                    std::string line = t->get_line(m_selected_entry->real_to_char_pos(m_selected_entry->real()).y);
-                    int cursor_pos = m_selected_entry->real_to_char_pos(m_selected_entry->real()).x;
-
-                    if (cursor_pos < line.size())
-                        m_selected_entry->move_cursor(1, 0);
-                    
-                } break;
-                case SDLK_LEFT:
-                    m_selected_entry->move_cursor(-1, 0);
-                    break;
-                case SDLK_UP:
-                    m_selected_entry->move_cursor(0, -1);
-                    m_selected_entry->jump_to_eol();
-                    break;
-                case SDLK_DOWN:
-                    m_selected_entry->move_cursor(0, 1);
-                    m_selected_entry->jump_to_eol();
-                    break;
-                case SDLK_TAB:
-                {
-                    gui::Text* t = m_selected_entry->text();
-                    SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
-
-                    for (int i = 0; i < 4; ++i)
+                    switch (evt.key.keysym.sym)
                     {
-                        t->insert(coords.x, coords.y, ' ');
-                        m_selected_entry->move_cursor(1, 0);
-                    }
-                } break;
+                    case SDLK_RIGHT:
+                    {
+                        gui::Text* t = m_selected_entry->text();
+                        std::string line = t->get_line(m_selected_entry->real_to_char_pos(m_selected_entry->real()).y);
+                        int cursor_pos = m_selected_entry->real_to_char_pos(m_selected_entry->real()).x;
+
+                        if (cursor_pos < line.size())
+                            m_selected_entry->move_cursor(1, 0);
+
+                    } break;
+                    case SDLK_LEFT:
+                        m_selected_entry->move_cursor(-1, 0);
+                        break;
+                    case SDLK_UP:
+                        m_selected_entry->move_cursor(0, -1);
+                        m_selected_entry->jump_to_eol();
+                        break;
+                    case SDLK_DOWN:
+                        m_selected_entry->move_cursor(0, 1);
+                        m_selected_entry->jump_to_eol();
+                        break;
+                    case SDLK_TAB:
+                    {
+                        gui::Text* t = m_selected_entry->text();
+                        SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
+
+                        for (int i = 0; i < 4; ++i)
+                        {
+                            t->insert(coords.x, coords.y, ' ');
+                            m_selected_entry->move_cursor(1, 0);
+                        }
+                    } break;
+                }
                 }
             } break;
             }
