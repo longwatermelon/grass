@@ -117,16 +117,15 @@ std::vector<std::string> gui::TextEntry::get_visible_content()
 {
     std::vector<std::string> visible;
 
-    for (int i = 0; i < m_text.contents().size(); ++i)
+    int y_max = std::min(m_max_visible_indexes.y, (int)m_text.contents().size() - 1);
+    for (int i = m_min_visible_indexes.y; i <= y_max; ++i)
     {
-        if (i < m_min_visible_indexes.y || i > m_max_visible_indexes.y)
-            continue;
-
         std::string line;
 
-        for (int j = 0; j < m_text.contents()[i].size(); ++j)
+        if (!m_text.contents()[i].empty())
         {
-            if (j >= m_min_visible_indexes.x && j < m_max_visible_indexes.x)
+            int x_max = std::min(m_max_visible_indexes.x, (int)m_text.contents()[i].size());
+            for (int j = m_min_visible_indexes.x; j < x_max; ++j)
             {
                 line += m_text.contents()[i][j];
             }
@@ -192,6 +191,13 @@ void gui::TextEntry::reset_bounds_y()
 {
     m_min_visible_indexes.y = 0;
     m_max_visible_indexes.y = m_rect.h / m_text.char_dim().y;
+}
+
+
+void gui::TextEntry::set_cursor_pos(int x, int y)
+{
+    m_display_cursor_pos = { x * m_text.char_dim().x + m_rect.x, y * m_text.char_dim().y + m_rect.y };
+    m_real_cursor_pos = { x * m_text.char_dim().x + m_rect.x, y * m_text.char_dim().y + m_rect.y };
 }
 
 

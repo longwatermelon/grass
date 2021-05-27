@@ -5,6 +5,9 @@
 #include <iostream>
 #include <any>
 #include <fstream>
+#include <sstream>
+
+#define BG_COLOR 30, 30, 30
 
 
 Grass::Grass()
@@ -53,8 +56,26 @@ void Grass::mainloop()
 
         ofs.close();
     }));
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 540, 0 }, "Load", { 10, 20 }, { 255, 255, 255 }), { 540, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
+        std::string fp = text_entries[1].text()->str();
+        std::ifstream ifs(fp);
 
-    gui::TextEntry* selected_entry{ nullptr };
+        std::vector<std::string> lines;
+        std::string line;
+        while (std::getline(ifs, line)) lines.emplace_back(line);
+
+        ifs.close();
+
+        for (auto& s : lines)
+        {
+            std::cout << s << "\n";
+        }
+
+        text_entries[0].text()->set_contents(lines);
+        text_entries[0].reset_bounds_x();
+        text_entries[0].reset_bounds_y();
+        text_entries[0].set_cursor_pos(0, 0);
+    }));
     
     bool running = true;
     SDL_Event evt;
@@ -85,13 +106,13 @@ void Grass::mainloop()
                 {
                     if (e.check_clicked(mx, my))
                     {
-                        selected_entry = &e;
+                        m_selected_entry = &e;
                         has_selected_item = true;
                     }
                 }
 
                 if (!has_selected_item)
-                    selected_entry = nullptr;
+                    m_selected_entry = nullptr;
 
             } break;
 
@@ -103,33 +124,33 @@ void Grass::mainloop()
                 break;
 
             case SDL_TEXTINPUT:
-                if (selected_entry)
+                if (m_selected_entry)
                 {
-                    selected_entry->add_char(evt.text.text[0]);
+                    m_selected_entry->add_char(evt.text.text[0]);
                 }
                 break;
 
             case SDL_KEYDOWN:
             {
-                if (selected_entry)
+                if (m_selected_entry)
                 {
                     switch (evt.key.keysym.scancode)
                     {
                     case SDL_SCANCODE_RETURN:
-                        selected_entry->add_char('\n');
+                        m_selected_entry->add_char('\n');
                         break;
                     case SDL_SCANCODE_BACKSPACE:
-                        selected_entry->remove_char(1);
+                        m_selected_entry->remove_char(1);
                         break;
                     case SDL_SCANCODE_DELETE:
                     {
-                        SDL_Point coords = selected_entry->real_to_char_pos(selected_entry->real());
+                        SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
 
-                        if (coords.y < selected_entry->text()->contents().size())
-                            // coords.y == selected_entry->text()->contents().size() - 1 ? false : true
+                        if (coords.y < m_selected_entry->text()->contents().size())
+                            // coords.y == m_selected_entry->text()->contents().size() - 1 ? false : true
                             // if the user presses delete when the current line is the last element in contents, it 
                             // would delete the current line but not move up causing vector subscript out of range errors.
-                            selected_entry->text()->erase(coords.x, coords.y, coords.y == selected_entry->text()->contents().size() - 1 ? false : true);
+                            m_selected_entry->text()->erase(coords.x, coords.y, coords.y == m_selected_entry->text()->contents().size() - 1 ? false : true);
                     }
                     }
                 }
@@ -138,34 +159,34 @@ void Grass::mainloop()
                 {
                 case SDLK_RIGHT:
                 {
-                    gui::Text* t = selected_entry->text();
-                    std::string line = t->get_line(selected_entry->real_to_char_pos(selected_entry->real()).y);
-                    int cursor_pos = selected_entry->real_to_char_pos(selected_entry->real()).x;
+                    gui::Text* t = m_selected_entry->text();
+                    std::string line = t->get_line(m_selected_entry->real_to_char_pos(m_selected_entry->real()).y);
+                    int cursor_pos = m_selected_entry->real_to_char_pos(m_selected_entry->real()).x;
 
                     if (cursor_pos < line.size())
-                        selected_entry->move_cursor(1, 0);
+                        m_selected_entry->move_cursor(1, 0);
                     
                 } break;
                 case SDLK_LEFT:
-                    selected_entry->move_cursor(-1, 0);
+                    m_selected_entry->move_cursor(-1, 0);
                     break;
                 case SDLK_UP:
-                    selected_entry->move_cursor(0, -1);
-                    selected_entry->jump_to_eol();
+                    m_selected_entry->move_cursor(0, -1);
+                    m_selected_entry->jump_to_eol();
                     break;
                 case SDLK_DOWN:
-                    selected_entry->move_cursor(0, 1);
-                    selected_entry->jump_to_eol();
+                    m_selected_entry->move_cursor(0, 1);
+                    m_selected_entry->jump_to_eol();
                     break;
                 case SDLK_TAB:
                 {
-                    gui::Text* t = selected_entry->text();
-                    SDL_Point coords = selected_entry->real_to_char_pos(selected_entry->real());
+                    gui::Text* t = m_selected_entry->text();
+                    SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
 
                     for (int i = 0; i < 4; ++i)
                     {
                         t->insert(coords.x, coords.y, ' ');
-                        selected_entry->move_cursor(1, 0);
+                        m_selected_entry->move_cursor(1, 0);
                     }
                 } break;
                 }
@@ -186,9 +207,9 @@ void Grass::mainloop()
             e.render(m_rend);
         }
 
-        if (selected_entry)
+        if (m_selected_entry)
         {
-            selected_entry->draw_cursor(m_rend);
+            m_selected_entry->draw_cursor(m_rend);
         }
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);

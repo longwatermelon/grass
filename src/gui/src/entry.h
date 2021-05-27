@@ -46,6 +46,8 @@ namespace gui
         void reset_bounds_x();
         /* Reset vertical visibility to default */
         void reset_bounds_y();
+        /* Set both display and real cursor positions to (x, y), doesnt perform any additional checks. Parameters are measured as indexes */
+        void set_cursor_pos(int x, int y);
 
         /* Moves the visible boundaries by (x, y) if the display cursor is outside of the text box, then moves the display cursor back inside.
         * x: x displacement if the display cursor x < m_rect.x or > m_rect.x + m_rect.w

@@ -1,4 +1,5 @@
 #pragma once
+#include "entry.h"
 #include <SDL.h>
 
 
@@ -14,4 +15,6 @@ public:
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_rend;
+
+    gui::TextEntry* m_selected_entry{ nullptr };
 };
