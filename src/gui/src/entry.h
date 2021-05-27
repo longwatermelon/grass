@@ -38,8 +38,10 @@ namespace gui
         */
         SDL_Point real_to_char_pos(SDL_Point pos);
 
-        /* Moves minimum and maximum visible bounds by (x, y). Arguments are measured in indexes not pixel coordinates */
-        void move_bounds(int x, int y);
+        /* Moves minimum and maximum visible bounds by (x, y). Arguments are measured in indexes not pixel coordinates.
+        * Returns true if the bounds moved successfully, otherwise false
+        */
+        bool move_bounds(int x, int y);
         /* Reset horizontal visibility to default */
         void reset_bounds_x();
         /* Reset vertical visibility to default */
@@ -49,6 +51,7 @@ namespace gui
         * x: x displacement if the display cursor x < m_rect.x or > m_rect.x + m_rect.w
         * y: y displacement if the display cursor y < m_rect.y or >= m_rect.y + m_rect.h
         * X and y are measured in indexes, not pixel coordinates.
+        * Returns true if the bounds were moved, otherwise false
         */
         bool check_bounds(int x, int y);
 

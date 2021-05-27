@@ -163,17 +163,21 @@ SDL_Point gui::TextEntry::real_to_char_pos(SDL_Point pos)
 }
 
 
-void gui::TextEntry::move_bounds(int x, int y)
+bool gui::TextEntry::move_bounds(int x, int y)
 {
     if (m_min_visible_indexes.x + x >= 0 && m_min_visible_indexes.y + y >= 0)
     {
         m_min_visible_indexes.x += x;
         m_min_visible_indexes.y += y;
 
-        // dont want to move maximum either, that would cause the bounds to shrink instead of shift
+        // dont want to move maximum if minimum is invalid, that would cause the bounds to shrink
         m_max_visible_indexes.x += x;
         m_max_visible_indexes.y += y;
+
+        return true;
     }
+
+    return false;
 }
 
 
@@ -195,20 +199,20 @@ bool gui::TextEntry::check_bounds(int x, int y)
 {
     if (m_display_cursor_pos.x < m_rect.x || m_display_cursor_pos.x > m_rect.x + m_rect.w)
     {
-        move_bounds(x, 0);
+        bool moved = move_bounds(x, 0);
         m_display_cursor_pos.x = std::min(std::max(m_rect.x, m_display_cursor_pos.x), m_rect.x + m_rect.w);
 
-        return true;
+        return moved;
     }
 
     // >= at the end because character coordinates are measured at their top left corner, meaning only using a > comparison would leave one character
     // rendering outside of the text box
     if (m_display_cursor_pos.y < m_rect.y || m_display_cursor_pos.y >= m_rect.y + m_rect.h)
     {
-        move_bounds(0, y);
+        bool moved = move_bounds(0, y);
         m_display_cursor_pos.y = std::min(std::max(m_rect.y, m_display_cursor_pos.y), m_rect.y + m_rect.h - m_text.char_dim().y);
 
-        return true;
+        return moved;
     }
 
     return false;
@@ -246,23 +250,25 @@ void gui::TextEntry::jump_to_eol(bool check)
 
     if (m_real_cursor_pos.x != real_end_of_line)
     {
-        int orig = m_real_cursor_pos.x;
-
         m_real_cursor_pos.x = real_end_of_line;
 
         // text box x position + current line size * character width
-        m_display_cursor_pos.x = m_rect.x + m_text.contents()[(m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y].size() * m_text.char_dim().x;
-        
+        m_display_cursor_pos.x = m_rect.x + (m_text.contents()[(m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y].size() - m_min_visible_indexes.x) * m_text.char_dim().x;
 
-        // move the bounds to where the end of line is if the cursor goes out of bounds
+        // move bounds if cursor goes too far right
         bool moved = false;
         if (check)
             moved = check_bounds((m_real_cursor_pos.x - m_rect.x - m_max_visible_indexes.x * m_text.char_dim().x) / m_text.char_dim().x, 0);
 
-        
+        // move bounds if cursor goes too far left
         if (check && !moved)
         {
-            m_display_cursor_pos.x = -1;
+            int current_line_size = m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y).size();
+
+            if (m_min_visible_indexes.x > current_line_size)
+            {
+                //m_display_cursor_pos.x = -1;
+            }
 
             check_bounds(m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y).size() - m_min_visible_indexes.x, 0);
         }
