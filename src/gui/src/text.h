@@ -41,17 +41,19 @@ namespace gui
 
         // getters and setters
 
+        // Get m_contents in string form.
+        std::string str();
+
         std::string get_line(int i) const { return m_contents[i]; }
         std::string& get_line_ref(int i) { return m_contents[i]; }
 
-        std::string str();
-
         std::vector<std::string> contents() const { return m_contents; }
-        SDL_Point char_dim() const { return m_char_dim; }
-
         void set_contents(std::vector<std::string>& contents) { m_contents = contents; }
+
         void set_line(int i, const std::string& text) { m_contents[i] = text; }
         void insert_line(int i) { m_contents.insert(m_contents.begin() + i, ""); }
+
+        SDL_Point char_dim() const { return m_char_dim; }
 
     private:
         SDL_Rect m_rect;
