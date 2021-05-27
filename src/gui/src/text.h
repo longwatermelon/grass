@@ -14,8 +14,20 @@ namespace gui
 
     public:
         void render(SDL_Renderer* rend);
+
+        /// <summary>
+        /// Render text in the center of a rectangle.
+        /// </summary>
+        /// <param name="rend">Renderer</param>
+        /// <param name="rect">Rectangle to be centered inside of</param>
         void render_centered(SDL_Renderer* rend, SDL_Rect rect);
 
+        /// <summary>
+        /// Inserts a character at m_contents[y][x].
+        /// </summary>
+        /// <param name="x">Character index</param>
+        /// <param name="y">String index</param>
+        /// <param name="c">Character to be inserted</param>
         void insert(int x, int y, char c);
 
         /// <summary>
@@ -26,12 +38,11 @@ namespace gui
         /// <param name="erase_nl">If true it will erase new lines like regular characters, otherwise it wont do anything. Useful for when user uses the delete key.</param>
         void erase(int x, int y, bool erase_nl = true);
 
-        void move_to(int x, int y);
 
-        std::string get_longest_string();
-        std::string& get_last_string();
-        std::string get_line(int i);
-        std::string& get_line_ref(int i);
+        // getters and setters
+
+        std::string get_line(int i) const { return m_contents[i]; }
+        std::string& get_line_ref(int i) { return m_contents[i]; }
 
         std::string str();
 

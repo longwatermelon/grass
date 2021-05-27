@@ -14,9 +14,26 @@ namespace gui
 
     public:
         void render(SDL_Renderer* rend);
+
+        /// <summary>
+        /// Add a character where the cursor currently is.
+        /// </summary>
+        /// <param name="c">The character to be inserted</param>
         void add_char(char c);
+
+        /// <summary>
+        /// Remove a character where the cursor currently is.
+        /// </summary>
+        /// <param name="count">Number of characters to be removed</param>
         void remove_char(int count);
 
+
+        /// <summary>
+        /// Checks if mouse is inside of m_rect.
+        /// </summary>
+        /// <param name="mx">Mouse x pos</param>
+        /// <param name="my">Mouse y pos</param>
+        /// <returns>If the mouse is inside of m_rect</returns>
         bool check_clicked(int mx, int my);
 
         /// <summary>
@@ -42,8 +59,19 @@ namespace gui
         /// </returns>
         SDL_Point real_to_char_pos(SDL_Point pos);
 
+        /// <summary>
+        /// Moves visibility boundaries by (x, y)
+        /// </summary>
         void move_bounds(int x, int y);
+
+        /// <summary>
+        /// Resets horizontal visibility bounds to defaults
+        /// </summary>
         void reset_bounds_x();
+
+        /// <summary>
+        /// Resets vertical visibility bounds to defaults
+        /// </summary>
         void reset_bounds_y();
 
         /// <summary>
@@ -73,6 +101,9 @@ namespace gui
         void jump_to_eol(bool check = true);
 
         void draw_cursor(SDL_Renderer* rend);
+
+
+        // getter functions
 
         Text* text() { return &m_text; }
         SDL_Point display() { return m_display_cursor_pos; }

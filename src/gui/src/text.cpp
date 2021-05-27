@@ -71,44 +71,6 @@ void gui::Text::erase(int x, int y, bool erase_nl)
 }
 
 
-void gui::Text::move_to(int x, int y)
-{
-    m_rect.x = x;
-    m_rect.y = y;
-}
-
-
-std::string gui::Text::get_longest_string()
-{
-    std::string largest;
-
-    for (auto& str : m_contents)
-    {
-        if (str.size() > largest.size())
-            largest = str;
-    }
-
-    return largest;
-}
-
-
-std::string& gui::Text::get_last_string()
-{
-    return m_contents[m_contents.size() - 1];
-}
-
-
-std::string gui::Text::get_line(int i)
-{
-    return m_contents[i];
-}
-
-std::string& gui::Text::get_line_ref(int i)
-{
-    return m_contents[i];
-}
-
-
 std::string gui::Text::str()
 {
     std::string s;
