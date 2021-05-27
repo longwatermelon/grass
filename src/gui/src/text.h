@@ -43,6 +43,9 @@ namespace gui
 
         SDL_Point char_dim() const { return m_char_dim; }
 
+        TTF_Font* font() { return m_font; }
+        SDL_Color color() const { return m_color; }
+
     private:
         SDL_Rect m_rect;
 

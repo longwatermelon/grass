@@ -66,11 +66,6 @@ void Grass::mainloop()
 
         ifs.close();
 
-        for (auto& s : lines)
-        {
-            std::cout << s << "\n";
-        }
-
         text_entries[0].text()->set_contents(lines);
         text_entries[0].reset_bounds_x();
         text_entries[0].reset_bounds_y();

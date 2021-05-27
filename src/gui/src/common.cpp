@@ -30,6 +30,22 @@ void gui::common::draw_centered_text(SDL_Renderer* rend, TTF_Font* font, const c
 }
 
 
+SDL_Texture* gui::common::render_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Color color)
+{
+    if (!text[0])
+        return nullptr;
+
+    SDL_Surface* surf = TTF_RenderText_Solid(font, text, color);
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surf);
+
+    SDL_FreeSurface(surf);
+
+    return tex;
+}
+
+
 bool gui::common::within_rect(SDL_Rect rect, int x, int y)
 {
     return x > rect.x && x < rect.x + rect.w
