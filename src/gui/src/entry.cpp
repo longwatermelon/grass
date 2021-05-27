@@ -27,10 +27,10 @@ void gui::TextEntry::render(SDL_Renderer* rend)
     tmp.render(rend);
 
     // Convenient debug stuff, dont delete this
-    std::cout << "real: " << real_to_char_pos(m_real_cursor_pos).x << " | " << real_to_char_pos(m_real_cursor_pos).y << "\n";
+    /*std::cout << "real: " << real_to_char_pos(m_real_cursor_pos).x << " | " << real_to_char_pos(m_real_cursor_pos).y << "\n";
     std::cout << "display: " << m_display_cursor_pos.x << " | " << m_display_cursor_pos.y << "\n";
     std::cout << "min bound: " << m_min_visible_indexes.x << " | " << m_min_visible_indexes.y << "\n";
-    std::cout << "max bound: " << m_max_visible_indexes.x << " | " << m_max_visible_indexes.y << "\n";
+    std::cout << "max bound: " << m_max_visible_indexes.x << " | " << m_max_visible_indexes.y << "\n";*/
 }
 
 
@@ -257,8 +257,11 @@ void gui::TextEntry::jump_to_eol(bool check)
 
         // move bounds if cursor goes too far right
         bool moved = false;
+        
         if (check)
+        {
             moved = check_bounds((m_real_cursor_pos.x - m_rect.x - m_max_visible_indexes.x * m_text.char_dim().x) / m_text.char_dim().x, 0);
+        }
 
         // move bounds if cursor goes too far left
         if (check && !moved)
@@ -267,7 +270,8 @@ void gui::TextEntry::jump_to_eol(bool check)
 
             if (m_min_visible_indexes.x > current_line_size)
             {
-                //m_display_cursor_pos.x = -1;
+                // make sure the cursor shifts if the line is off screen
+                m_display_cursor_pos.x = -1;
             }
 
             check_bounds(m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y).size() - m_min_visible_indexes.x, 0);

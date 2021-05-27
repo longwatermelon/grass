@@ -39,7 +39,7 @@ void Grass::mainloop()
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 10, 40, 980, 960 }, gui::Text(font_regular, { 10, 40 }, "", { 10, 20 }, { 0, 0, 0 })));
-    //text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     std::vector<gui::Button> buttons;
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 420, 0 }, "Save", { 10, 20 }, { 255, 255, 255 }), { 420, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
