@@ -17,7 +17,14 @@ namespace gui
         void render_centered(SDL_Renderer* rend, SDL_Rect rect);
 
         void insert(int x, int y, char c);
-        void erase(int x, int y);
+
+        /// <summary>
+        /// Erases a character at m_contents[y][x].
+        /// </summary>
+        /// <param name="x">Char index</param>
+        /// <param name="y">String index</param>
+        /// <param name="erase_nl">If true it will erase new lines like regular characters, otherwise it wont do anything. Useful for when user uses the delete key.</param>
+        void erase(int x, int y, bool erase_nl = true);
 
         void move_to(int x, int y);
 

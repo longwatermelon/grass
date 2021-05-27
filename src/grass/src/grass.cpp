@@ -38,8 +38,8 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 40, 1000, 1000 }, gui::Text(font_regular, { 0, 40 }, "", { 10, 20 }, { 0, 0, 0 })));
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 40, 1000, 960 }, gui::Text(font_regular, { 0, 40 }, "", { 10, 20 }, { 0, 0, 0 })));
+    //text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     std::vector<gui::Button> buttons;
     buttons.emplace_back(gui::Button(gui::Text(font_regular, { 420, 0 }, "Save", { 10, 20 }, { 255, 255, 255 }), { 420, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
@@ -121,6 +121,16 @@ void Grass::mainloop()
                     case SDL_SCANCODE_BACKSPACE:
                         selected_entry->remove_char(1);
                         break;
+                    case SDL_SCANCODE_DELETE:
+                    {
+                        SDL_Point coords = selected_entry->real_to_char_pos(selected_entry->real());
+
+                        if (coords.y < selected_entry->text()->contents().size())
+                            // coords.y == selected_entry->text()->contents().size() - 1 ? false : true
+                            // if the user presses delete when the current line is the last element in contents, it 
+                            // would delete the current line but not move up causing vector subscript out of range errors.
+                            selected_entry->text()->erase(coords.x, coords.y, coords.y == selected_entry->text()->contents().size() - 1 ? false : true);
+                    }
                     }
                 }
 

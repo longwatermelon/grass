@@ -26,10 +26,11 @@ namespace gui
         std::vector<std::string> get_visible_content();
 
         /// <summary>
-        /// Convenient method to move both the real and displayed cursors in one method.
-        /// Automatically checks for bounds after moving the cursors
+        /// Convenient method to move both the real and displayed cursors in one method.<para/>
+        /// Automatically checks for bounds after moving the cursors.<para/>
+        /// Doesnt execute if moving the cursor would go outside of the text.
         /// </summary>
-        void move_cursor(int x, int y);
+        void move_cursor(int x, int y, bool check = true);
 
         /// <summary>
         /// Converts pixel coordinates to indexes.
@@ -59,16 +60,17 @@ namespace gui
         void move_display_cursor(int x, int y);
 
         /// <summary>
-        /// Moves the real cursor's position.
-        /// If real cursor coordinates go below zero they are set to 0.
-        /// Attaches to end of line if the x position is longer than the current line.
+        /// Moves the real cursor's position.<para/>
+        /// If real cursor coordinates go below zero they are set to 0.<para/>
+        /// Attaches to end of line if the x position is longer than the current line.<para/>
         /// </summary>
         void move_real_cursor(int x, int y);
 
         /// <summary>
         /// Moves the real and display cursors to the end of the line, automatically checks for bounds.
         /// </summary>
-        void jump_to_eol();
+        /// <param name="check">Check for bounds, defaults to true</param>
+        void jump_to_eol(bool check = true);
 
         void draw_cursor(SDL_Renderer* rend);
 

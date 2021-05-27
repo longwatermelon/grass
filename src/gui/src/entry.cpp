@@ -26,6 +26,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
     tmp.render(rend);
 
+    // Convenient debug stuff, dont delete this
     /*std::cout << "real: " << real_to_char_pos(m_real_cursor_pos).x << " | " << real_to_char_pos(m_real_cursor_pos).y << "\n";
     std::cout << "display: " << m_display_cursor_pos.x << " | " << m_display_cursor_pos.y << "\n";*/
     /*std::cout << "min bound: " << m_min_visible_indexes.x << " | " << m_min_visible_indexes.y << "\n";
@@ -70,6 +71,7 @@ void gui::TextEntry::remove_char(int count)
     for (int i = 0; i < count; ++i)
     {
         bool nl = false;
+        int bounds_diff = 0;
 
         if (m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() == 0)
         {
@@ -78,11 +80,12 @@ void gui::TextEntry::remove_char(int count)
                 // nl variable to move the cursor down at the end of the function
                 nl = true;
                 int diff = m_text.contents()[m_text.contents().size() - 2].size();
+                bounds_diff = diff - (m_rect.x + m_rect.w) / m_text.char_dim().x;
 
                 // seemingly redundant cursor moving is for jump_to_eol to make sure the cursor moves to the end of the correct line, not the empty current one
-                move_cursor(diff, -1);
-                jump_to_eol();
-                move_cursor(0, 1);
+                move_cursor(diff, -1, false);
+                jump_to_eol(false);
+                move_cursor(0, 1, false);
             }
         }
         else
@@ -94,7 +97,10 @@ void gui::TextEntry::remove_char(int count)
         m_text.erase(coords.x, coords.y);
         
         if (nl)
-            move_cursor(0, -1);
+        {
+            move_cursor(0, -1, false);
+            check_bounds(bounds_diff, -1);
+        }
     }
 
     m_visible_content = get_visible_content();
@@ -133,11 +139,18 @@ std::vector<std::string> gui::TextEntry::get_visible_content()
 }
 
 
-void gui::TextEntry::move_cursor(int x, int y)
+void gui::TextEntry::move_cursor(int x, int y, bool check)
 {
-    move_display_cursor(x, y);
-    move_real_cursor(x, y);
-    check_bounds(x, y);
+    int new_y = ((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y) + y;
+
+    if (new_y < m_text.contents().size() && new_y >= 0)
+    {
+        move_display_cursor(x, y);
+        move_real_cursor(x, y);
+
+        if (check)
+            check_bounds(x, y);
+    }
 }
 
 
@@ -219,7 +232,7 @@ void gui::TextEntry::move_display_cursor(int x, int y)
 }
 
 
-void gui::TextEntry::jump_to_eol()
+void gui::TextEntry::jump_to_eol(bool check)
 {
     // text box left position + string size * width of each character
     int real_end_of_line = (int)(m_rect.x + m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() * m_text.char_dim().x);
@@ -235,7 +248,8 @@ void gui::TextEntry::jump_to_eol()
         m_display_cursor_pos.x = m_rect.x + m_visible_content[(m_display_cursor_pos.y - m_rect.y) / m_text.char_dim().y].size() * m_text.char_dim().x;
 
         // move the bounds to where the end of line is if the cursor goes out of bounds
-        check_bounds(m_real_cursor_pos.x - orig, 0);
+        if (check)
+            check_bounds(m_real_cursor_pos.x - orig, 0);
     }
 }
 

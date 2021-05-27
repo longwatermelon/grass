@@ -54,10 +54,13 @@ void gui::Text::insert(int x, int y, char c)
 }
 
 
-void gui::Text::erase(int x, int y)
+void gui::Text::erase(int x, int y, bool erase_nl)
 {
     if (m_contents[y].empty())
     {
+        if (!erase_nl)
+            return;
+
         if (m_contents.size() > 1)
             m_contents.erase(m_contents.begin() + y);
     }
