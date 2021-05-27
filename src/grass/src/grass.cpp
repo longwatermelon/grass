@@ -38,7 +38,7 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 50, 1000, 1000 }, gui::Text(font_regular, { 0, 50 }, "", { 10, 20 }, { 0, 0, 0 })));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 40, 1000, 1000 }, gui::Text(font_regular, { 0, 40 }, "", { 10, 20 }, { 0, 0, 0 })));
     text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     std::vector<gui::Button> buttons;

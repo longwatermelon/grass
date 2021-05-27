@@ -16,8 +16,6 @@ namespace gui
         void render(SDL_Renderer* rend);
         void render_centered(SDL_Renderer* rend, SDL_Rect rect);
 
-        void append(char c);
-        void pop_back();
         void insert(int x, int y, char c);
         void erase(int x, int y);
 
@@ -40,6 +38,7 @@ namespace gui
     private:
         SDL_Rect m_rect;
 
+        // character dimensions
         SDL_Point m_char_dim;
         std::vector<std::string> m_contents;
         SDL_Color m_color;

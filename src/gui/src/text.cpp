@@ -45,39 +45,6 @@ void gui::Text::render_centered(SDL_Renderer* rend, SDL_Rect rect)
 }
 
 
-void gui::Text::append(char c)
-{
-    get_last_string() += c;
-
-    if (c == '\n')
-    {
-        get_last_string().pop_back();
-
-        m_contents.emplace_back("");
-        m_rect.h += m_char_dim.y;
-    }
-    else
-    {
-        if (get_longest_string() == get_last_string())
-            m_rect.w += m_char_dim.x;
-    }
-}
-
-
-void gui::Text::pop_back()
-{
-    std::string& last_string = get_last_string();
-
-    if (last_string.size() > 0)
-        last_string.pop_back();
-    else
-        m_contents.pop_back();
-
-    if (m_contents.size() == 0)
-        m_contents.emplace_back("");
-}
-
-
 void gui::Text::insert(int x, int y, char c)
 {
     if (c == '\n')
