@@ -48,11 +48,11 @@ namespace gui
         /* Moves the visible boundaries by (x, y) if the display cursor is outside of the text box, then moves the display cursor back inside.
         * x: x displacement if the display cursor x < m_rect.x or > m_rect.x + m_rect.w
         * y: y displacement if the display cursor y < m_rect.y or >= m_rect.y + m_rect.h
+        * X and y are measured in indexes, not pixel coordinates.
         */
-        void check_bounds(int x, int y);
+        bool check_bounds(int x, int y);
 
         /* Moves the display cursors position.
-        * Protects against moving lower than the amount of text stored.
         */
         void move_display_cursor(int x, int y);
         /* Moves the real cursors position. 
