@@ -25,9 +25,6 @@ namespace gui
         /* Checks if mx, my is inside of m_rect. */
         bool check_clicked(int mx, int my);
 
-        /* Gets all visible text from the minimum and maximum visible boundaries. */
-        std::vector<std::string> get_visible_content();
-
         /* Moves both real and display cursors. 
         * Automatically checks for bounds after moving cursors, can be turned off by setting parameter check to false.
         */
@@ -76,6 +73,10 @@ namespace gui
         void placeholder_at_cache(int index);
         /* Moves the cache offset by y characters and then removes textures outside of the visible zone */
         void clear_cache();
+        /* Remove texture from m_cached_textures[index]. */
+        void remove_texture_from_cache(int index);
+        /* Clears and re renders the entire cache using m_text.contents() */
+        void update_cache();
 
 
         // getter functions

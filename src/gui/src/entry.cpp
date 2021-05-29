@@ -85,12 +85,11 @@ void gui::TextEntry::add_char(char c)
         move_real_cursor(-((m_real_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
         move_display_cursor(-((m_display_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
 
-        if (check_bounds(0, 1))
-        {
-            //m_text.insert_line(coords.y + 1);
-        }
+        check_bounds(0, 1);
 
         m_text.set_line(coords.y + 1, copied);
+
+        clear_cache();
     }
     else
     {
@@ -125,6 +124,11 @@ void gui::TextEntry::remove_char(int count)
                 m_text.set_line(y + 1, "");
 
                 move_cursor(0, 1, false);
+
+                remove_texture_from_cache((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y - m_min_visible_indexes.y);
+                m_cached_textures.emplace_back(nullptr);
+
+                clear_cache();
             }
             else
             {
@@ -151,31 +155,6 @@ void gui::TextEntry::remove_char(int count)
 bool gui::TextEntry::check_clicked(int mx, int my)
 {
     return common::within_rect(m_rect, mx, my);
-}
-
-
-std::vector<std::string> gui::TextEntry::get_visible_content()
-{
-    std::vector<std::string> visible;
-
-    int y_max = std::min(m_max_visible_indexes.y, (int)m_text.contents().size() - 1);
-    for (int i = m_min_visible_indexes.y; i <= y_max; ++i)
-    {
-        std::string line;
-
-        if (!m_text.contents()[i].empty())
-        {
-            int x_max = std::min(m_max_visible_indexes.x, (int)m_text.contents()[i].size());
-            for (int j = m_min_visible_indexes.x; j < x_max; ++j)
-            {
-                line += m_text.contents()[i][j];
-            }
-        }
-
-        visible.emplace_back(line);
-    }
-
-    return visible;
 }
 
 
@@ -368,4 +347,23 @@ void gui::TextEntry::clear_cache()
 
         m_cached_textures[i] = nullptr;
     }
+}
+
+
+void gui::TextEntry::remove_texture_from_cache(int index)
+{
+    if (m_cached_textures[index])
+        SDL_DestroyTexture(m_cached_textures[index]);
+
+    m_cached_textures.erase(m_cached_textures.begin() + index);
+}
+
+
+void gui::TextEntry::update_cache()
+{
+    clear_cache();
+    m_cached_textures.clear();
+    m_cached_textures = std::vector<SDL_Texture*>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
+
+    clear_cache();
 }
