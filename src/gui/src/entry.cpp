@@ -82,7 +82,7 @@ void gui::TextEntry::add_char(char c)
         check_bounds(0, 1);
 
         m_text.set_line(coords.y + 1, copied);
-
+        m_cached_textures.emplace_back(nullptr);
         clear_cache();
     }
     else
