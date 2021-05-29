@@ -32,7 +32,7 @@ namespace gui
         // Get m_contents in string form.
         std::string str();
 
-        std::string get_line(int i) const { return m_contents[i]; }
+        std::string get_line(int i) const { return i >= m_contents.size() ? "" : m_contents[i]; }
         std::string& get_line_ref(int i) { return m_contents[i]; }
 
         std::vector<std::string> contents() const { return m_contents; }

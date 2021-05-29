@@ -3,8 +3,8 @@
 #include <iostream>
 
 
-gui::TextEntry::TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col)
-    : m_rect(rect), m_text(text), m_background_color(bg_col)
+gui::TextEntry::TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col, SDL_Color cursor_col)
+    : m_rect(rect), m_text(text), m_background_color(bg_col), m_cursor_color(cursor_col)
 {
     m_display_cursor_pos = { m_rect.x, m_rect.y };
     m_real_cursor_pos = { m_rect.x, m_rect.y };
@@ -126,7 +126,9 @@ void gui::TextEntry::remove_char(int count)
                 move_cursor(0, 1, false);
 
                 remove_texture_from_cache((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y - m_min_visible_indexes.y);
-                m_cached_textures.emplace_back(nullptr);
+
+                if (m_text.contents().size() > m_max_visible_indexes.y)
+                    m_cached_textures.emplace_back(nullptr);
 
                 clear_cache();
             }
@@ -228,8 +230,7 @@ bool gui::TextEntry::check_bounds(int x, int y)
         bool moved = move_bounds(x, 0);
         m_display_cursor_pos.x = std::min(std::max(m_rect.x, m_display_cursor_pos.x), m_rect.x + m_rect.w);
 
-        if (moved)
-            clear_cache();
+        clear_cache();
 
         return moved;
     }
@@ -241,8 +242,7 @@ bool gui::TextEntry::check_bounds(int x, int y)
         bool moved = move_bounds(0, y);
         m_display_cursor_pos.y = std::min(std::max(m_rect.y, m_display_cursor_pos.y), m_rect.y + m_rect.h - m_text.char_dim().y);
 
-        if (moved)
-            clear_cache();
+        clear_cache();
 
         return moved;
     }
@@ -313,8 +313,7 @@ void gui::TextEntry::jump_to_eol(bool check)
 
 void gui::TextEntry::draw_cursor(SDL_Renderer* rend)
 {
-    // hard coded value that i will change later
-    SDL_SetRenderDrawColor(rend, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(rend, m_cursor_color.r, m_cursor_color.g, m_cursor_color.b, 255);
     SDL_RenderDrawLine(rend, m_display_cursor_pos.x, m_display_cursor_pos.y, m_display_cursor_pos.x, m_display_cursor_pos.y + m_text.char_dim().y);
 }
 

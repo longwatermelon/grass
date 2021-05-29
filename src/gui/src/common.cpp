@@ -35,7 +35,7 @@ SDL_Texture* gui::common::render_text(SDL_Renderer* rend, TTF_Font* font, const 
     if (!text[0])
         return nullptr;
 
-    SDL_Surface* surf = TTF_RenderText_Solid(font, text, color);
+    SDL_Surface* surf = TTF_RenderText_Blended(font, text, color);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surf);

@@ -11,7 +11,7 @@ namespace gui
     class TextEntry
     {
     public:
-        TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col = { 255, 255, 255 });
+        TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col = { 255, 255, 255 }, SDL_Color cursor_col = { 0, 0, 0 });
 
     public:
         void render(SDL_Renderer* rend);
@@ -95,5 +95,7 @@ namespace gui
 
         SDL_Point m_min_visible_indexes, m_max_visible_indexes;
         std::vector<SDL_Texture*> m_cached_textures;
+
+        SDL_Color m_cursor_color;
     };
 }
