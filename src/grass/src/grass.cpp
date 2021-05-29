@@ -71,6 +71,12 @@ void Grass::mainloop()
         text_entries[0].reset_bounds_y();
         text_entries[0].set_cursor_pos(0, 0);
     }));
+    buttons.emplace_back(gui::Button(gui::Text(font_regular, { 660, 0 }, "Reset", { 10, 20 }, {255, 255, 255}), { 660, 0, 100, 20 }, { 0, 150, 0 }, [&] () {
+        text_entries[0].text()->set_contents(std::vector<std::string>());
+        text_entries[0].reset_bounds_x();
+        text_entries[0].reset_bounds_y();
+        text_entries[0].set_cursor_pos(0, 0);
+    }));
     
     bool running = true;
     SDL_Event evt;
