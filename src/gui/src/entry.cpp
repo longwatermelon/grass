@@ -73,7 +73,8 @@ void gui::TextEntry::remove_char(int count)
         bool nl = false;
         int bounds_diff = 0;
 
-        if (m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() == 0)
+        //if (m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() == 0)
+        if ((m_real_cursor_pos.x - m_rect.x) == 0)
         {
             if (real_to_char_pos(m_real_cursor_pos).y != 0) // only move up if not at top of text box
             {
@@ -85,7 +86,16 @@ void gui::TextEntry::remove_char(int count)
                 // seemingly redundant cursor moving is for jump_to_eol to make sure the cursor moves to the end of the correct line, not the empty current one
                 move_cursor(diff, -1, false);
                 jump_to_eol(false);
+
+                int y = (m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y;
+                m_text.set_line(y, m_text.get_line(y) + m_text.get_line(y + 1));
+                m_text.set_line(y + 1, "");
+
                 move_cursor(0, 1, false);
+            }
+            else
+            {
+                continue;
             }
         }
         else
