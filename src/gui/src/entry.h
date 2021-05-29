@@ -1,13 +1,18 @@
 #pragma once
 #include "text.h"
-#include <string>
-#include <vector>
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <memory>
 
 
 namespace gui
 {
+    struct TextureDeleter
+    {
+        void operator()(SDL_Texture* ptr)
+        {
+            SDL_DestroyTexture(ptr);
+        }
+    };
+
     class TextEntry
     {
     public:
@@ -94,7 +99,7 @@ namespace gui
         SDL_Point m_real_cursor_pos;
 
         SDL_Point m_min_visible_indexes, m_max_visible_indexes;
-        std::vector<SDL_Texture*> m_cached_textures;
+        std::vector<std::unique_ptr<SDL_Texture, TextureDeleter>> m_cached_textures;
 
         SDL_Color m_cursor_color;
     };

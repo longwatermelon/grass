@@ -1,6 +1,5 @@
 #pragma once
 #include "entry.h"
-#include <SDL.h>
 
 
 class Grass

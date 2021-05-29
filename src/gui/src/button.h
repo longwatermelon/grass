@@ -1,10 +1,6 @@
 #pragma once
 #include "text.h"
-#include <string>
 #include <functional>
-#include <SDL.h>
-#include <SDL_ttf.h>
-
 
 namespace gui
 {

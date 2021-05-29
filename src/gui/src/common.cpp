@@ -6,7 +6,7 @@ void gui::common::draw_text(SDL_Renderer* rend, TTF_Font* font, const char* text
     if (!text[0])
         return;
 
-    SDL_Surface* surf = TTF_RenderText_Solid(font, text, color);
+    SDL_Surface* surf = TTF_RenderText_Blended(font, text, color);
 
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     SDL_Texture* tex = SDL_CreateTextureFromSurface(rend, surf);
