@@ -1,6 +1,7 @@
 #pragma once
 #include "text.h"
 #include <string>
+#include <vector>
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -71,6 +72,12 @@ namespace gui
         void draw_cursor(SDL_Renderer* rend);
 
 
+        /* Sets m_cached_texutres[index - m_cache_offset] to nullptr. Automatically appends new element if index doesnt exist */
+        void placeholder_at_cache(int index);
+        /* Moves the cache offset by y characters and then removes textures outside of the visible zone */
+        void clear_cache();
+
+
         // getter functions
 
         Text* text() { return &m_text; }
@@ -86,6 +93,6 @@ namespace gui
         SDL_Point m_real_cursor_pos;
 
         SDL_Point m_min_visible_indexes, m_max_visible_indexes;
-        std::vector<std::string> m_visible_content;
+        std::vector<SDL_Texture*> m_cached_textures;
     };
 }
