@@ -13,7 +13,7 @@ Grass::Grass()
 {
     SDL_Init(SDL_INIT_VIDEO);
 
-    m_window = SDL_CreateWindow("Grass", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1000, 1000, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    m_window = SDL_CreateWindow("Grass", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1000, 800, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     m_rend = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderClear(m_rend);
@@ -40,7 +40,7 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 100);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 60, 60, 1000 - 60, 1000 - 60 }, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 200, 60, 1000 - 200, 800 - 60 }, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
     text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
 
     std::vector<gui::Button> buttons;
