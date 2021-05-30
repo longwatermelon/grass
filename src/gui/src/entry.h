@@ -92,6 +92,8 @@ namespace gui
         Text* text() { return &m_text; }
         SDL_Point display() { return m_display_cursor_pos; }
         SDL_Point real() { return m_real_cursor_pos; }
+        std::string get_current_line() { return m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y); }
+        SDL_Point get_coords() { return real_to_char_pos(m_real_cursor_pos); }
 
     private:
         SDL_Rect m_rect;

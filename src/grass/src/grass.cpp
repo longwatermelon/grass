@@ -4,6 +4,7 @@
 #include "entry.h"
 #include <fstream>
 #include <sstream>
+#include <Windows.h>
 
 #define BG_COLOR 30, 30, 30
 
@@ -181,11 +182,15 @@ void Grass::mainloop()
                         break;
                     case SDLK_UP:
                         m_selected_entry->move_cursor(0, -1);
-                        m_selected_entry->jump_to_eol();
+
+                        if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
+                            m_selected_entry->jump_to_eol();
                         break;
                     case SDLK_DOWN:
                         m_selected_entry->move_cursor(0, 1);
-                        m_selected_entry->jump_to_eol();
+
+                        if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
+                            m_selected_entry->jump_to_eol();
                         break;
                     case SDLK_TAB:
                     {
