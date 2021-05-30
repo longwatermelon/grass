@@ -224,7 +224,8 @@ bool gui::TextEntry::check_bounds(int x, int y)
         bool moved = move_bounds(x, 0);
         m_display_cursor_pos.x = std::min(std::max(m_rect.x, m_display_cursor_pos.x), max_x);
 
-        clear_cache();
+        if (moved)
+            clear_cache();
 
         return moved;
     }
@@ -235,7 +236,8 @@ bool gui::TextEntry::check_bounds(int x, int y)
         bool moved = move_bounds(0, y);
         m_display_cursor_pos.y = std::min(std::max(m_rect.y, m_display_cursor_pos.y), max_y);
 
-        clear_cache();
+        if (moved)
+            shift_cache(y);
 
         return moved;
     }
@@ -353,6 +355,27 @@ void gui::TextEntry::remove_texture_from_cache(int index)
 void gui::TextEntry::update_cache()
 {
     m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
+}
+
+
+void gui::TextEntry::shift_cache(int y)
+{
+    if (y > 0)
+    {
+        for (int i = 0; i < y; ++i)
+        {
+            m_cached_textures.erase(m_cached_textures.begin());
+            m_cached_textures.emplace_back(nullptr);            
+        }
+    }
+    else
+    {
+        for (int i = y; i < 0; ++i)
+        {
+            m_cached_textures.pop_back();
+            m_cached_textures.insert(m_cached_textures.begin(), nullptr);
+        }
+    }
 }
 
 

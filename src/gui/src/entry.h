@@ -82,6 +82,8 @@ namespace gui
         void remove_texture_from_cache(int index);
         /* Clears and re renders the entire cache using m_text.contents() */
         void update_cache();
+        /* shifts cached textures vertically by y indexes */
+        void shift_cache(int y);
 
         /* Sets window width to w and height to h */
         void resize_to(int w, int h);
