@@ -31,7 +31,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         if (m_min_visible_indexes.x >= line.size())
             continue;
 
-        std::string visible = line.substr(m_min_visible_indexes.x, std::min((int)line.size(), m_max_visible_indexes.x) - m_min_visible_indexes.x);
+        std::string visible = line.substr(m_min_visible_indexes.x, std::min((int)line.size(), m_max_visible_indexes.x + 1) - m_min_visible_indexes.x);
 
         if (!m_cached_textures[i].get())
         {
@@ -99,7 +99,6 @@ void gui::TextEntry::remove_char(int count)
         bool nl = false;
         int bounds_diff = 0;
 
-        //if (m_text.get_line(real_to_char_pos(m_real_cursor_pos).y).size() == 0)
         if ((m_real_cursor_pos.x - m_rect.x) == 0)
         {
             if (real_to_char_pos(m_real_cursor_pos).y != 0) // only move up if not at top of text box
@@ -219,22 +218,22 @@ void gui::TextEntry::set_cursor_pos(int x, int y)
 
 bool gui::TextEntry::check_bounds(int x, int y)
 {
-    if (m_display_cursor_pos.x < m_rect.x || m_display_cursor_pos.x > m_rect.x + m_rect.w)
+    int max_x = m_rect.x + ((int)((float)m_rect.w / (float)m_text.char_dim().x) * m_text.char_dim().x);
+    if (m_display_cursor_pos.x < m_rect.x || m_display_cursor_pos.x > max_x)
     {
         bool moved = move_bounds(x, 0);
-        m_display_cursor_pos.x = std::min(std::max(m_rect.x, m_display_cursor_pos.x), m_rect.x + m_rect.w);
+        m_display_cursor_pos.x = std::min(std::max(m_rect.x, m_display_cursor_pos.x), max_x);
 
         clear_cache();
 
         return moved;
     }
 
-    // >= at the end because character coordinates are measured at their top left corner, meaning only using a > comparison would leave one character
-    // rendering outside of the text box
-    if (m_display_cursor_pos.y < m_rect.y || m_display_cursor_pos.y >= m_rect.y + m_rect.h)
+    int max_y = m_rect.y + ((int)(m_rect.h / m_text.char_dim().y) * m_text.char_dim().y) - m_text.char_dim().y;
+    if (m_display_cursor_pos.y < m_rect.y || m_display_cursor_pos.y > max_y)
     {
         bool moved = move_bounds(0, y);
-        m_display_cursor_pos.y = std::min(std::max(m_rect.y, m_display_cursor_pos.y), m_rect.y + m_rect.h - m_text.char_dim().y);
+        m_display_cursor_pos.y = std::min(std::max(m_rect.y, m_display_cursor_pos.y), max_y);
 
         clear_cache();
 
@@ -308,7 +307,15 @@ void gui::TextEntry::jump_to_eol(bool check)
 void gui::TextEntry::draw_cursor(SDL_Renderer* rend)
 {
     SDL_SetRenderDrawColor(rend, m_cursor_color.r, m_cursor_color.g, m_cursor_color.b, 255);
-    SDL_RenderDrawLine(rend, m_display_cursor_pos.x, m_display_cursor_pos.y, m_display_cursor_pos.x, m_display_cursor_pos.y + m_text.char_dim().y);
+    //SDL_RenderDrawLine(rend, m_display_cursor_pos.x, m_display_cursor_pos.y, m_display_cursor_pos.x, m_display_cursor_pos.y + m_text.char_dim().y);
+    SDL_Rect tmp = {
+        std::max(m_display_cursor_pos.x, m_rect.x + 1) - 1,
+        m_display_cursor_pos.y,
+        1,
+        m_text.char_dim().y
+    };
+
+    SDL_RenderFillRect(rend, &tmp);
 }
 
 
@@ -346,4 +353,31 @@ void gui::TextEntry::remove_texture_from_cache(int index)
 void gui::TextEntry::update_cache()
 {
     m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
+}
+
+
+void gui::TextEntry::resize_to(int w, int h)
+{
+    m_rect.w = w - m_rect.x;
+    m_rect.h = h - m_rect.y;
+
+    m_max_visible_indexes = { 
+        m_min_visible_indexes.x + (int)(m_rect.w / m_text.char_dim().x),
+        m_min_visible_indexes.y + (int)(m_rect.h / m_text.char_dim().y)
+    };
+
+    m_display_cursor_pos = {
+        std::min((m_max_visible_indexes.x - m_min_visible_indexes.x) * m_text.char_dim().x + m_rect.x, m_display_cursor_pos.x),
+        std::min((m_max_visible_indexes.y - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y - m_text.char_dim().y, m_display_cursor_pos.y)
+    };
+
+    m_real_cursor_pos = {
+        std::min(m_max_visible_indexes.x * m_text.char_dim().x + m_rect.x, m_real_cursor_pos.x),
+        std::min(m_max_visible_indexes.y * m_text.char_dim().y + m_rect.y - m_text.char_dim().y, m_real_cursor_pos.y)
+    };
+
+    if (m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y).size() <= (m_real_cursor_pos.x - m_rect.x) / m_text.char_dim().x)
+        jump_to_eol();
+
+    update_cache();
 }

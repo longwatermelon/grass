@@ -83,6 +83,9 @@ namespace gui
         /* Clears and re renders the entire cache using m_text.contents() */
         void update_cache();
 
+        /* Sets window width to w and height to h */
+        void resize_to(int w, int h);
+
 
         // getter functions
 

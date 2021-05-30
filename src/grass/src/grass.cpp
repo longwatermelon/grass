@@ -36,10 +36,10 @@ Grass::~Grass()
 
 void Grass::mainloop()
 {
-    TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 50);
+    TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 100);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 60, 60, 1000 - 60, 1000 - 60 }, gui::Text(font_regular, { 10, 40 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
+    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 60, 60, 1000 - 60, 1000 - 60 }, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
     text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 0, 0, 0 })));
 
     std::vector<gui::Button> buttons;
@@ -81,10 +81,16 @@ void Grass::mainloop()
     bool running = true;
     SDL_Event evt;
 
+    int prev_wx, prev_wy;
+    SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
+
     while (running)
     {
         int mx, my;
         SDL_GetMouseState(&mx, &my);
+
+        int wx, wy;
+        SDL_GetWindowSize(m_window, &wx, &wy);
 
         while (SDL_PollEvent(&evt))
         {
@@ -214,6 +220,13 @@ void Grass::mainloop()
         if (m_selected_entry)
         {
             m_selected_entry->draw_cursor(m_rend);
+        }
+
+        if (prev_wx != wx || prev_wy != wy)
+        {
+            text_entries[0].resize_to(wx, wy);
+            prev_wx = wx;
+            prev_wy = wy;
         }
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
