@@ -79,13 +79,11 @@ void gui::TextEntry::add_char(char c)
         move_real_cursor(-((m_real_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
         move_display_cursor(-((m_display_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
 
-        bool moved = check_bounds(0, 1);
+        if (check_bounds(0, 1))
+            m_cached_textures.erase(m_cached_textures.begin());
 
         m_text.set_line(coords.y + 1, copied);
         m_cached_textures.emplace_back(nullptr);
-
-        if (moved)
-            m_cached_textures.erase(m_cached_textures.begin());
 
         clear_cache();
     }
@@ -109,8 +107,8 @@ void gui::TextEntry::remove_char(int count)
             {
                 // nl variable to move the cursor down at the end of the function
                 nl = true;
-                int diff = m_text.contents()[m_text.contents().size() - 2].size();
-                bounds_diff = diff - (m_rect.x + m_rect.w) / m_text.char_dim().x;
+                int diff = m_text.contents()[(m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y - 1].size();
+                bounds_diff = diff - m_rect.w / m_text.char_dim().x;
 
                 // seemingly redundant cursor moving is for jump_to_eol to make sure the cursor moves to the end of the correct line, not the empty current one
                 move_cursor(diff, -1, false);
