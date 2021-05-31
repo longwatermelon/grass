@@ -20,8 +20,6 @@ Grass::Grass()
     SDL_RenderPresent(m_rend);
 
     TTF_Init();
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 }
 
 

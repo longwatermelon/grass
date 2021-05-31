@@ -13,10 +13,6 @@ namespace gui
         Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
 
     public:
-        void render(SDL_Renderer* rend);
-
-        /* Render text in the center of a rectangle. */
-        void render_centered(SDL_Renderer* rend, SDL_Rect rect);
 
         /* Inserts a character at m_contents[y][x]. */
         void insert(int x, int y, char c);

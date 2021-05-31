@@ -1,5 +1,6 @@
 #pragma once
 #include "text.h"
+#include "common.h"
 #include <functional>
 
 namespace gui
@@ -28,7 +29,7 @@ namespace gui
 
     private:
         Text m_text;
-        SDL_Texture* m_tex;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
 
         SDL_Rect m_rect;
         SDL_Color m_color;

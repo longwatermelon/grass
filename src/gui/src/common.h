@@ -5,10 +5,16 @@
 
 namespace gui::common
 {
-    void draw_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Rect rect, SDL_Color color = { 255, 255, 255 });
-    void draw_centered_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Point pos, SDL_Rect enclosing_rect, SDL_Point char_dim, SDL_Color col = { 255, 255, 255 });
+    struct TextureDeleter
+    {
+        void operator()(SDL_Texture* ptr)
+        {
+            SDL_DestroyTexture(ptr);
+        }
+    };
 
-    SDL_Texture* render_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Color color = { 255, 255, 255 });
+    // just to make sure i dont leak memory
+    [[nodiscard]] SDL_Texture* render_text(SDL_Renderer* rend, TTF_Font* font, const char* text, SDL_Color color = { 255, 255, 255 });
     void center_rendered_text(SDL_Renderer* rend, SDL_Texture* tex, const char* text, SDL_Rect enclosing_rect, SDL_Point char_dim, SDL_Color color);
 
     bool within_rect(SDL_Rect rect, int x, int y);

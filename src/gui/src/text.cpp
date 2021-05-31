@@ -17,34 +17,6 @@ gui::Text::Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_
 }
 
 
-void gui::Text::render(SDL_Renderer* rend)
-{
-    for (int i = 0; i < m_contents.size(); ++i)
-    {
-        std::string& s = m_contents[i];
-
-        common::draw_text(
-            rend,
-            m_font,
-            s.c_str(), 
-            { m_rect.x, m_rect.y + m_char_dim.y * i, m_char_dim.x * (int)s.size(), m_char_dim.y }, 
-            m_color
-        );
-    }
-}
-
-
-void gui::Text::render_centered(SDL_Renderer* rend, SDL_Rect rect)
-{
-    std::string s = str();
-
-    if (s.size() == 0)
-        return;
-
-    common::draw_centered_text(rend, m_font, s.c_str(), { m_rect.x, m_rect.y }, rect, m_char_dim, m_color);
-}
-
-
 void gui::Text::insert(int x, int y, char c)
 {
     if (c == '\n')

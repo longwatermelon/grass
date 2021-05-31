@@ -35,7 +35,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
         if (!m_cached_textures[i].get())
         {
-            m_cached_textures[i] = std::unique_ptr<SDL_Texture, TextureDeleter>(common::render_text(rend, m_text.font(), visible.c_str(), m_text.color()));
+            m_cached_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.c_str(), m_text.color()));
         }
 
         SDL_Rect rect = {
@@ -79,10 +79,14 @@ void gui::TextEntry::add_char(char c)
         move_real_cursor(-((m_real_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
         move_display_cursor(-((m_display_cursor_pos.x - m_rect.x) / m_text.char_dim().x), 1);
 
-        check_bounds(0, 1);
+        bool moved = check_bounds(0, 1);
 
         m_text.set_line(coords.y + 1, copied);
         m_cached_textures.emplace_back(nullptr);
+
+        if (moved)
+            m_cached_textures.erase(m_cached_textures.begin());
+
         clear_cache();
     }
     else
@@ -354,7 +358,8 @@ void gui::TextEntry::remove_texture_from_cache(int index)
 
 void gui::TextEntry::update_cache()
 {
-    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
+    m_cached_textures.clear();
+    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
 }
 
 
