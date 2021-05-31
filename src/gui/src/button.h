@@ -7,7 +7,7 @@ namespace gui
     class Button
     {
     public:
-        Button(const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
+        Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
 
     public:
         void render(SDL_Renderer* rend);
@@ -28,6 +28,7 @@ namespace gui
 
     private:
         Text m_text;
+        SDL_Texture* m_tex;
 
         SDL_Rect m_rect;
         SDL_Color m_color;

@@ -2,8 +2,11 @@
 #include "common.h"
 
 
-gui::Button::Button(const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func)
-    : m_text(text), m_rect(rect), m_color(color), m_function(func) {}
+gui::Button::Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func)
+    : m_text(text), m_rect(rect), m_color(color), m_function(func)
+{
+    m_tex = common::render_text(rend, m_text.font(), m_text.str().c_str(), m_text.color());
+}
 
 
 void gui::Button::render(SDL_Renderer* rend)
@@ -30,7 +33,7 @@ void gui::Button::render(SDL_Renderer* rend)
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
 
-    m_text.render_centered(rend, m_rect);
+    common::center_rendered_text(rend, m_tex, m_text.str().c_str(), m_rect, m_text.char_dim(), m_text.color());
 }
 
 
