@@ -2,6 +2,7 @@
 #include "text.h"
 #include "common.h"
 #include <functional>
+#include <memory>
 
 
 namespace gui

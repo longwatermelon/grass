@@ -32,7 +32,7 @@ namespace gui
         std::string& get_line_ref(int i) { return m_contents[i]; }
 
         std::vector<std::string> contents() const { return m_contents; }
-        void set_contents(std::vector<std::string>& contents) { m_contents = contents; }
+        void set_contents(const std::vector<std::string>& contents) { m_contents = contents; }
 
         void set_line(int i, const std::string& text) { m_contents[i] = text; }
         void insert_line(int i) { m_contents.insert(m_contents.begin() + i, ""); }
