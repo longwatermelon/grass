@@ -3,6 +3,12 @@
 #include <filesystem>
 #include <iostream>
 
+#if defined(_WIN32)
+#  define PATH_SLASH '\\'
+#else
+#  define PATH_SLASH '/'
+#endif /* if defined(_WIN32) */
+
 namespace fs = std::filesystem;
 
 
@@ -32,7 +38,7 @@ void gui::File::render(SDL_Renderer* rend, SDL_Rect rect, int offset)
 
 std::string gui::File::path()
 {
-    return m_base_path + "\\" + m_name.str();
+    return m_base_path + PATH_SLASH + m_name.str();
 }
 
 
@@ -42,17 +48,17 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
     Text t = name;
     std::string sname = m_name.str();
 
-    for (auto& entry : fs::directory_iterator(m_base_path + "\\" + sname))
+    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname))
     {
         t.set_contents({ entry.path().filename().string() });
         
         if (entry.is_directory())
         {
-            m_folders.emplace_back(Folder(m_base_path + (sname.empty() ? "" : "\\" + sname), t, rend));
+            m_folders.emplace_back(Folder(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
         }
         else
         {
-            m_files.emplace_back(File(m_base_path + (sname.empty() ? "" : "\\" + sname), t, rend));
+            m_files.emplace_back(File(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
         }
     }
 
