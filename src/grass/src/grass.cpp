@@ -5,6 +5,7 @@
 #include "file_tree.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #define BG_COLOR 30, 30, 30
 

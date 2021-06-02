@@ -7,7 +7,7 @@ namespace fs = std::filesystem;
 
 
 gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* rend)
-    : m_base_path(base_path), m_name(name)
+    : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }
 {
     m_tex = common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color());
 }
@@ -15,7 +15,9 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 
 void gui::File::render(SDL_Renderer* rend, SDL_Rect rect, int offset)
 {
-    m_rect = rect;
+    // position has shifted
+    if (m_rect.y != rect.y)
+        m_rect = rect;
 
     SDL_Rect tmp = {
         rect.x + offset,
@@ -35,7 +37,7 @@ std::string gui::File::path()
 
 
 gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend)
-    : m_base_path(base_path), m_name(name)
+    : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }
 {
     Text t = name;
     std::string sname = m_name.str();
@@ -60,7 +62,9 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 
 void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
 {
-    m_rect = rect;
+    // position has shifted
+    if (m_rect.y != rect.y)
+        m_rect = rect;
 
     SDL_Rect tmp = {
         rect.x + offset,
