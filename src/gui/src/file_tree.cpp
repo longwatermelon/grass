@@ -20,15 +20,11 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 }
 
 
-void gui::File::render(SDL_Renderer* rend, SDL_Rect rect, int offset)
+void gui::File::render(SDL_Renderer* rend, int offset)
 {
-    // position has shifted
-    if (m_rect.y != rect.y)
-        m_rect = rect;
-
     SDL_Rect tmp = {
-        rect.x + offset,
-        rect.y,
+        m_rect.x + offset,
+        m_rect.y,
         m_name.char_dim().x * (int)m_name.str().size(),
         m_name.char_dim().y
     };
@@ -67,15 +63,15 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex)
+void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex)
 {
     // position has shifted
-    if (m_rect.y != rect.y)
-        m_rect = rect;
+    if (m_rect.y != m_rect.y)
+        m_rect = m_rect;
 
     SDL_Rect text_rect = {
-        rect.x + offset,
-        rect.y,
+        m_rect.x + offset,
+        m_rect.y,
         m_name.char_dim().x * (int)m_name.str().size(),
         m_name.char_dim().y
     };
@@ -101,14 +97,12 @@ void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset, SDL_Tex
 
     for (auto& folder : m_folders)
     {
-        rect.y += folder.name().char_dim().y;
-        folder.render(rend, rect, offset + 10, closed_tex, opened_tex);
+        folder.render(rend, offset + 10, closed_tex, opened_tex);
     }
 
     for (auto& file : m_files)
     {
-        rect.y += file.name().char_dim().y;
-        file.render(rend, rect, offset + 10);
+        file.render(rend, offset + 10);
     }
 }
 
@@ -137,6 +131,26 @@ void gui::Folder::collapse()
 }
 
 
+void gui::Folder::update_rects(SDL_Rect& rect)
+{
+    m_rect = rect;
+    rect.y += m_name.char_dim().y;
+
+    if (m_collapsed)
+        return;
+
+    for (auto& folder : m_folders)
+    {
+        folder.update_rects(rect);
+    }
+
+    for (auto& file : m_files)
+    {
+        file.update_rect(rect);
+    }
+}
+
+
 gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
     : m_folder(folder), m_default_rect(starting_rect)
 {
@@ -157,14 +171,12 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, rect, offset, m_closed_folder_texture, m_opened_folder_texture);
-        rect.y += folder.name().char_dim().y;
+        folder.render(rend, offset, m_closed_folder_texture, m_opened_folder_texture);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, rect, offset);
-        rect.y += file.name().char_dim().y;
+        file.render(rend, offset);
     }
 }
 
@@ -214,4 +226,21 @@ gui::Folder* gui::Tree::check_folder_click(Folder& folder, int mx, int my)
 void gui::Tree::collapse_folder(Folder& folder)
 {
     folder.collapse();
+}
+
+
+void gui::Tree::update_display()
+{
+    SDL_Rect rect = m_default_rect;
+    int offset = 20;
+
+    for (auto& folder : m_folder.folders())
+    {
+        folder.update_rects(rect);
+    }
+
+    for (auto& file : m_folder.files())
+    {
+        file.update_rect(rect);
+    }
 }

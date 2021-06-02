@@ -58,6 +58,8 @@ void Grass::mainloop()
         { 0, main_text_dimensions.y, 200, 20 },
         m_rend
     );
+
+    tree.update_display();
     
     bool running = true;
     SDL_Event evt;
@@ -120,6 +122,8 @@ void Grass::mainloop()
                     text_entries[0].reset_bounds_y();
                     text_entries[0].set_cursor_pos(0, 0);
                     text_entries[0].update_cache();
+
+                    tree.update_display();
                 }
 
                 gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
@@ -127,6 +131,7 @@ void Grass::mainloop()
                 if (folder)
                 {
                     tree.collapse_folder(*folder);
+                    tree.update_display();
                 }
 
             } break;
