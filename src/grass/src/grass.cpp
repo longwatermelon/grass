@@ -81,8 +81,7 @@ void Grass::mainloop()
 
     gui::Tree tree(
         gui::Folder("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
-        { 0, 60 }, 
-        { 0, 0, 0 }
+        { 0, 60, 200, 20 }
     );
     
     bool running = true;
@@ -127,6 +126,26 @@ void Grass::mainloop()
 
                 if (!has_selected_item)
                     m_selected_entry = nullptr;
+
+                gui::File* file = tree.check_click(mx, my);
+
+                if (file)
+                {
+                    std::string fp = file->path();
+                    std::ifstream ifs(fp);
+
+                    std::vector<std::string> lines;
+                    std::string line;
+                    while (std::getline(ifs, line)) lines.emplace_back(line);
+
+                    ifs.close();
+
+                    text_entries[0].text()->set_contents(lines);
+                    text_entries[0].reset_bounds_x();
+                    text_entries[0].reset_bounds_y();
+                    text_entries[0].set_cursor_pos(0, 0);
+                    text_entries[0].update_cache();
+                }
 
             } break;
 

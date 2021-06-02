@@ -15,6 +15,8 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 
 void gui::File::render(SDL_Renderer* rend, SDL_Rect rect, int offset)
 {
+    m_rect = rect;
+
     SDL_Rect tmp = {
         rect.x + offset,
         rect.y,
@@ -23,6 +25,12 @@ void gui::File::render(SDL_Renderer* rend, SDL_Rect rect, int offset)
     };
 
     SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
+}
+
+
+std::string gui::File::path()
+{
+    return m_base_path + "\\" + m_name.str();
 }
 
 
@@ -52,6 +60,8 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 
 void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
 {
+    m_rect = rect;
+
     SDL_Rect tmp = {
         rect.x + offset,
         rect.y,
@@ -75,8 +85,8 @@ void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
 }
 
 
-gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Color bg_color)
-    : m_folder(folder), m_default_rect(starting_rect), m_bg_color(bg_color) {}
+gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect)
+    : m_folder(folder), m_default_rect(starting_rect) {}
 
 
 void gui::Tree::render(SDL_Renderer* rend)
@@ -95,4 +105,35 @@ void gui::Tree::render(SDL_Renderer* rend)
         file.render(rend, rect, offset);
         rect.y += file.name().char_dim().y;
     }
+}
+
+
+gui::File* gui::Tree::check_click(int mx, int my)
+{
+    File* file = check_click(m_folder, mx, my);
+
+    if (file)
+        return file;
+
+    return nullptr;
+}
+
+
+gui::File* gui::Tree::check_click(Folder& folder, int mx, int my)
+{
+    for (auto& file : folder.files())
+    {
+        if (common::within_rect(file.rect(), mx, my))
+            return &file;
+    }
+
+    for (auto& f : folder.folders())
+    {
+        File* file = check_click(f, mx, my);
+
+        if (file)
+            return file;
+    }
+
+    return nullptr;
 }
