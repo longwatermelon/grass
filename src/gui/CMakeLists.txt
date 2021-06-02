@@ -12,6 +12,8 @@ add_library(gui
     src/entry.cpp
     src/text.h
     src/text.cpp
+    src/file_tree.h
+    src/file_tree.cpp
 )
 
 target_link_libraries(gui PUBLIC

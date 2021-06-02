@@ -10,6 +10,8 @@ namespace gui
     class Text
     {
     public:
+        Text() = default;
+
         Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
 
     public:

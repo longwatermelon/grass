@@ -2,6 +2,7 @@
 #include "common.h"
 #include "button.h"
 #include "entry.h"
+#include "file_tree.h"
 #include <fstream>
 #include <sstream>
 
@@ -77,6 +78,8 @@ void Grass::mainloop()
         text_entries[0].set_cursor_pos(0, 0);
         text_entries[0].update_cache();
     }));
+
+    gui::Folder tree("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }));
     
     bool running = true;
     SDL_Event evt;
