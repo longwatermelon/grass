@@ -166,6 +166,32 @@ void gui::TextEntry::move_cursor(int x, int y, bool check)
 
         if (check)
             check_bounds(x, y);
+
+        if (!cursor_visible())
+        {
+            SDL_Point cursor_coords = real_to_char_pos(m_real_cursor_pos);
+
+            int x_diff = cursor_coords.x - m_min_visible_indexes.x;
+            int y_diff;
+
+            if (m_min_visible_indexes.y >= cursor_coords.y)
+            {
+                y_diff = cursor_coords.y - m_min_visible_indexes.y;
+            }
+
+            if (m_max_visible_indexes.y <= cursor_coords.y)
+            {
+                y_diff = cursor_coords.y - (m_max_visible_indexes.y - 1);
+            }
+            
+
+            move_bounds(x_diff, y_diff);
+
+            SDL_Point display_cursor_coords = real_to_char_pos(m_display_cursor_pos);
+            move_display_cursor(-display_cursor_coords.x, 0);
+
+            clear_cache();
+        }
     }
 }
 
@@ -310,16 +336,19 @@ void gui::TextEntry::jump_to_eol(bool check)
 
 void gui::TextEntry::draw_cursor(SDL_Renderer* rend)
 {
-    SDL_SetRenderDrawColor(rend, m_cursor_color.r, m_cursor_color.g, m_cursor_color.b, 255);
-    //SDL_RenderDrawLine(rend, m_display_cursor_pos.x, m_display_cursor_pos.y, m_display_cursor_pos.x, m_display_cursor_pos.y + m_text.char_dim().y);
-    SDL_Rect tmp = {
-        std::max(m_display_cursor_pos.x, m_rect.x + 1) - 1,
-        m_display_cursor_pos.y,
-        1,
-        m_text.char_dim().y
-    };
+    if (cursor_visible())
+    {
+        SDL_SetRenderDrawColor(rend, m_cursor_color.r, m_cursor_color.g, m_cursor_color.b, 255);
 
-    SDL_RenderFillRect(rend, &tmp);
+        SDL_Rect tmp = {
+            std::max(m_display_cursor_pos.x, m_rect.x + 1) - 1,
+            m_display_cursor_pos.y,
+            1,
+            m_text.char_dim().y
+        };
+
+        SDL_RenderFillRect(rend, &tmp);
+    }
 }
 
 
@@ -406,4 +435,23 @@ void gui::TextEntry::resize_to(int w, int h)
         jump_to_eol();
 
     update_cache();
+}
+
+
+void gui::TextEntry::scroll(int y)
+{
+    m_min_visible_indexes.y += y;
+    m_max_visible_indexes.y += y;
+
+    shift_cache(y);
+    move_display_cursor(0, -y);
+}
+
+
+bool gui::TextEntry::cursor_visible()
+{
+    SDL_Point coords = real_to_char_pos(m_real_cursor_pos);
+
+    return coords.x >= m_min_visible_indexes.x && coords.x <= m_max_visible_indexes.x
+        && coords.y >= m_min_visible_indexes.y && coords.y < m_max_visible_indexes.y;
 }

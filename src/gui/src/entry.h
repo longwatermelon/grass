@@ -53,10 +53,10 @@ namespace gui
         */
         bool check_bounds(int x, int y);
 
-        /* Moves the display cursors position.
+        /* Moves the display cursors position. Parameters measured in characters
         */
         void move_display_cursor(int x, int y);
-        /* Moves the real cursors position. 
+        /* Moves the real cursors position. Parameters measured in characters
         * Protects against moving lower than the amount of text stored.
         */
         void move_real_cursor(int x, int y);
@@ -80,6 +80,11 @@ namespace gui
 
         /* Sets window width to w and height to h */
         void resize_to(int w, int h);
+
+
+        void scroll(int y);
+
+        bool cursor_visible();
 
 
         // getter functions

@@ -224,7 +224,10 @@ void Grass::mainloop()
                 }
             } break;
             case SDL_MOUSEWHEEL:
-                tree.scroll(-evt.wheel.y);
+                if (mx > 0 && mx < main_text_dimensions.x)
+                    tree.scroll(-evt.wheel.y);
+                else
+                    text_entries[0].scroll(-evt.wheel.y);
                 break;
             }
         }
