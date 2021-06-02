@@ -440,11 +440,15 @@ void gui::TextEntry::resize_to(int w, int h)
 
 void gui::TextEntry::scroll(int y)
 {
-    m_min_visible_indexes.y += y;
-    m_max_visible_indexes.y += y;
+    int new_min_y = m_min_visible_indexes.y + y;
+    int new_max_y = m_max_visible_indexes.y + y;
 
-    shift_cache(y);
-    move_display_cursor(0, -y);
+    if (new_min_y >= 0 && new_max_y <= m_text.contents().size())
+    {
+        move_bounds(0, y);
+        shift_cache(y);
+        move_display_cursor(0, -y);
+    }
 }
 
 
