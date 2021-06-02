@@ -244,3 +244,10 @@ void gui::Tree::update_display()
         file.update_rect(rect);
     }
 }
+
+
+void gui::Tree::scroll(int y)
+{
+    m_default_rect.y -= m_folder.name().char_dim().y * y;
+    update_display();
+}

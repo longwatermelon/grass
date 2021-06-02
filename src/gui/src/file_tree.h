@@ -78,6 +78,8 @@ namespace gui
 
         void update_display();
 
+        void scroll(int y);
+
         Folder& folder() { return m_folder; }
 
     private:
