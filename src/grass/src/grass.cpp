@@ -39,9 +39,9 @@ Grass::~Grass()
 void Grass::mainloop()
 {
     constexpr SDL_Rect main_text_dimensions = {
-        200,
+        300,
         40,
-        1000 - 200,
+        1000 - 300,
         800 - 40
     };
 
@@ -55,7 +55,8 @@ void Grass::mainloop()
     gui::Tree tree(
         gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, 20 }
+        { 0, main_text_dimensions.y, 200, 20 },
+        m_rend
     );
     
     bool running = true;

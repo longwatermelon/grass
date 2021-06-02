@@ -2,6 +2,7 @@
 #include "common.h"
 #include <filesystem>
 #include <iostream>
+#include <SDL_image.h>
 
 #if defined(_WIN32)
 #  define PATH_SLASH '\\'
@@ -66,28 +67,42 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
+void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex)
 {
     // position has shifted
     if (m_rect.y != rect.y)
         m_rect = rect;
 
-    SDL_Rect tmp = {
+    SDL_Rect text_rect = {
         rect.x + offset,
         rect.y,
         m_name.char_dim().x * (int)m_name.str().size(),
         m_name.char_dim().y
     };
 
-    SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
+    SDL_RenderCopy(rend, m_tex, nullptr, &text_rect);
+
+    SDL_Rect arrow_rect = {
+        text_rect.x - m_name.char_dim().x * 2,
+        text_rect.y,
+        m_name.char_dim().y,
+        m_name.char_dim().y
+    };
 
     if (m_collapsed)
+    {
+        SDL_RenderCopy(rend, closed_tex, nullptr, &arrow_rect);
         return;
+    }
+    else
+    {
+        SDL_RenderCopy(rend, opened_tex, nullptr, &arrow_rect);
+    }
 
     for (auto& folder : m_folders)
     {
         rect.y += folder.name().char_dim().y;
-        folder.render(rend, rect, offset + 10);
+        folder.render(rend, rect, offset + 10, closed_tex, opened_tex);
     }
 
     for (auto& file : m_files)
@@ -122,18 +137,27 @@ void gui::Folder::collapse()
 }
 
 
-gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect)
-    : m_folder(folder), m_default_rect(starting_rect) {}
+gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
+    : m_folder(folder), m_default_rect(starting_rect)
+{
+    m_closed_folder_texture = IMG_LoadTexture(rend, "res/folder_closed.png");
+    m_opened_folder_texture = IMG_LoadTexture(rend, "res/folder_open.png");
+
+    if (!m_closed_folder_texture || !m_opened_folder_texture)
+    {
+        std::cout << "failed to load tree textures\n";
+    }
+}
 
 
 void gui::Tree::render(SDL_Renderer* rend)
 {
     SDL_Rect rect = m_default_rect;
-    int offset = 0;
+    int offset = 20;
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, rect, offset);
+        folder.render(rend, rect, offset, m_closed_folder_texture, m_opened_folder_texture);
         rect.y += folder.name().char_dim().y;
     }
 

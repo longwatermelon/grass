@@ -34,7 +34,7 @@ namespace gui
     public:
         Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend);
 
-        void render(SDL_Renderer* rend, SDL_Rect& rect, int offset);
+        void render(SDL_Renderer* rend, SDL_Rect& rect, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex);
 
         /* If already collapsed, folder will expand. */
         void collapse();
@@ -63,7 +63,7 @@ namespace gui
     class Tree
     {
     public:
-        Tree(const Folder& folder, SDL_Rect starting_rect);
+        Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
 
         void render(SDL_Renderer* rend);
 
@@ -77,5 +77,8 @@ namespace gui
     private:
         Folder m_folder;
         SDL_Rect m_default_rect;
+
+        SDL_Texture* m_opened_folder_texture;
+        SDL_Texture* m_closed_folder_texture;
     };
 }
