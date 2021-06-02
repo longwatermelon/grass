@@ -53,7 +53,7 @@ void Grass::mainloop()
     std::vector<gui::Button> buttons;
 
     gui::Tree tree(
-        gui::Folder("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
+        gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
         { 0, main_text_dimensions.y, 200, 20 }
     );
@@ -101,7 +101,7 @@ void Grass::mainloop()
                 if (!has_selected_item)
                     m_selected_entry = nullptr;
 
-                gui::File* file = tree.check_click(mx, my);
+                gui::File* file = tree.check_file_click(tree.folder(), mx, my);
 
                 if (file)
                 {
@@ -119,6 +119,13 @@ void Grass::mainloop()
                     text_entries[0].reset_bounds_y();
                     text_entries[0].set_cursor_pos(0, 0);
                     text_entries[0].update_cache();
+                }
+
+                gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
+
+                if (folder)
+                {
+                    tree.collapse_folder(*folder);
                 }
 
             } break;

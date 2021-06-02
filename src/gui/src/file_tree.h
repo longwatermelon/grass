@@ -18,6 +18,8 @@ namespace gui
         Text name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
 
+        void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
+
     private:
         SDL_Rect m_rect;
 
@@ -34,10 +36,15 @@ namespace gui
 
         void render(SDL_Renderer* rend, SDL_Rect& rect, int offset);
 
+        /* If already collapsed, folder will expand. */
+        void collapse();
+
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
         Text name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
+
+        void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
 
     private:
         SDL_Rect m_rect;
@@ -49,6 +56,8 @@ namespace gui
         std::vector<Folder> m_folders;
 
         SDL_Texture* m_tex;
+
+        bool m_collapsed{ false };
     };
 
     class Tree
@@ -58,8 +67,12 @@ namespace gui
 
         void render(SDL_Renderer* rend);
 
-        File* check_click(int mx, int my);
-        File* check_click(Folder& folder, int mx, int my);
+        File* check_file_click(Folder& folder, int mx, int my);
+        Folder* check_folder_click(Folder& folder, int mx, int my);
+
+        void collapse_folder(Folder& folder);
+
+        Folder& folder() { return m_folder; }
 
     private:
         Folder m_folder;

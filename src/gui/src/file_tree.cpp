@@ -75,6 +75,9 @@ void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
 
     SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
 
+    if (m_collapsed)
+        return;
+
     for (auto& folder : m_folders)
     {
         rect.y += folder.name().char_dim().y;
@@ -85,6 +88,30 @@ void gui::Folder::render(SDL_Renderer* rend, SDL_Rect& rect, int offset)
     {
         rect.y += file.name().char_dim().y;
         file.render(rend, rect, offset + 10);
+    }
+}
+
+
+void gui::Folder::collapse()
+{
+    if (!m_collapsed)
+    {
+        m_collapsed = true;
+
+        for (auto& folder : m_folders)
+        {
+            folder.collapse();
+            folder.reset_rect();
+        }
+
+        for (auto& file : m_files)
+        {
+            file.reset_rect();
+        }
+    }
+    else
+    {
+        m_collapsed = false;
     }
 }
 
@@ -112,18 +139,7 @@ void gui::Tree::render(SDL_Renderer* rend)
 }
 
 
-gui::File* gui::Tree::check_click(int mx, int my)
-{
-    File* file = check_click(m_folder, mx, my);
-
-    if (file)
-        return file;
-
-    return nullptr;
-}
-
-
-gui::File* gui::Tree::check_click(Folder& folder, int mx, int my)
+gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
 {
     for (auto& file : folder.files())
     {
@@ -133,11 +149,39 @@ gui::File* gui::Tree::check_click(Folder& folder, int mx, int my)
 
     for (auto& f : folder.folders())
     {
-        File* file = check_click(f, mx, my);
+        File* file = check_file_click(f, mx, my);
 
         if (file)
             return file;
     }
 
     return nullptr;
+}
+
+
+gui::Folder* gui::Tree::check_folder_click(Folder& folder, int mx, int my)
+{
+    if (common::within_rect(folder.rect(), mx, my))
+    {
+        return &folder;
+    }
+
+    for (auto& f : folder.folders())
+    {
+        if (common::within_rect(f.rect(), mx, my))
+            return &f;
+
+        Folder* fold = check_folder_click(f, mx, my);
+
+        if (fold)
+            return fold;
+    }
+
+    return nullptr;
+}
+
+
+void gui::Tree::collapse_folder(Folder& folder)
+{
+    folder.collapse();
 }
