@@ -187,6 +187,9 @@ void gui::Tree::render(SDL_Renderer* rend)
 
 gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
 {
+    if (my < m_top_y)
+        return nullptr;
+
     for (auto& file : folder.files())
     {
         if (common::within_rect(file.rect(), mx, my))
@@ -207,6 +210,9 @@ gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
 
 gui::Folder* gui::Tree::check_folder_click(Folder& folder, int mx, int my)
 {
+    if (my < m_top_y)
+        return nullptr;
+
     if (common::within_rect(folder.rect(), mx, my))
     {
         return &folder;
