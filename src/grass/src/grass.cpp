@@ -48,7 +48,7 @@ void Grass::mainloop()
         800 - 40
     };
 
-    TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 100);
+    TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 100);
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
@@ -56,9 +56,9 @@ void Grass::mainloop()
     std::vector<gui::Button> buttons;
 
     gui::Tree tree(
-        gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
+        gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 8, 16 }, { 255, 255, 255 }), m_rend),
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, 20 },
+        { 0, main_text_dimensions.y, 200, 16 },
         m_rend
     );
 

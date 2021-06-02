@@ -172,7 +172,7 @@ void gui::TextEntry::move_cursor(int x, int y, bool check)
             SDL_Point cursor_coords = real_to_char_pos(m_real_cursor_pos);
 
             int x_diff = cursor_coords.x - m_min_visible_indexes.x;
-            int y_diff;
+            int y_diff = 0;
 
             if (m_min_visible_indexes.y >= cursor_coords.y)
             {
@@ -386,7 +386,7 @@ void gui::TextEntry::remove_texture_from_cache(int index)
 void gui::TextEntry::update_cache()
 {
     m_cached_textures.clear();
-    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y);
+    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y + 1);
 }
 
 
