@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <SDL_image.h>
 
 #define BG_COLOR 30, 30, 30
 
@@ -23,6 +24,7 @@ Grass::Grass()
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
     TTF_Init();
+    IMG_Init(IMG_INIT_PNG);
 }
 
 
@@ -33,6 +35,7 @@ Grass::~Grass()
 
     SDL_Quit();
     TTF_Quit();
+    IMG_Quit();
 }
 
 
