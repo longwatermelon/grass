@@ -39,52 +39,17 @@ void Grass::mainloop()
 {
     constexpr SDL_Rect main_text_dimensions = {
         200,
-        60,
+        40,
         1000 - 200,
-        800 - 60
+        800 - 40
     };
 
     TTF_Font* font_regular = TTF_OpenFont("res/SourceCodePro-Regular.ttf", 100);
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
-    text_entries.emplace_back(gui::TextEntry(SDL_Rect{ 0, 0, 400, 20 }, gui::Text(font_regular, { 0, 0 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
 
     std::vector<gui::Button> buttons;
-    buttons.emplace_back(gui::Button(m_rend, gui::Text(font_regular, { 420, 0 }, "Save", { 10, 20 }, { 255, 255, 255 }), { 420, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
-        std::string fp = text_entries[1].text()->str();
-        std::ofstream ofs(fp);
-        
-        for (auto& s : text_entries[0].text()->contents())
-        {
-            ofs << s << "\n";
-        }
-
-        ofs.close();
-    }));
-    buttons.emplace_back(gui::Button(m_rend, gui::Text(font_regular, { 540, 0 }, "Load", { 10, 20 }, { 255, 255, 255 }), { 540, 0, 100, 20 }, { 0, 150, 0 }, [&]() {
-        std::string fp = text_entries[1].text()->str();
-        std::ifstream ifs(fp);
-
-        std::vector<std::string> lines;
-        std::string line;
-        while (std::getline(ifs, line)) lines.emplace_back(line);
-
-        ifs.close();
-
-        text_entries[0].text()->set_contents(lines);
-        text_entries[0].reset_bounds_x();
-        text_entries[0].reset_bounds_y();
-        text_entries[0].set_cursor_pos(0, 0);
-        text_entries[0].update_cache();
-    }));
-    buttons.emplace_back(gui::Button(m_rend, gui::Text(font_regular, { 660, 0 }, "Reset", { 10, 20 }, {255, 255, 255}), { 660, 0, 100, 20 }, { 0, 150, 0 }, [&] () {
-        text_entries[0].text()->set_contents(std::vector<std::string>(1));
-        text_entries[0].reset_bounds_x();
-        text_entries[0].reset_bounds_y();
-        text_entries[0].set_cursor_pos(0, 0);
-        text_entries[0].update_cache();
-    }));
 
     gui::Tree tree(
         gui::Folder("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
