@@ -53,7 +53,7 @@ void Grass::mainloop()
     std::vector<gui::Button> buttons;
 
     gui::Tree tree(
-        gui::Folder("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
+        gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
         { 0, main_text_dimensions.y, 200, 20 },
         m_rend

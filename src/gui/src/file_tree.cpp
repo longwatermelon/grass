@@ -20,16 +20,19 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 }
 
 
-void gui::File::render(SDL_Renderer* rend, int offset)
+void gui::File::render(SDL_Renderer* rend, int offset, int top_y)
 {
-    SDL_Rect tmp = {
-        m_rect.x + offset,
-        m_rect.y,
-        m_name.char_dim().x * (int)m_name.str().size(),
-        m_name.char_dim().y
-    };
+    if (m_rect.y >= top_y)
+    {
+        SDL_Rect tmp = {
+            m_rect.x + offset,
+            m_rect.y,
+            m_name.char_dim().x * (int)m_name.str().size(),
+            m_name.char_dim().y
+        };
 
-    SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
+        SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
+    }
 }
 
 
@@ -63,46 +66,45 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex)
+void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y)
 {
-    // position has shifted
-    if (m_rect.y != m_rect.y)
-        m_rect = m_rect;
-
-    SDL_Rect text_rect = {
-        m_rect.x + offset,
-        m_rect.y,
-        m_name.char_dim().x * (int)m_name.str().size(),
-        m_name.char_dim().y
-    };
-
-    SDL_RenderCopy(rend, m_tex, nullptr, &text_rect);
-
-    SDL_Rect arrow_rect = {
-        text_rect.x - m_name.char_dim().x * 2,
-        text_rect.y,
-        m_name.char_dim().y,
-        m_name.char_dim().y
-    };
-
-    if (m_collapsed)
+    if (m_rect.y >= top_y)
     {
-        SDL_RenderCopy(rend, closed_tex, nullptr, &arrow_rect);
-        return;
-    }
-    else
-    {
-        SDL_RenderCopy(rend, opened_tex, nullptr, &arrow_rect);
+        SDL_Rect text_rect = {
+            m_rect.x + offset,
+            m_rect.y,
+            m_name.char_dim().x * (int)m_name.str().size(),
+            m_name.char_dim().y
+        };
+
+        SDL_RenderCopy(rend, m_tex, nullptr, &text_rect);
+
+        SDL_Rect folder_rect = {
+            text_rect.x - m_name.char_dim().x * 2,
+            text_rect.y,
+            m_name.char_dim().y,
+            m_name.char_dim().y
+        };
+
+        if (m_collapsed)
+        {
+            SDL_RenderCopy(rend, closed_tex, nullptr, &folder_rect);
+            return;
+        }
+        else
+        {
+            SDL_RenderCopy(rend, opened_tex, nullptr, &folder_rect);
+        }
     }
 
     for (auto& folder : m_folders)
     {
-        folder.render(rend, offset + 10, closed_tex, opened_tex);
+        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y);
     }
 
     for (auto& file : m_files)
     {
-        file.render(rend, offset + 10);
+        file.render(rend, offset + 10, top_y);
     }
 }
 
@@ -161,6 +163,8 @@ gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend
     {
         std::cout << "failed to load tree textures\n";
     }
+
+    m_top_y = m_default_rect.y;
 }
 
 
@@ -171,12 +175,12 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture, m_opened_folder_texture);
+        folder.render(rend, offset, m_closed_folder_texture, m_opened_folder_texture, m_top_y);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, offset);
+        file.render(rend, offset, m_top_y);
     }
 }
 

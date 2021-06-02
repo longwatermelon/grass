@@ -12,7 +12,7 @@ namespace gui
         File() = default;
         File(const std::string& base_path, const Text& name, SDL_Renderer* rend);
 
-        void render(SDL_Renderer* rend, int offset);
+        void render(SDL_Renderer* rend, int offset, int top_y);
 
         void update_rect(SDL_Rect& r) { m_rect = r; r.y += m_name.char_dim().y; }
 
@@ -36,7 +36,7 @@ namespace gui
     public:
         Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend);
 
-        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex);
+        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y);
 
         /* If already collapsed, folder will expand. */
         void collapse();
@@ -85,6 +85,8 @@ namespace gui
     private:
         Folder m_folder;
         SDL_Rect m_default_rect;
+        /* top of the rendered folder tree */
+        int m_top_y;
 
         SDL_Texture* m_opened_folder_texture;
         SDL_Texture* m_closed_folder_texture;
