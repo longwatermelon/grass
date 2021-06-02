@@ -79,7 +79,11 @@ void Grass::mainloop()
         text_entries[0].update_cache();
     }));
 
-    gui::Folder tree("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }));
+    gui::Tree tree(
+        gui::Folder("src", gui::Text(font_regular, { 0, 60 }, "", { 10, 20 }, { 255, 255, 255 }), m_rend),
+        { 0, 60 }, 
+        { 0, 0, 0 }
+    );
     
     bool running = true;
     SDL_Event evt;
@@ -218,6 +222,8 @@ void Grass::mainloop()
             btn.check_hover(mx, my);
             btn.render(m_rend);
         }
+
+        tree.render(m_rend);
 
         for (auto& e : text_entries)
         {
