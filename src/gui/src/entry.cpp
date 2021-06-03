@@ -274,6 +274,14 @@ void gui::TextEntry::remove_char(int count)
             stop_highlight();
             update_cache();
         }
+
+        int diff = m_text.contents().size() - m_max_visible_indexes.y;
+
+        if (diff < 0)
+        {
+            move_bounds(0, diff);
+            update_cache();
+        }
     }
 }
 
@@ -336,7 +344,7 @@ SDL_Point gui::TextEntry::real_to_char_pos(SDL_Point pos)
 
 bool gui::TextEntry::move_bounds(int x, int y)
 {
-    if (m_min_visible_indexes.x + x >= 0 && m_min_visible_indexes.y + y >= 0)
+    if (m_min_visible_indexes.x + x >= 0 && m_min_visible_indexes.y + y >= 0 && m_max_visible_indexes.y + y <= m_text.contents().size())
     {
         m_min_visible_indexes.x += x;
         m_min_visible_indexes.y += y;
@@ -619,6 +627,7 @@ bool gui::TextEntry::cursor_visible()
 void gui::TextEntry::move_cursor_to_click(int mx, int my)
 {
     SDL_Point coords = real_to_char_pos({ mx, my });
+
     SDL_Point real_coords = { 
         m_min_visible_indexes.x + coords.x, 
         m_min_visible_indexes.y + coords.y
@@ -627,6 +636,22 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
     if (real_coords.y < m_text.contents().size())
     {
         set_cursor_pos(real_coords.x, real_coords.y);
+
+        if (coords.y < 0)
+        {
+            move_bounds(0, -1);
+            m_cached_textures.pop_back();
+            m_cached_textures.insert(m_cached_textures.begin(), nullptr);
+        }
+
+        if (coords.y > (int)((m_rect.h - m_rect.y) / m_text.char_dim().y))
+        {
+            if (move_bounds(0, 1))
+            {
+                m_cached_textures.erase(m_cached_textures.begin());
+                m_cached_textures.emplace_back(nullptr);
+            }
+        }
 
         if (real_coords.x >= m_text.get_line(real_coords.y).size())
         {
@@ -679,9 +704,7 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
     std::string line = m_text.get_line(y_index);
 
     if (x2 < x1)
-    {
         std::swap(x1, x2);
-    }
 
     if (x1 == 0)
         return;
