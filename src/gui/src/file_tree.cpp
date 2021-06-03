@@ -1,5 +1,4 @@
 #include "file_tree.h"
-#include "common.h"
 #include <filesystem>
 #include <iostream>
 #include <SDL_image.h>
@@ -10,13 +9,15 @@
 #  define PATH_SLASH '/'
 #endif /* if defined(_WIN32) */
 
+#define unique(ptr) std::unique_ptr<SDL_Texture, common::TextureDeleter>(ptr)
+
 namespace fs = std::filesystem;
 
 
 gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* rend)
     : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }
 {
-    m_tex = common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color());
+    m_tex = unique(common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color()));
 }
 
 
@@ -31,7 +32,7 @@ void gui::File::render(SDL_Renderer* rend, int offset, int top_y)
             m_name.char_dim().y
         };
 
-        SDL_RenderCopy(rend, m_tex, nullptr, &tmp);
+        SDL_RenderCopy(rend, m_tex.get(), nullptr, &tmp);
     }
 }
 
@@ -42,27 +43,13 @@ std::string gui::File::path()
 }
 
 
-gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend)
-    : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }
+gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend, bool load_directory)
+    : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }, m_loaded(load_directory)
 {
-    Text t = name;
-    std::string sname = m_name.str();
+    if (load_directory)
+        load(rend);
 
-    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname))
-    {
-        t.set_contents({ entry.path().filename().string() });
-        
-        if (entry.is_directory())
-        {
-            m_folders.emplace_back(Folder(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
-        }
-        else
-        {
-            m_files.emplace_back(File(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
-        }
-    }
-
-    m_tex = common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color());
+    m_tex = unique(common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color()));
 }
 
 
@@ -77,7 +64,7 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
             m_name.char_dim().y
         };
 
-        SDL_RenderCopy(rend, m_tex, nullptr, &text_rect);
+        SDL_RenderCopy(rend, m_tex.get(), nullptr, &text_rect);
 
         SDL_Rect folder_rect = {
             text_rect.x - m_name.char_dim().x * 2,
@@ -109,26 +96,23 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
 }
 
 
-void gui::Folder::collapse()
+void gui::Folder::collapse(SDL_Renderer* rend)
 {
     if (!m_collapsed)
     {
         m_collapsed = true;
 
-        for (auto& folder : m_folders)
-        {
-            folder.collapse();
-            folder.reset_rect();
-        }
-
-        for (auto& file : m_files)
-        {
-            file.reset_rect();
-        }
+        unload();
     }
     else
     {
         m_collapsed = false;
+        load(rend);
+
+        for (auto& f : m_folders)
+        {
+            f.collapse(rend);
+        }
     }
 }
 
@@ -153,11 +137,39 @@ void gui::Folder::update_rects(SDL_Rect& rect)
 }
 
 
-gui::Tree::Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
-    : m_folder(folder), m_default_rect(starting_rect)
+void gui::Folder::load(SDL_Renderer* rend)
 {
-    m_closed_folder_texture = IMG_LoadTexture(rend, "res/folder_closed.png");
-    m_opened_folder_texture = IMG_LoadTexture(rend, "res/folder_open.png");
+    Text t = m_name;
+    std::string sname = m_name.str();
+
+    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname))
+    {
+        t.set_contents({ entry.path().filename().string() });
+
+        if (entry.is_directory())
+        {
+            m_folders.emplace_back(Folder(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend, false));
+        }
+        else
+        {
+            m_files.emplace_back(File(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
+        }
+    }
+}
+
+
+void gui::Folder::unload()
+{
+    m_files.clear();
+    m_folders.clear();
+}
+
+
+gui::Tree::Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
+    : m_folder(std::move(folder)), m_default_rect(starting_rect)
+{
+    m_closed_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_closed.png"));
+    m_opened_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_open.png"));
 
     if (!m_closed_folder_texture || !m_opened_folder_texture)
     {
@@ -175,7 +187,7 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture, m_opened_folder_texture, m_top_y);
+        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y);
     }
 
     for (auto& file : m_folder.files())
@@ -233,9 +245,9 @@ gui::Folder* gui::Tree::check_folder_click(Folder& folder, int mx, int my)
 }
 
 
-void gui::Tree::collapse_folder(Folder& folder)
+void gui::Tree::collapse_folder(Folder& folder, SDL_Renderer* rend)
 {
-    folder.collapse();
+    folder.collapse(rend);
 }
 
 
@@ -256,8 +268,24 @@ void gui::Tree::update_display()
 }
 
 
-void gui::Tree::scroll(int y)
+void gui::Tree::scroll(int y, int window_h)
 {
-    m_default_rect.y -= m_folder.name().char_dim().y * y;
+    File& last_file = m_folder.files()[m_folder.files().size() - 1];
+    Folder& first_folder = m_folder.folders()[0];
+    int char_height = m_folder.name().char_dim().y;
+
+    if (first_folder.rect().y - y * char_height <= m_top_y)
+    {
+        if (y > 0) // scrolling downwards, everything moves up
+        {
+            if (last_file.rect().y + last_file.rect().h - y * char_height + char_height >= window_h)
+                m_default_rect.y -= char_height * y;
+        }
+        else // scrolling upwards, everything moves down
+        {
+            m_default_rect.y -= char_height * y;
+        }
+    }
+
     update_display();
 }

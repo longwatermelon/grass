@@ -51,12 +51,13 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 36);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 10, 20 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 9, 18 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
 
     std::vector<gui::Button> buttons;
 
+    gui::Folder folder("C:/", gui::Text(font_regular, { 0, 60 }, "", { 8, 16 }, { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
-        gui::Folder(".", gui::Text(font_regular, { 0, 60 }, "", { 8, 16 }, { 255, 255, 255 }), m_rend),
+        folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
         { 0, main_text_dimensions.y, 200, 16 },
         m_rend
@@ -64,7 +65,7 @@ void Grass::mainloop()
 
     for (auto& f : tree.folder().folders())
     {
-        f.collapse();
+        f.collapse(m_rend);
     }
 
     tree.update_display();
@@ -138,7 +139,7 @@ void Grass::mainloop()
 
                 if (folder)
                 {
-                    tree.collapse_folder(*folder);
+                    tree.collapse_folder(*folder, m_rend);
                     tree.update_display();
                 }
 
@@ -228,7 +229,7 @@ void Grass::mainloop()
             } break;
             case SDL_MOUSEWHEEL:
                 if (mx > 0 && mx < main_text_dimensions.x)
-                    tree.scroll(-evt.wheel.y);
+                    tree.scroll(-evt.wheel.y, wy);
                 else
                     text_entries[0].scroll(-evt.wheel.y);
                 break;

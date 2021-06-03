@@ -1,7 +1,9 @@
 #pragma once
 #include "text.h"
+#include "common.h"
 #include <string>
 #include <vector>
+#include <memory>
 
 
 namespace gui
@@ -28,20 +30,23 @@ namespace gui
         std::string m_base_path;
         Text m_name;
 
-        SDL_Texture* m_tex;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
     };
 
     class Folder
     {
     public:
-        Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend);
+        Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend, bool load_directory);
 
         void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y);
 
         /* If already collapsed, folder will expand. */
-        void collapse();
+        void collapse(SDL_Renderer* rend);
 
         void update_rects(SDL_Rect& rect);
+
+        void load(SDL_Renderer* rend);
+        void unload();
 
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
@@ -59,26 +64,27 @@ namespace gui
         std::vector<File> m_files;
         std::vector<Folder> m_folders;
 
-        SDL_Texture* m_tex;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
 
         bool m_collapsed{ false };
+        bool m_loaded{ false };
     };
 
     class Tree
     {
     public:
-        Tree(const Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
+        Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
 
         void render(SDL_Renderer* rend);
 
         File* check_file_click(Folder& folder, int mx, int my);
         Folder* check_folder_click(Folder& folder, int mx, int my);
 
-        void collapse_folder(Folder& folder);
+        void collapse_folder(Folder& folder, SDL_Renderer* rend);
 
         void update_display();
 
-        void scroll(int y);
+        void scroll(int y, int window_h);
 
         Folder& folder() { return m_folder; }
 
@@ -88,7 +94,7 @@ namespace gui
         /* top of the rendered folder tree */
         int m_top_y;
 
-        SDL_Texture* m_opened_folder_texture;
-        SDL_Texture* m_closed_folder_texture;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_opened_folder_texture;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_closed_folder_texture;
     };
 }
