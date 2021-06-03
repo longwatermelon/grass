@@ -142,8 +142,12 @@ void gui::Folder::load(SDL_Renderer* rend)
     Text t = m_name;
     std::string sname = m_name.str();
 
-    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname))
+    std::error_code ec;
+    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname, fs::directory_options::skip_permission_denied, ec))
     {
+        if (ec)
+            continue;
+
         t.set_contents({ entry.path().filename().string() });
 
         if (entry.is_directory())
