@@ -24,6 +24,8 @@ namespace gui
         */
         void erase(int x, int y, bool erase_nl = true);
 
+        void remove_line(int i) { m_contents.erase(m_contents.begin() + i); }
+
 
         // getters and setters
 
