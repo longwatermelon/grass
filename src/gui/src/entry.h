@@ -6,6 +6,12 @@
 
 namespace gui
 {
+    struct Cursor
+    {
+        SDL_Point real_pos;
+        SDL_Point display_pos;
+    };
+
     class TextEntry
     {
     public:
@@ -92,18 +98,17 @@ namespace gui
         // getter functions
 
         Text* text() { return &m_text; }
-        SDL_Point display() { return m_display_cursor_pos; }
-        SDL_Point real() { return m_real_cursor_pos; }
-        std::string get_current_line() { return m_text.get_line((m_real_cursor_pos.y - m_rect.y) / m_text.char_dim().y); }
-        SDL_Point get_coords() { return real_to_char_pos(m_real_cursor_pos); }
+        SDL_Point display() { return m_cursor.display_pos; }
+        SDL_Point real() { return m_cursor.real_pos; }
+        std::string get_current_line() { return m_text.get_line((m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y); }
+        SDL_Point get_coords() { return real_to_char_pos(m_cursor.real_pos); }
 
     private:
         SDL_Rect m_rect;
         Text m_text;
         SDL_Color m_background_color;
 
-        SDL_Point m_display_cursor_pos;
-        SDL_Point m_real_cursor_pos;
+        Cursor m_cursor;
 
         SDL_Point m_min_visible_indexes, m_max_visible_indexes;
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
