@@ -53,61 +53,36 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
     if (m_mode == Mode::HIGHLIGHT)
     {
-        if (m_cursor.display_pos.x != m_highlight_orig.display_pos.x || m_cursor.display_pos.y != m_highlight_orig.display_pos.y)
+        SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(rend, 180, 180, 255, 90);
+
+        if (m_cursor.real_pos.y == m_highlight_orig.real_pos.y) // single line highlight
         {
-            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
-            SDL_SetRenderDrawColor(rend, 255, 0, 0, 100);
+            SDL_Rect rect = {
+                m_highlight_orig.display_pos.x,
+                m_highlight_orig.display_pos.y,
+                m_cursor.display_pos.x - m_highlight_orig.display_pos.x,
+                m_cursor.display_pos.y - m_highlight_orig.display_pos.y + m_text.char_dim().y
+            };
 
-            if (m_cursor.real_pos.y == m_highlight_orig.real_pos.y) // single line highlight
-            {
-                SDL_Rect rect = {
-                    m_highlight_orig.display_pos.x,
-                    m_highlight_orig.display_pos.y,
-                    m_cursor.display_pos.x - m_highlight_orig.display_pos.x,
-                    m_cursor.display_pos.y - m_highlight_orig.display_pos.y + m_text.char_dim().y
-                };
-
-                SDL_RenderFillRect(rend, &rect);
-            }
-            else if (m_cursor.real_pos.y < m_highlight_orig.real_pos.y) // cursor is higher than origin
-            {
-                // from cursor to end of line
-                SDL_Point cursor_coords = real_to_char_pos(m_cursor.real_pos);
-                SDL_Point highlight_coords = real_to_char_pos(m_highlight_orig.real_pos);
-
-                SDL_Rect rect = {
-                    m_cursor.real_pos.x,
-                    m_cursor.real_pos.y,
-                    (m_text.get_line(cursor_coords.y).size() - cursor_coords.x) * m_text.char_dim().x,
-                    m_text.char_dim().y
-                };
-
-                SDL_RenderFillRect(rend, &rect);
-
-                for (int i = cursor_coords.y + 1; i < highlight_coords.y; ++i)
-                {
-                    rect = {
-                        m_rect.x,
-                        i * m_text.char_dim().y + m_rect.y,
-                        (int)m_text.get_line(i).size() * m_text.char_dim().x,
-                        m_text.char_dim().y
-                    };
-
-                    SDL_RenderFillRect(rend, &rect);
-                }
-
-                rect = {
-                    m_rect.x,
-                    m_highlight_orig.real_pos.y,
-                    ((int)m_text.get_line_ref(highlight_coords.y).size() - ((int)m_text.get_line_ref(highlight_coords.y).size() - highlight_coords.x)) * m_text.char_dim().x,
-                    m_text.char_dim().y
-                };
-
-                SDL_RenderFillRect(rend, &rect);
-            }
-
-            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
+            SDL_RenderFillRect(rend, &rect);
         }
+        else if (m_cursor.real_pos.y < m_highlight_orig.real_pos.y) // cursor is above origin
+        {
+            SDL_Point real_cursor_coords = real_to_char_pos(m_cursor.real_pos);
+            SDL_Point real_orig_coords = real_to_char_pos(m_highlight_orig.real_pos);
+
+            // highlight all lines in between cursor and origin
+            for (int i = real_cursor_coords.y + 1; i < real_orig_coords.y; ++i)
+            {
+                highlight_line(rend, i);
+            }
+
+            highlight_section(rend, real_cursor_coords.y, m_cursor.real_pos.x, m_rect.x + get_current_line().size() * m_text.char_dim().x);
+            highlight_section(rend, real_orig_coords.y, m_highlight_orig.real_pos.x, m_rect.x);
+        }
+
+        SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
     }
 
     // Convenient debug stuff, dont delete this
@@ -233,21 +208,32 @@ void gui::TextEntry::remove_char(int count)
 
             stop_highlight();
         }
-        else if (m_cursor.real_pos.y < m_highlight_orig.real_pos.y) // cursor is higher than origin
+        else if (m_cursor.real_pos.y < m_highlight_orig.real_pos.y) // cursor is above origin
         {
-            std::string& cursor_line = m_text.get_line_ref(cursor_coords.y);
-            cursor_line.erase(cursor_coords.x, cursor_line.size() - cursor_coords.x);
+            SDL_Point real_cursor_coords = real_to_char_pos(m_cursor.real_pos);
+            SDL_Point real_orig_coords = real_to_char_pos(m_highlight_orig.real_pos);
 
-            for (int i = cursor_coords.y + 1; i < orig_coords.y;)
+            // remove all lines in between cursor and origin
+            for (int i = real_cursor_coords.y + 1; i < real_orig_coords.y;)
             {
                 m_text.remove_line(i);
-                --orig_coords.y;
+                --real_orig_coords.y;
             }
 
-            m_text.get_line_ref(orig_coords.y).erase(0, orig_coords.x);
+            std::string& cursor_string = m_text.get_line_ref(real_cursor_coords.y);
+            cursor_string.erase(real_cursor_coords.x, cursor_string.size() - real_cursor_coords.x);
+
+            std::string& orig_string = m_text.get_line_ref(real_orig_coords.y);
+
+            if (real_orig_coords.x == orig_string.size())
+                m_text.remove_line(real_orig_coords.y);
+            else
+                orig_string.erase(0, real_orig_coords.x);
 
             stop_highlight();
             update_cache();
+            /*highlight_section(rend, real_cursor_coords.y, m_cursor.real_pos.x, m_rect.x + get_current_line().size() * m_text.char_dim().x);
+            highlight_section(rend, real_orig_coords.y, m_highlight_orig.real_pos.x, m_rect.x);*/
         }
     }
 }
@@ -631,4 +617,42 @@ void gui::TextEntry::stop_highlight_if_not_highlight()
     {
         stop_highlight();
     }
+}
+
+
+void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
+{
+    std::string line = m_text.get_line(y_index);
+    
+    SDL_Rect rect = {
+        m_rect.x,
+        (y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y,
+        std::min((int)line.size() * m_text.char_dim().x, m_rect.w),
+        m_text.char_dim().y
+    };
+
+    SDL_RenderFillRect(rend, &rect);
+}
+
+
+void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2)
+{
+    std::string line = m_text.get_line(y_index);
+
+    if (x2 < x1)
+    {
+        std::swap(x1, x2);
+    }
+
+    if (x1 == 0)
+        return;
+
+    SDL_Rect rect = {
+        x1,
+        (y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y,
+        x2 - x1,
+        m_text.char_dim().y
+    };
+
+    SDL_RenderFillRect(rend, &rect);
 }

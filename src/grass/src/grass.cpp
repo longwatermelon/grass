@@ -189,10 +189,12 @@ void Grass::mainloop()
                         SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
 
                         if (coords.y < m_selected_entry->text()->contents().size())
-                            // coords.y == m_selected_entry->text()->contents().size() - 1 ? false : true
+                        {
                             // if the user presses delete when the current line is the last element in contents, it 
                             // would delete the current line but not move up causing vector subscript out of range errors.
-                            m_selected_entry->text()->erase(coords.x, coords.y, coords.y == m_selected_entry->text()->contents().size() - 1 ? false : true);
+                            m_selected_entry->text()->erase(coords.x, coords.y, m_selected_entry->text()->contents().size() == 0 ? false : true);
+                            m_selected_entry->clear_cache();
+                        }
                     }
                     }
                 }

@@ -104,7 +104,10 @@ namespace gui
         void start_highlight();
         void stop_highlight();
         void stop_highlight_if_not_highlight();
-
+        /* y_index is measured in characters */
+        void highlight_line(SDL_Renderer* rend, int y_index);
+        /* y_index measured in characters, x1 and x2 are measured in pixels */
+        void highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2);
 
         // getter functions
 
