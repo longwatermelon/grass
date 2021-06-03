@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <map>
 
 
 namespace gui
@@ -14,7 +15,7 @@ namespace gui
         File() = default;
         File(const std::string& base_path, const Text& name, SDL_Renderer* rend);
 
-        void render(SDL_Renderer* rend, int offset, int top_y);
+        void render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures);
 
         void update_rect(SDL_Rect& r) { m_rect = r; r.y += m_name.char_dim().y; }
 
@@ -38,7 +39,7 @@ namespace gui
     public:
         Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend, bool load_directory);
 
-        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y);
+        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures);
 
         /* If already collapsed, folder will expand. */
         void collapse(SDL_Renderer* rend);
@@ -96,5 +97,7 @@ namespace gui
 
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_opened_folder_texture;
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_closed_folder_texture;
+
+        std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_file_textures;
     };
 }

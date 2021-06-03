@@ -54,7 +54,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
     if (m_mode == Mode::HIGHLIGHT)
     {
         SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(rend, 180, 180, 255, 90);
+        SDL_SetRenderDrawColor(rend, 110, 110, 255, 90);
 
         if (m_cursor.real_pos.y == m_highlight_orig.real_pos.y) // single line highlight
         {

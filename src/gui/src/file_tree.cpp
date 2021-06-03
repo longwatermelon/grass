@@ -21,18 +21,27 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 }
 
 
-void gui::File::render(SDL_Renderer* rend, int offset, int top_y)
+void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures)
 {
     if (m_rect.y >= top_y)
     {
-        SDL_Rect tmp = {
+        SDL_Rect text_rect = {
             m_rect.x + offset,
             m_rect.y,
             m_name.char_dim().x * (int)m_name.str().size(),
             m_name.char_dim().y
         };
 
-        SDL_RenderCopy(rend, m_tex.get(), nullptr, &tmp);
+        SDL_RenderCopy(rend, m_tex.get(), nullptr, &text_rect);
+
+        SDL_Rect icon_rect = {
+            text_rect.x - m_name.char_dim().x * 2,
+            text_rect.y,
+            m_name.char_dim().y,
+            m_name.char_dim().y
+        };
+
+        SDL_RenderCopy(rend, file_textures["na"].get(), nullptr, &icon_rect);
     }
 }
 
@@ -53,7 +62,7 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y)
+void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures)
 {
     if (m_rect.y >= top_y)
     {
@@ -86,12 +95,12 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
 
     for (auto& folder : m_folders)
     {
-        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y);
+        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y, file_textures);
     }
 
     for (auto& file : m_files)
     {
-        file.render(rend, offset + 10, top_y);
+        file.render(rend, offset + 10, top_y, file_textures);
     }
 }
 
@@ -175,10 +184,7 @@ gui::Tree::Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
     m_closed_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_closed.png"));
     m_opened_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_open.png"));
 
-    if (!m_closed_folder_texture || !m_opened_folder_texture)
-    {
-        std::cout << "failed to load tree textures\n";
-    }
+    m_file_textures["na"] = unique(IMG_LoadTexture(rend, "res/file_na.png"));
 
     m_top_y = m_default_rect.y;
 }
@@ -191,12 +197,12 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y);
+        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y, m_file_textures);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, offset, m_top_y);
+        file.render(rend, offset, m_top_y, m_file_textures);
     }
 }
 
