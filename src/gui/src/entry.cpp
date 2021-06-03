@@ -81,6 +81,20 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             highlight_section(rend, real_cursor_coords.y, m_cursor.real_pos.x, m_rect.x + get_current_line().size() * m_text.char_dim().x);
             highlight_section(rend, real_orig_coords.y, m_highlight_orig.real_pos.x, m_rect.x);
         }
+        else // cursor is below origin
+        {
+            SDL_Point real_cursor_coords = real_to_char_pos(m_cursor.real_pos);
+            SDL_Point real_orig_coords = real_to_char_pos(m_highlight_orig.real_pos);
+
+            // highlight all lines in between cursor and origin
+            for (int i = real_orig_coords.y + 1; i < real_cursor_coords.y; ++i)
+            {
+                highlight_line(rend, i);
+            }
+
+            highlight_section(rend, real_cursor_coords.y, m_cursor.real_pos.x, m_rect.x);
+            highlight_section(rend, real_orig_coords.y, m_highlight_orig.real_pos.x, m_rect.x + m_text.get_line(real_orig_coords.y).size() * m_text.char_dim().x);
+        }
 
         SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
     }
@@ -232,8 +246,33 @@ void gui::TextEntry::remove_char(int count)
 
             stop_highlight();
             update_cache();
-            /*highlight_section(rend, real_cursor_coords.y, m_cursor.real_pos.x, m_rect.x + get_current_line().size() * m_text.char_dim().x);
-            highlight_section(rend, real_orig_coords.y, m_highlight_orig.real_pos.x, m_rect.x);*/
+        }
+        else // cursor is below origin
+        {
+            SDL_Point real_cursor_coords = real_to_char_pos(m_cursor.real_pos);
+            SDL_Point real_orig_coords = real_to_char_pos(m_highlight_orig.real_pos);
+
+            // remove all lines in between cursor and origin
+            for (int i = real_orig_coords.y + 1; i < real_cursor_coords.y;)
+            {
+                m_text.remove_line(i);
+                --real_cursor_coords.y;
+            }
+
+            std::string& cursor_string = m_text.get_line_ref(real_cursor_coords.y);
+            //cursor_string.erase(real_cursor_coords.x, cursor_string.size() - real_cursor_coords.x);
+            if (real_cursor_coords.x == cursor_string.size())
+                m_text.remove_line(real_cursor_coords.y);
+            else
+                cursor_string.erase(0, real_cursor_coords.x);
+
+            std::string& orig_string = m_text.get_line_ref(real_orig_coords.y);
+            orig_string.erase(real_orig_coords.x, orig_string.size() - real_orig_coords.x);
+
+            m_cursor = m_highlight_orig;
+
+            stop_highlight();
+            update_cache();
         }
     }
 }
