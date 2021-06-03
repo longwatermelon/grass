@@ -421,6 +421,11 @@ void gui::TextEntry::resize_to(int w, int h)
         m_min_visible_indexes.y + (int)(m_rect.h / m_text.char_dim().y)
     };
 
+    if (m_max_visible_indexes.y >= m_text.contents().size())
+    {
+        move_bounds(0, -(std::min(m_max_visible_indexes.y - (int)m_text.contents().size(), m_min_visible_indexes.y)));
+    }
+
     m_display_cursor_pos = {
         std::min((m_max_visible_indexes.x - m_min_visible_indexes.x) * m_text.char_dim().x + m_rect.x, m_display_cursor_pos.x),
         std::min((m_max_visible_indexes.y - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y - m_text.char_dim().y, m_display_cursor_pos.y)
@@ -443,11 +448,32 @@ void gui::TextEntry::scroll(int y)
     int new_min_y = m_min_visible_indexes.y + y;
     int new_max_y = m_max_visible_indexes.y + y;
 
-    if (new_min_y >= 0 && new_max_y <= m_text.contents().size())
+    /*if (new_min_y >= 0 && new_max_y <= m_text.contents().size())
     {
         move_bounds(0, y);
         shift_cache(y);
         move_display_cursor(0, -y);
+    }*/
+
+    auto shift = [&]() {
+        move_bounds(0, y);
+        shift_cache(y);
+        move_display_cursor(0, -y);
+    };
+
+    if (y > 0) // scrolling down
+    {
+        if (new_max_y <= m_text.contents().size())
+        {
+            shift();
+        }
+    }
+    else // scrolling up
+    {
+        if (new_min_y >= 0)
+        {
+            shift();
+        }
     }
 }
 
