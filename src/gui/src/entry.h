@@ -129,7 +129,7 @@ namespace gui
 
         SDL_Color m_cursor_color;
 
-        Cursor m_highlight_orig;
+        Cursor m_highlight_orig{ -1, -1 };
         Mode m_mode{ Mode::NORMAL };
     };
 }
