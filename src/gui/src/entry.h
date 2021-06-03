@@ -86,6 +86,8 @@ namespace gui
 
         bool cursor_visible();
 
+        void move_cursor_to_click(int mx, int my);
+
 
         // getter functions
 

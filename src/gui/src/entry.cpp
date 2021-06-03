@@ -239,8 +239,15 @@ void gui::TextEntry::reset_bounds_y()
 
 void gui::TextEntry::set_cursor_pos(int x, int y)
 {
-    m_display_cursor_pos = { x * m_text.char_dim().x + m_rect.x, y * m_text.char_dim().y + m_rect.y };
-    m_real_cursor_pos = { x * m_text.char_dim().x + m_rect.x, y * m_text.char_dim().y + m_rect.y };
+    m_display_cursor_pos = {
+        x * m_text.char_dim().x + m_rect.x - m_min_visible_indexes.x * m_text.char_dim().x, 
+        y * m_text.char_dim().y + m_rect.y - m_min_visible_indexes.y * m_text.char_dim().y
+    };
+
+    m_real_cursor_pos = {
+        x * m_text.char_dim().x + m_rect.x,
+        y * m_text.char_dim().y + m_rect.y 
+    };
 }
 
 
@@ -484,4 +491,24 @@ bool gui::TextEntry::cursor_visible()
 
     return coords.x >= m_min_visible_indexes.x && coords.x <= m_max_visible_indexes.x
         && coords.y >= m_min_visible_indexes.y && coords.y < m_max_visible_indexes.y;
+}
+
+
+void gui::TextEntry::move_cursor_to_click(int mx, int my)
+{
+    SDL_Point coords = real_to_char_pos({ mx, my });
+    SDL_Point real_coords = { 
+        m_min_visible_indexes.x + coords.x, 
+        m_min_visible_indexes.y + coords.y
+    };
+
+    if (real_coords.y < m_text.contents().size())
+    {
+        set_cursor_pos(real_coords.x, real_coords.y);
+
+        if (real_coords.x >= m_text.get_line(real_coords.y).size())
+        {
+            jump_to_eol();
+        }
+    }
 }

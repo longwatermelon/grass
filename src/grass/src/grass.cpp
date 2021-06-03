@@ -107,6 +107,7 @@ void Grass::mainloop()
                     {
                         m_selected_entry = &e;
                         has_selected_item = true;
+                        m_selected_entry->move_cursor_to_click(mx, my);
                     }
                 }
 
