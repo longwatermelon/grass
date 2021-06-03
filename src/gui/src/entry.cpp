@@ -51,6 +51,30 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         }
     }
 
+    if (m_mode == Mode::HIGHLIGHT)
+    {
+        if (m_cursor.display_pos.x != m_highlight_orig.display_pos.x || m_cursor.display_pos.y != m_highlight_orig.display_pos.y)
+        {
+            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(rend, 255, 0, 0, 100);
+
+            SDL_Rect rect;
+
+            if (m_cursor.display_pos.y == m_highlight_orig.display_pos.y) // single line highlight
+            {
+                rect = {
+                    m_highlight_orig.display_pos.x,
+                    m_highlight_orig.display_pos.y,
+                    m_cursor.display_pos.x - m_highlight_orig.display_pos.x,
+                    m_cursor.display_pos.y - m_highlight_orig.display_pos.y + m_text.char_dim().y
+                };
+            }
+
+            SDL_RenderFillRect(rend, &rect);
+            SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
+        }
+    }
+
     // Convenient debug stuff, dont delete this
     /*std::cout << "real: " << real_to_char_pos(m_cursor.real_pos).x << " | " << real_to_char_pos(m_cursor.real_pos).y << "\n";
     std::cout << "display: " << m_cursor.display_pos.x << " | " << m_cursor.display_pos.y << "\n";
@@ -96,54 +120,74 @@ void gui::TextEntry::add_char(char c)
 
 void gui::TextEntry::remove_char(int count)
 {
-    for (int i = 0; i < count; ++i)
+    if (m_mode == Mode::NORMAL)
     {
-        bool nl = false;
-        int bounds_diff = 0;
-
-        if ((m_cursor.real_pos.x - m_rect.x) == 0)
+        for (int i = 0; i < count; ++i)
         {
-            if (real_to_char_pos(m_cursor.real_pos).y != 0) // only move up if not at top of text box
+            bool nl = false;
+            int bounds_diff = 0;
+
+            if ((m_cursor.real_pos.x - m_rect.x) == 0)
             {
-                // nl variable to move the cursor down at the end of the function
-                nl = true;
-                int diff = m_text.contents()[(m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y - 1].size();
-                bounds_diff = diff - m_rect.w / m_text.char_dim().x;
+                if (real_to_char_pos(m_cursor.real_pos).y != 0) // only move up if not at top of text box
+                {
+                    // nl variable to move the cursor down at the end of the function
+                    nl = true;
+                    int diff = m_text.contents()[(m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y - 1].size();
+                    bounds_diff = diff - m_rect.w / m_text.char_dim().x;
 
-                // seemingly redundant cursor moving is for jump_to_eol to make sure the cursor moves to the end of the correct line, not the empty current one
-                move_cursor(diff, -1, false);
-                jump_to_eol(false);
+                    // seemingly redundant cursor moving is for jump_to_eol to make sure the cursor moves to the end of the correct line, not the empty current one
+                    move_cursor(diff, -1, false);
+                    jump_to_eol(false);
 
-                int y = (m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y;
-                m_text.set_line(y, m_text.get_line(y) + m_text.get_line(y + 1));
-                m_text.set_line(y + 1, "");
+                    int y = (m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y;
+                    m_text.set_line(y, m_text.get_line(y) + m_text.get_line(y + 1));
+                    m_text.set_line(y + 1, "");
 
-                move_cursor(0, 1, false);
+                    move_cursor(0, 1, false);
 
-                remove_texture_from_cache((m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y - m_min_visible_indexes.y);
+                    remove_texture_from_cache((m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y - m_min_visible_indexes.y);
 
-                if (m_text.contents().size() > m_max_visible_indexes.y)
-                    m_cached_textures.emplace_back(nullptr);
+                    if (m_text.contents().size() > m_max_visible_indexes.y)
+                        m_cached_textures.emplace_back(nullptr);
 
-                clear_cache();
+                    clear_cache();
+                }
+                else
+                {
+                    continue;
+                }
             }
             else
             {
-                continue;
+                move_cursor(-1, 0);
+            }
+
+            SDL_Point coords = real_to_char_pos(m_cursor.real_pos);
+            m_text.erase(coords.x, coords.y);
+
+            if (nl)
+            {
+                move_cursor(0, -1, false);
+                check_bounds(bounds_diff, -1);
             }
         }
-        else
+    }
+    else if (m_mode == Mode::HIGHLIGHT)
+    {
+        if (m_cursor.display_pos.y == m_highlight_orig.display_pos.y) // single line highlight
         {
-            move_cursor(-1, 0);
-        }
+            SDL_Point cursor_coords = real_to_char_pos(m_cursor.real_pos);
+            SDL_Point orig_coords = real_to_char_pos(m_highlight_orig.real_pos);
 
-        SDL_Point coords = real_to_char_pos(m_cursor.real_pos);
-        m_text.erase(coords.x, coords.y);
-        
-        if (nl)
-        {
-            move_cursor(0, -1, false);
-            check_bounds(bounds_diff, -1);
+            int min = std::min(cursor_coords.x, orig_coords.x);
+            int max = std::max(cursor_coords.x, orig_coords.x);
+
+            m_text.get_line_ref(cursor_coords.y).erase(min, max - min);
+
+            m_cursor.real_pos.x = m_highlight_orig.real_pos.x;
+            m_cursor.display_pos.x = m_highlight_orig.display_pos.x;
+            stop_highlight();
         }
     }
 }
@@ -503,5 +547,28 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
         {
             jump_to_eol();
         }
+    }
+}
+
+
+void gui::TextEntry::start_highlight()
+{
+    m_highlight_orig = m_cursor;
+    m_mode = Mode::HIGHLIGHT;
+}
+
+
+void gui::TextEntry::stop_highlight()
+{
+    m_highlight_orig = { {-1, -1}, {-1, -1} };
+    m_mode = Mode::NORMAL;
+}
+
+
+void gui::TextEntry::stop_highlight_if_not_highlight()
+{
+    if (m_cursor.display_pos.x == m_highlight_orig.display_pos.x && m_cursor.display_pos.y == m_highlight_orig.display_pos.y)
+    {
+        stop_highlight();
     }
 }

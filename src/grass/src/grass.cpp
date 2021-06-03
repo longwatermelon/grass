@@ -76,6 +76,8 @@ void Grass::mainloop()
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
+    bool mouse_down = false;
+
     while (running)
     {
         int mx, my;
@@ -94,6 +96,8 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONDOWN:
             {
+                mouse_down = true;
+
                 for (auto& btn : buttons)
                 {
                     btn.check_clicked(mx, my);
@@ -108,6 +112,7 @@ void Grass::mainloop()
                         m_selected_entry = &e;
                         has_selected_item = true;
                         m_selected_entry->move_cursor_to_click(mx, my);
+                        m_selected_entry->start_highlight();
                     }
                 }
 
@@ -147,6 +152,13 @@ void Grass::mainloop()
             } break;
 
             case SDL_MOUSEBUTTONUP:
+                mouse_down = false;
+
+                if (m_selected_entry)
+                {
+                    m_selected_entry->stop_highlight_if_not_highlight();
+                }
+
                 for (auto& btn : buttons)
                 {
                     btn.set_down(false);
@@ -238,6 +250,14 @@ void Grass::mainloop()
         }
 
         SDL_RenderClear(m_rend);
+
+        if (mouse_down)
+        {
+            if (m_selected_entry)
+            {
+                m_selected_entry->move_cursor_to_click(mx, my);
+            }
+        }
 
         for (auto& btn : buttons)
         {

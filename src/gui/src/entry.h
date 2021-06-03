@@ -12,6 +12,12 @@ namespace gui
         SDL_Point display_pos;
     };
 
+    enum class Mode
+    {
+        NORMAL,
+        HIGHLIGHT
+    };
+
     class TextEntry
     {
     public:
@@ -94,6 +100,11 @@ namespace gui
 
         void move_cursor_to_click(int mx, int my);
 
+        /* Sets highlight orig to current cursor position. */
+        void start_highlight();
+        void stop_highlight();
+        void stop_highlight_if_not_highlight();
+
 
         // getter functions
 
@@ -114,5 +125,8 @@ namespace gui
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
 
         SDL_Color m_cursor_color;
+
+        Cursor m_highlight_orig;
+        Mode m_mode{ Mode::NORMAL };
     };
 }
