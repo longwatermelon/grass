@@ -143,6 +143,8 @@ void Grass::mainloop()
                     tree.update_display();
 
                     SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
+
+                    text_entries[0].stop_highlight();
                 }
 
                 gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
