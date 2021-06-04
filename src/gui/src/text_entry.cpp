@@ -105,23 +105,34 @@ void gui::TextEntry::insert_char(char c)
 
 void gui::TextEntry::remove_char()
 {
-    SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
-    std::string line = m_text.get_line(cursor_coords.y);
-
-    if (line.empty()) // backspace onto previous line
+    if (m_mode == Mode::NORMAL)
     {
-        if (cursor_coords.y != 0) // dont move up if cursor is at top of the text box
+        SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
+        std::string line = m_text.get_line(cursor_coords.y);
+
+        if (line.empty()) // backspace onto previous line
         {
-            int diff = m_text.get_line(cursor_coords.y - 1).size() - cursor_coords.x; // cursor x will probably be 0 but add it in just to be safe
-            move_cursor_characters(diff, -1);
+            if (cursor_coords.y != 0) // dont move up if cursor is at top of the text box
+            {
+                m_text.remove_line(cursor_coords.y);
+                m_cached_textures.erase(m_cached_textures.begin() + m_cursor.display_char_pos(m_rect, m_min_bounds).y);
+                m_cached_textures.emplace_back(nullptr);
+
+                int diff = m_text.get_line(cursor_coords.y - 1).size() - cursor_coords.x; // cursor x will probably be 0 but add it in just to be safe
+                move_cursor_characters(diff, -1);
+            }
+        }
+        else // normal backspace
+        {
+            move_cursor_characters(-1, 0);
+            cursor_coords = m_cursor.char_pos(m_rect);
+
+            m_text.erase(cursor_coords.x, cursor_coords.y);
         }
     }
-    else // normal backspace
+    else
     {
-        move_cursor_characters(-1, 0);
-        cursor_coords = m_cursor.char_pos(m_rect);
-
-        m_text.erase(cursor_coords.x, cursor_coords.y);
+        erase_highlighted_section();
     }
 }
 
@@ -451,4 +462,31 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
     };
 
     SDL_RenderFillRect(rend, &rect);
+}
+
+
+void gui::TextEntry::erase_highlighted_section()
+{
+    SDL_Point cursor_char_coords = m_cursor.char_pos(m_rect);
+    SDL_Point highlight_char_coords = m_highlight_start.char_pos(m_rect);
+
+    if (cursor_char_coords.y == highlight_char_coords.y) // single line highlight
+    {
+        int min = std::min(cursor_char_coords.x, highlight_char_coords.x);
+        int max = std::max(cursor_char_coords.x, highlight_char_coords.x);
+
+        m_text.get_line_ref(cursor_char_coords.y).erase(min, max - min);
+
+        if (cursor_char_coords.x > highlight_char_coords.x)
+        {
+            m_cursor.move_characters(highlight_char_coords.x - cursor_char_coords.x, 0);
+        }
+
+        cursor_char_coords = m_cursor.char_pos(m_rect);
+
+        if (m_text.get_line_ref(cursor_char_coords.y).size() <= cursor_char_coords.x)
+            jump_to_eol();
+
+        stop_highlight();
+    }
 }

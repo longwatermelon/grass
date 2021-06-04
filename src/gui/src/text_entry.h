@@ -70,6 +70,8 @@ namespace gui
         void highlight_line(SDL_Renderer* rend, int y_index);
         // y_index measured in chars, x2 and x2 measured in pixels
         void highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2);
+        
+        void erase_highlighted_section();
 
 
         Text* text() { return &m_text; }
