@@ -48,7 +48,11 @@ void Grass::mainloop()
         800 - 40
     };
 
+    SDL_Rect dstrect;
+
     TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 36);
+    SDL_Texture* img = nullptr;
+    int img_x, img_y, img_w, img_h;
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 9, 18 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
@@ -80,6 +84,8 @@ void Grass::mainloop()
 
     while (running)
     {
+        
+
         SDL_CaptureMouse(SDL_TRUE);
 
         int mx, my;
@@ -126,20 +132,33 @@ void Grass::mainloop()
                 if (file)
                 {
                     std::string fp = file->path();
-                    std::ifstream ifs(fp);
+                    if (fp.substr(fp.length() - 4, fp.length()) == ".png")
+                    {
+                        img = IMG_LoadTexture(m_rend, fp.c_str());
+                        text_entries[0].text()->set_contents({ "" });
+                    }
 
-                    std::vector<std::string> lines;
-                    std::string line;
-                    while (std::getline(ifs, line)) lines.emplace_back(line);
+                    else
+                    {
+                        SDL_DestroyTexture(img);
+                        img = nullptr;
+                        std::ifstream ifs(fp);
 
-                    ifs.close();
+                        std::vector<std::string> lines;
+                        std::string line;
+                        while (std::getline(ifs, line)) lines.emplace_back(line);
 
-                    text_entries[0].text()->set_contents(lines);
+                        ifs.close();
+
+                        text_entries[0].text()->set_contents(lines);
+
+                    }
+
                     text_entries[0].reset_bounds_x();
                     text_entries[0].reset_bounds_y();
                     text_entries[0].set_cursor_pos(0, 0);
                     text_entries[0].update_cache();
-
+                    
                     tree.update_display();
 
                     SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
@@ -306,6 +325,19 @@ void Grass::mainloop()
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
 
+        if (img)
+        {
+            SDL_QueryTexture(img, nullptr, nullptr, &img_w, &img_h);
+            img_x = (text_entries[0].rect().w / 2) - img_w/2 + text_entries[0].rect().x;
+            img_y = (text_entries[0].rect().h / 2) - img_h/2 + text_entries[0].rect().y;
+            dstrect = {
+                img_x,
+                img_y,
+                img_w,
+                img_h
+            };
+            SDL_RenderCopy(m_rend, img, nullptr, &dstrect);
+        }
         SDL_RenderPresent(m_rend);
     }
 
