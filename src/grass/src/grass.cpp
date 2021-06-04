@@ -141,6 +141,8 @@ void Grass::mainloop()
                     text_entries[0].update_cache();
 
                     tree.update_display();
+
+                    SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
                 }
 
                 gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
@@ -172,6 +174,7 @@ void Grass::mainloop()
                 if (m_selected_entry)
                 {
                     m_selected_entry->add_char(evt.text.text[0]);
+                    m_selected_entry->stop_highlight();
                 }
                 break;
 
@@ -183,12 +186,15 @@ void Grass::mainloop()
                     {
                     case SDL_SCANCODE_RETURN:
                         m_selected_entry->add_char('\n');
+                        m_selected_entry->stop_highlight();
                         break;
                     case SDL_SCANCODE_BACKSPACE:
-                        m_selected_entry->remove_char(1);
+                        if (!mouse_down)
+                            m_selected_entry->remove_char(1);
                         break;
                     case SDL_SCANCODE_DELETE:
                     {
+                        m_selected_entry->stop_highlight();
                         SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
 
                         if (coords.y < m_selected_entry->text()->contents().size())

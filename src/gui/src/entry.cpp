@@ -100,10 +100,10 @@ void gui::TextEntry::render(SDL_Renderer* rend)
     }
 
     // Convenient debug stuff, dont delete this
-    /*std::cout << "real: " << real_to_char_pos(m_cursor.real_pos).x << " | " << real_to_char_pos(m_cursor.real_pos).y << "\n";
+    std::cout << "real: " << real_to_char_pos(m_cursor.real_pos).x << " | " << real_to_char_pos(m_cursor.real_pos).y << "\n";
     std::cout << "display: " << m_cursor.display_pos.x << " | " << m_cursor.display_pos.y << "\n";
     std::cout << "min bound: " << m_min_visible_indexes.x << " | " << m_min_visible_indexes.y << "\n";
-    std::cout << "max bound: " << m_max_visible_indexes.x << " | " << m_max_visible_indexes.y << "\n";*/
+    std::cout << "max bound: " << m_max_visible_indexes.x << " | " << m_max_visible_indexes.y << "\n";
 }
 
 
@@ -279,7 +279,14 @@ void gui::TextEntry::remove_char(int count)
 
         if (diff < 0)
         {
-            move_bounds(0, diff);
+            if (move_bounds(0, diff))
+                move_display_cursor(0, -diff);
+            else
+            {
+                reset_bounds_x();
+                reset_bounds_y();
+            }
+
             update_cache();
         }
     }
@@ -344,14 +351,18 @@ SDL_Point gui::TextEntry::real_to_char_pos(SDL_Point pos)
 
 bool gui::TextEntry::move_bounds(int x, int y)
 {
-    if (m_min_visible_indexes.x + x >= 0 && m_min_visible_indexes.y + y >= 0 && m_max_visible_indexes.y + y <= m_text.contents().size())
+    if (m_min_visible_indexes.x + x >= 0 && m_min_visible_indexes.y + y >= 0)
     {
         m_min_visible_indexes.x += x;
-        m_min_visible_indexes.y += y;
-
-        // dont want to move maximum if minimum is invalid, that would cause the bounds to shrink
         m_max_visible_indexes.x += x;
-        m_max_visible_indexes.y += y;
+
+        if (m_max_visible_indexes.y + y <= m_text.contents().size())
+        {
+            m_min_visible_indexes.y += y;
+            m_max_visible_indexes.y += y;
+        }
+        else
+            return false;
 
         return true;
     }
@@ -530,7 +541,7 @@ void gui::TextEntry::remove_texture_from_cache(int index)
 void gui::TextEntry::update_cache()
 {
     m_cached_textures.clear();
-    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y + 1);
+    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::max(std::min(m_max_visible_indexes.y, (int)m_text.contents().size()) - m_min_visible_indexes.y + 1, 1));
 }
 
 
@@ -694,7 +705,7 @@ void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
     SDL_Rect rect = {
         m_rect.x,
         (y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y,
-        std::min((int)line.size() * m_text.char_dim().x, m_rect.w),
+        std::min((int)line.size() * m_text.char_dim().x, m_rect.w) - m_min_visible_indexes.x * m_text.char_dim().x,
         m_text.char_dim().y
     };
 
@@ -707,6 +718,9 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
     if ((y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y < m_rect.y)
         return;
 
+    x1 -= m_min_visible_indexes.x * m_text.char_dim().x;
+    x2 -= m_min_visible_indexes.x * m_text.char_dim().x;
+
     std::string line = m_text.get_line(y_index);
 
     if (x2 < x1)
@@ -716,9 +730,9 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
         return;
 
     SDL_Rect rect = {
-        x1,
+        std::max(x1, m_rect.x),
         (y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y,
-        x2 - x1,
+        x2 - std::max(x1, m_rect.x),
         m_text.char_dim().y
     };
 
