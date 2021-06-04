@@ -110,16 +110,30 @@ void gui::TextEntry::remove_char()
         SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
         std::string line = m_text.get_line(cursor_coords.y);
 
-        if (line.empty()) // backspace onto previous line
+        if (cursor_coords.x == 0) // backspace onto previous line
         {
             if (cursor_coords.y != 0) // dont move up if cursor is at top of the text box
             {
                 m_text.remove_line(cursor_coords.y);
+
                 m_cached_textures.erase(m_cached_textures.begin() + m_cursor.display_char_pos(m_rect, m_min_bounds).y);
                 m_cached_textures.emplace_back(nullptr);
+                placeholder_at_cache(cursor_coords.y - 1);
 
-                int diff = m_text.get_line(cursor_coords.y - 1).size() - cursor_coords.x; // cursor x will probably be 0 but add it in just to be safe
+                int diff = m_text.get_line(cursor_coords.y - 1).size();
                 move_cursor_characters(diff, -1);
+
+                m_text.get_line_ref(cursor_coords.y - 1).append(line);
+
+                if (out_of_bounds_x())
+                {
+                    move_bounds_characters(diff - m_move_bounds_by, 0);
+                }
+
+                if (out_of_bounds_y())
+                {
+                    move_bounds_characters(0, -m_move_bounds_by);
+                }
             }
         }
         else // normal backspace
@@ -128,6 +142,11 @@ void gui::TextEntry::remove_char()
             cursor_coords = m_cursor.char_pos(m_rect);
 
             m_text.erase(cursor_coords.x, cursor_coords.y);
+
+            if (out_of_bounds())
+            {
+                move_bounds_characters(-m_move_bounds_by, 0);
+            }
         }
     }
     else
@@ -488,5 +507,25 @@ void gui::TextEntry::erase_highlighted_section()
             jump_to_eol();
 
         stop_highlight();
+    }
+    else if (cursor_char_coords.y < highlight_char_coords.y) // cursor above origin
+    {
+        for (int i = cursor_char_coords.y + 1; i < highlight_char_coords.y;)
+        {
+            m_text.remove_line(i);
+            --highlight_char_coords.y;
+        }
+
+        std::string& cursor_string = m_text.get_line_ref(cursor_char_coords.y);
+        cursor_string.erase(cursor_char_coords.x, cursor_string.size() - cursor_char_coords.x);
+        
+        std::string& orig_string = m_text.get_line_ref(highlight_char_coords.y);
+        if (highlight_char_coords.x == orig_string.size())
+            m_text.remove_line(highlight_char_coords.y);
+        else
+            orig_string.erase(0, highlight_char_coords.x);
+
+        stop_highlight();
+        clear_cache();
     }
 }
