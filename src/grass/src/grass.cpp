@@ -86,8 +86,6 @@ void Grass::mainloop()
 
     while (running)
     {
-        
-
         SDL_CaptureMouse(SDL_TRUE);
 
         int mx, my;
@@ -106,6 +104,8 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONDOWN:
             {
+                mouse_down = true;
+
                 for (auto& btn : buttons)
                 {
                     btn.check_clicked(mx, my);
@@ -126,9 +126,59 @@ void Grass::mainloop()
 
                 if (!has_selected_item)
                     m_selected_entry = nullptr;
+
+                gui::File* file = tree.check_file_click(tree.folder(), mx, my);
+
+                if (file)
+                {
+                    std::string fp = file->path();
+                    if (fp.substr(fp.length() - 4, fp.length()) == ".png")
+                    {
+                        img = IMG_LoadTexture(m_rend, fp.c_str());
+                        text_entries[0].text()->set_contents({ "" });
+                    }
+
+                    else
+                    {
+                        if (img)
+                            SDL_DestroyTexture(img);
+                        img = nullptr;
+                        std::ifstream ifs(fp);
+
+                        std::vector<std::string> lines;
+                        std::string line;
+                        while (std::getline(ifs, line)) lines.emplace_back(line);
+
+                        ifs.close();
+
+                        text_entries[0].text()->set_contents(lines);
+
+                    }
+
+                    text_entries[0].reset_bounds_x();
+                    text_entries[0].reset_bounds_y();
+                    text_entries[0].set_cursor_pos_characters(0, 0);
+                    text_entries[0].update_cache();
+
+                    tree.update_display();
+
+                    SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
+
+                    //text_entries[0].stop_highlight();
+                }
+
+                gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
+
+                if (folder)
+                {
+                    tree.collapse_folder(*folder, m_rend);
+                    tree.update_display();
+                }
             } break;
 
             case SDL_MOUSEBUTTONUP:
+                mouse_down = false;
+
                 for (auto& btn : buttons)
                 {
                     btn.set_down(false);
@@ -185,6 +235,12 @@ void Grass::mainloop()
                     m_selected_entry->conditional_jump_to_eol();
                 }
             } break;
+            case SDL_MOUSEWHEEL:
+                if (mx > 0 && mx < main_text_dimensions.x)
+                    tree.scroll(-evt.wheel.y, wy);
+                /*else
+                    text_entries[0].scroll(-evt.wheel.y);*/
+                break;
             }
             
         }
@@ -391,7 +447,7 @@ void Grass::mainloop()
         {
             if (m_selected_entry)
             {
-                //m_selected_entry->move_cursor_to_click(mx, my);
+                m_selected_entry->move_cursor_to_click(mx, my);
             }
         }
 

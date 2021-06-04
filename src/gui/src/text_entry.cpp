@@ -277,3 +277,42 @@ void gui::TextEntry::shift_cache(int y)
         }
     }
 }
+
+
+void gui::TextEntry::mouse_down(int mx, int my)
+{
+}
+
+
+void gui::TextEntry::mouse_up()
+{
+}
+
+
+void gui::TextEntry::move_cursor_to_click(int mx, int my)
+{
+    SDL_Point coords = {
+        m_min_bounds.x + (int)((mx - m_rect.x) / m_text.char_dim().x),
+        m_min_bounds.y + (int)((my - m_rect.y) / m_text.char_dim().y)
+    };
+
+    // int cast to prevent coords.y from wrapping around since size() returns size_t
+    if (coords.y >= (int)m_text.contents().size())
+        coords.y = m_text.contents().size() - 1;
+
+    if (coords.y < 0)
+        coords.y = 0;
+
+    int y_diff = coords.y - m_cursor.char_pos(m_rect).y;
+
+    m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
+    conditional_jump_to_eol();
+    conditional_move_bounds_characters(0, y_diff);
+}
+
+
+void gui::TextEntry::set_cursor_pos_characters(int x, int y)
+{
+    SDL_Point char_pos = m_cursor.char_pos(m_rect);
+    m_cursor.move_characters(x - char_pos.x, y - char_pos.y);
+}

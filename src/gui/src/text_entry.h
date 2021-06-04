@@ -48,6 +48,14 @@ namespace gui
         void shift_cache(int y);
 
 
+        void mouse_down(int mx, int my);
+        void mouse_up();
+
+        void move_cursor_to_click(int mx, int my);
+        // x and y measured in characters
+        void set_cursor_pos_characters(int x, int y);
+
+
         Text* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
         Cursor cursor() { return m_cursor; }
