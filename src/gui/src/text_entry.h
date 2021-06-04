@@ -24,8 +24,10 @@ namespace gui
         void move_cursor_characters(int x, int y);
         // moves cursor to end of line, returns true if cursor has gone out of bounds
         bool jump_to_eol();
-        // jump to eol and moves bounds if cursor is too far right.
+        // jump to eol and moves bounds if cursor is too far right
         bool conditional_jump_to_eol();
+        // move bounds by (x, y) characters if the cursor is out of bounds
+        void conditional_move_bounds_characters(int x, int y);
         
         // moves bounds by (x, y) characters
         void move_bounds_characters(int x, int y);
@@ -47,6 +49,9 @@ namespace gui
         Text* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
         Cursor cursor() { return m_cursor; }
+        int move_bounds_by() { return m_move_bounds_by; }
+
+        void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
 
     private:
         SDL_Rect m_rect;
@@ -59,5 +64,7 @@ namespace gui
         Text m_text;
 
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
+
+        int m_move_bounds_by{ 5 };
     };
 }

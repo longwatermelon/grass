@@ -29,7 +29,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             continue;
 
         // take the section of the string from the min bounds to either the end of the line if its visible, otherwise the max bound x
-        std::string visible = line.substr(m_min_bounds.x, std::min((int)line.size(), m_max_bounds.x + 1) - m_min_bounds.x);
+        std::string visible = line.substr(m_min_bounds.x, std::min((int)line.size(), m_max_bounds.x + m_move_bounds_by) - m_min_bounds.x);
 
         if (!m_cached_textures[i].get())
         {
@@ -77,8 +77,8 @@ void gui::TextEntry::insert_char(char c)
 
         if (out_of_bounds())
         {
-            shift_cache(5);
-            move_bounds_characters(0, 5);
+            //shift_cache(m_move_bounds_by);
+            move_bounds_characters(0, m_move_bounds_by);
         }
 
         m_text.set_line(cursor_coords.y + 1, copied);
@@ -92,7 +92,7 @@ void gui::TextEntry::insert_char(char c)
 
         if (out_of_bounds())
         {
-            move_bounds_characters(5, 0);
+            move_bounds_characters(m_move_bounds_by, 0);
             clear_cache();
         }
     }
@@ -106,7 +106,10 @@ void gui::TextEntry::remove_char()
 
 void gui::TextEntry::move_cursor_characters(int x, int y)
 {
-    m_cursor.move_characters(x, y);
+    SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
+
+    if (cursor_coords.x + x >= 0 && cursor_coords.y + y >= 0 && cursor_coords.y + y < m_text.contents().size())
+        m_cursor.move_characters(x, y);
 }
 
 
@@ -137,10 +140,20 @@ bool gui::TextEntry::conditional_jump_to_eol()
         if (jump_to_eol())
         {
             move_bounds_characters((line.size() - m_min_bounds.x) - 3, 0);
+            clear_cache();
         }
     }
 
     return false;
+}
+
+
+void gui::TextEntry::conditional_move_bounds_characters(int x, int y)
+{
+    if (out_of_bounds())
+    {
+        move_bounds_characters(x, y);
+    }
 }
 
 
@@ -151,6 +164,11 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
 
     m_min_bounds.y += y;
     m_max_bounds.y += y;
+
+    m_min_bounds.x = std::max(0, m_min_bounds.x);
+    m_min_bounds.y = std::max(0, m_min_bounds.y);
+
+    shift_cache(y);
 }
 
 

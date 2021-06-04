@@ -161,55 +161,28 @@ void Grass::mainloop()
 
                 if (m_selected_entry)
                 {
-                    switch (evt.key.keysym.sym)
-                    {
-                    case SDLK_RIGHT:
-                    {
-                        gui::Text* t = m_selected_entry->text();
-                        /*std::string line = t->get_line(m_selected_entry->real_to_char_pos(m_selected_entry->real()).y);
-                        int cursor_pos = m_selected_entry->real_to_char_pos(m_selected_entry->real()).x;*/
+                    SDL_Point movement{ 0, 0 };
 
-                        m_selected_entry->move_cursor_characters(1, 0);
+                    if (evt.key.keysym.sym == SDLK_RIGHT)
+                        movement.x = 1;
 
-                        /*if (cursor_pos < line.size())
-                            m_selected_entry->move_cursor_characters(1, 0);*/
+                    if (evt.key.keysym.sym == SDLK_LEFT)
+                        movement.x = -1;
 
-                        //m_selected_entry->stop_highlight();
-                    } break;
-                    case SDLK_LEFT:
-                        m_selected_entry->move_cursor_characters(-1, 0);
-                        //m_selected_entry->stop_highlight();
-                        break;
-                    case SDLK_UP:
-                        m_selected_entry->move_cursor_characters(0, -1);
-                        m_selected_entry->conditional_jump_to_eol();
+                    if (evt.key.keysym.sym == SDLK_UP)
+                        movement.y = -1;
 
-                        /*if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
-                            m_selected_entry->jump_to_eol();*/
+                    if (evt.key.keysym.sym == SDLK_DOWN)
+                        movement.y = 1;
 
-                        //m_selected_entry->stop_highlight();
-                        break;
-                    case SDLK_DOWN:
-                        m_selected_entry->move_cursor_characters(0, 1);
-                        m_selected_entry->conditional_jump_to_eol();
+                    m_selected_entry->move_cursor_characters(movement.x, movement.y);
 
-                        /*if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
-                            m_selected_entry->jump_to_eol();*/
+                    m_selected_entry->conditional_move_bounds_characters(
+                        movement.x * m_selected_entry->move_bounds_by(), 
+                        movement.y * m_selected_entry->move_bounds_by()
+                    );
 
-                        //m_selected_entry->stop_highlight();
-                        break;
-                    case SDLK_TAB:
-                    {
-                        gui::Text* t = m_selected_entry->text();
-                        //SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
-
-                        /*for (int i = 0; i < 4; ++i)
-                        {
-                            t->insert(coords.x, coords.y, ' ');
-                            m_selected_entry->move_cursor_characters(1, 0);
-                        }*/
-                    } break;
-                    }
+                    m_selected_entry->conditional_jump_to_eol();
                 }
             } break;
             }
