@@ -22,12 +22,18 @@ namespace gui
         void remove_char();
 
         void move_cursor_characters(int x, int y);
+        // moves cursor to end of line, returns true if cursor has gone out of bounds
+        bool jump_to_eol();
+        // jump to eol and moves bounds if cursor is too far right.
+        bool conditional_jump_to_eol();
         
         // moves bounds by (x, y) characters
         void move_bounds_characters(int x, int y);
 
         void reset_bounds_x();
         void reset_bounds_y();
+
+        bool out_of_bounds();
 
         void clear_cache();
         // marks m_cached_textures[i] to be re rendered
@@ -39,6 +45,8 @@ namespace gui
 
 
         Text* text() { return &m_text; }
+        SDL_Rect rect() { return m_rect; }
+        Cursor cursor() { return m_cursor; }
 
     private:
         SDL_Rect m_rect;

@@ -75,6 +75,12 @@ void gui::TextEntry::insert_char(char c)
         // move the cursor to the beginning of the text box and down by 1 character
         m_cursor.move_characters(-m_cursor.char_pos(m_rect).x, 1);
 
+        if (out_of_bounds())
+        {
+            shift_cache(5);
+            move_bounds_characters(0, 5);
+        }
+
         m_text.set_line(cursor_coords.y + 1, copied);
         m_cached_textures.emplace_back(nullptr);
 
@@ -83,6 +89,12 @@ void gui::TextEntry::insert_char(char c)
     else
     {
         m_cursor.move_characters(1, 0);
+
+        if (out_of_bounds())
+        {
+            move_bounds_characters(5, 0);
+            clear_cache();
+        }
     }
 }
 
@@ -95,6 +107,40 @@ void gui::TextEntry::remove_char()
 void gui::TextEntry::move_cursor_characters(int x, int y)
 {
     m_cursor.move_characters(x, y);
+}
+
+
+bool gui::TextEntry::jump_to_eol()
+{
+    SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
+    int eol = m_text.get_line(cursor_pos.y).size();
+
+    if (cursor_pos.x != eol)
+    {
+        m_cursor.move_characters(eol - cursor_pos.x, 0);
+
+        if (out_of_bounds())
+            return true;
+    }
+
+    return false;
+}
+
+
+bool gui::TextEntry::conditional_jump_to_eol()
+{
+    SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
+    std::string line = m_text.get_line(cursor_pos.y);
+
+    if (cursor_pos.x > line.size())
+    {
+        if (jump_to_eol())
+        {
+            move_bounds_characters((line.size() - m_min_bounds.x) - 3, 0);
+        }
+    }
+
+    return false;
 }
 
 
@@ -119,6 +165,22 @@ void gui::TextEntry::reset_bounds_y()
 {
     m_min_bounds.y = 0;
     m_max_bounds.y = m_rect.h / m_text.char_dim().y;
+}
+
+
+bool gui::TextEntry::out_of_bounds()
+{
+    SDL_Point display_pos_pixels = m_cursor.display_pos(m_min_bounds);
+
+    int max_x = m_rect.x + (int)(m_rect.w / m_text.char_dim().x) * m_text.char_dim().x;
+    if (display_pos_pixels.x < m_rect.x || display_pos_pixels.x > max_x)
+        return true;
+
+    int max_y = m_rect.y + (int)(m_rect.h / m_text.char_dim().y) * m_text.char_dim().y;
+    if (display_pos_pixels.y < m_rect.y || display_pos_pixels.y > max_y)
+        return true;
+
+    return false;
 }
 
 

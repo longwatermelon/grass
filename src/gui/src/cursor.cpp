@@ -30,7 +30,7 @@ SDL_Point gui::Cursor::pos()
 
 SDL_Point gui::Cursor::display_pos(SDL_Point min_bounds)
 {
-    return { m_pos.x - min_bounds.x, m_pos.y - min_bounds.y };
+    return { m_pos.x - min_bounds.x * m_char_dim.x, m_pos.y - min_bounds.y * m_char_dim.y };
 }
 
 
