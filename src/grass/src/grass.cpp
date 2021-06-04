@@ -78,10 +78,10 @@ void Grass::mainloop()
 
     bool mouse_down = false;
 
-    SDL_CaptureMouse(SDL_TRUE);
-
     while (running)
     {
+        SDL_CaptureMouse(SDL_TRUE);
+
         int mx, my;
         SDL_GetMouseState(&mx, &my);
 
@@ -155,6 +155,7 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONUP:
                 mouse_down = false;
+                std::cout << "mouse button up\n";
 
                 if (m_selected_entry)
                 {
@@ -215,21 +216,27 @@ void Grass::mainloop()
                         if (cursor_pos < line.size())
                             m_selected_entry->move_cursor(1, 0);
 
+                        m_selected_entry->stop_highlight();
                     } break;
                     case SDLK_LEFT:
                         m_selected_entry->move_cursor(-1, 0);
+                        m_selected_entry->stop_highlight();
                         break;
                     case SDLK_UP:
                         m_selected_entry->move_cursor(0, -1);
 
                         if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
                             m_selected_entry->jump_to_eol();
+
+                        m_selected_entry->stop_highlight();
                         break;
                     case SDLK_DOWN:
                         m_selected_entry->move_cursor(0, 1);
 
                         if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
                             m_selected_entry->jump_to_eol();
+
+                        m_selected_entry->stop_highlight();
                         break;
                     case SDLK_TAB:
                     {

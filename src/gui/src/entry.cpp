@@ -686,6 +686,9 @@ void gui::TextEntry::stop_highlight_if_not_highlight()
 
 void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
 {
+    if ((y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y < m_rect.y)
+        return;
+
     std::string line = m_text.get_line(y_index);
     
     SDL_Rect rect = {
@@ -701,6 +704,9 @@ void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
 
 void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2)
 {
+    if ((y_index - m_min_visible_indexes.y) * m_text.char_dim().y + m_rect.y < m_rect.y)
+        return;
+
     std::string line = m_text.get_line(y_index);
 
     if (x2 < x1)
