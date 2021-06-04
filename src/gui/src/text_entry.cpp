@@ -29,7 +29,7 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
     {
         std::string line = m_text.get_line(i + m_min_bounds.y);
 
-        if (m_min_bounds.x > line.size()) // line is too far left to be seen
+        if (m_min_bounds.x > (int)line.size()) // line is too far left to be seen
             continue;
 
         // take the section of the string from the min bounds to either the end of the line if its visible, otherwise the max bound x
@@ -169,7 +169,7 @@ void gui::TextEntry::move_cursor_characters(int x, int y)
 bool gui::TextEntry::jump_to_eol()
 {
     SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
-    int eol = m_text.get_line(cursor_pos.y).size();
+    int eol = (int)m_text.get_line(cursor_pos.y).size();
 
     if (cursor_pos.x != eol)
     {
@@ -188,11 +188,11 @@ bool gui::TextEntry::conditional_jump_to_eol()
     SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
     std::string line = m_text.get_line(cursor_pos.y);
 
-    if (cursor_pos.x > line.size())
+    if (cursor_pos.x > (int)line.size())
     {
         if (jump_to_eol())
         {
-            move_bounds_characters((line.size() - m_min_bounds.x) - 3, 0);
+            move_bounds_characters(((int)line.size() - m_min_bounds.x) - 3, 0);
             clear_cache();
         }
     }
@@ -286,6 +286,10 @@ void gui::TextEntry::clear_cache()
 
 void gui::TextEntry::placeholder_at_cache(int i)
 {
+    if (i >= m_cached_textures.size())
+        // just in case something goes wrong
+        m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(i + 1);
+
     m_cached_textures[i] = nullptr;
 }
 
@@ -349,12 +353,21 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
 
     int y_diff = coords.y - m_cursor.char_pos(m_rect).y;
 
+    m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
+
     if (out_of_bounds_x())
     {
-        clear_cache();
-    }
+        SDL_Point cursor_coords = m_cursor.display_char_pos(m_rect, m_min_bounds);
 
-    m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
+        if (cursor_coords.x < 0)
+        {
+            move_bounds_characters(-m_move_bounds_by, 0);
+            move_cursor_characters(m_min_bounds.x - m_cursor.char_pos(m_rect).x, 0);
+        }
+        else
+            move_bounds_characters(m_move_bounds_by, 0);
+    }
+    
     conditional_jump_to_eol();
     conditional_move_bounds_characters(0, y_diff);
 }
@@ -399,9 +412,9 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
         SDL_Point highlight_display_coords = m_highlight_start.display_pos(m_min_bounds);
 
         SDL_Rect rect = {
-            highlight_display_coords.x,
+            std::max(highlight_display_coords.x, m_rect.x),
             highlight_display_coords.y,
-            std::max(cursor_display_coords.x - highlight_display_coords.x, -highlight_display_coords.x + m_rect.x),
+            std::min(cursor_display_coords.x - highlight_display_coords.x, (int)m_text.get_line(cursor_char_coords.y).size() * m_text.char_dim().x - m_min_bounds.x * m_text.char_dim().x),
             m_text.char_dim().y
         };
 
@@ -418,7 +431,7 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
         SDL_Point cursor_coords = m_cursor.pos();
         SDL_Point highlight_coords = m_highlight_start.pos();
 
-        highlight_section(rend, cursor_char_coords.y, cursor_coords.x, m_rect.x + m_text.get_line(cursor_char_coords.y).size() * m_text.char_dim().x);
+        highlight_section(rend, cursor_char_coords.y, cursor_coords.x, m_rect.x + (int)m_text.get_line(cursor_char_coords.y).size() * m_text.char_dim().x);
         highlight_section(rend, highlight_char_coords.y, highlight_coords.x, m_rect.x);
     }
     else // cursor is lower than origin
@@ -432,7 +445,7 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
         SDL_Point cursor_coords = m_cursor.pos();
         SDL_Point highlight_coords = m_highlight_start.pos();
 
-        highlight_section(rend, highlight_char_coords.y, highlight_coords.x, m_rect.x + m_text.get_line(highlight_char_coords.y).size() * m_text.char_dim().x);
+        highlight_section(rend, highlight_char_coords.y, highlight_coords.x, m_rect.x + (int)m_text.get_line(highlight_char_coords.y).size() * m_text.char_dim().x);
         highlight_section(rend, cursor_char_coords.y, cursor_coords.x, m_rect.x);
     }
 
@@ -448,7 +461,7 @@ void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
     std::string line = m_text.get_line(y_index);
 
     // line is not visible
-    if (m_min_bounds.x > line.size())
+    if (m_min_bounds.x > (int)line.size())
         return;
 
     SDL_Rect rect = {
@@ -472,7 +485,7 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
 
     std::string line = m_text.get_line(y_index);
 
-    if (m_min_bounds.x > line.size())
+    if (m_min_bounds.x > (int)line.size())
         return;
 
     if (x2 < x1)
@@ -511,7 +524,7 @@ void gui::TextEntry::erase_highlighted_section()
 
         cursor_char_coords = m_cursor.char_pos(m_rect);
 
-        if (m_text.get_line_ref(cursor_char_coords.y).size() <= cursor_char_coords.x)
+        if ((int)m_text.get_line_ref(cursor_char_coords.y).size() <= cursor_char_coords.x)
             jump_to_eol();
 
         stop_highlight();
@@ -525,10 +538,10 @@ void gui::TextEntry::erase_highlighted_section()
         }
 
         std::string& cursor_string = m_text.get_line_ref(cursor_char_coords.y);
-        cursor_string.erase(cursor_char_coords.x, cursor_string.size() - cursor_char_coords.x);
+        cursor_string.erase(cursor_char_coords.x, (int)cursor_string.size() - cursor_char_coords.x);
         
         std::string& orig_string = m_text.get_line_ref(highlight_char_coords.y);
-        if (highlight_char_coords.x == orig_string.size())
+        if (highlight_char_coords.x == (int)orig_string.size())
             m_text.remove_line(highlight_char_coords.y);
         else
             orig_string.erase(0, highlight_char_coords.x);
@@ -547,10 +560,10 @@ void gui::TextEntry::erase_highlighted_section()
         }
 
         std::string& orig_string = m_text.get_line_ref(highlight_char_coords.y);
-        orig_string.erase(highlight_char_coords.x, orig_string.size() - highlight_char_coords.x);
+        orig_string.erase(highlight_char_coords.x, (int)orig_string.size() - highlight_char_coords.x);
 
         std::string& cursor_string = m_text.get_line_ref(cursor_char_coords.y);
-        if (cursor_char_coords.x == cursor_string.size())
+        if (cursor_char_coords.x == (int)cursor_string.size())
             m_text.remove_line(cursor_char_coords.y);
         else
             cursor_string.erase(0, cursor_char_coords.x);
