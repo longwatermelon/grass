@@ -121,6 +121,7 @@ namespace gui
         SDL_Point real() { return m_cursor.real_pos; }
         std::string get_current_line() { return m_text.get_line((m_cursor.real_pos.y - m_rect.y) / m_text.char_dim().y); }
         SDL_Point get_coords() { return real_to_char_pos(m_cursor.real_pos); }
+        SDL_Rect rect() { return m_rect; }
 
     private:
         SDL_Rect m_rect;
