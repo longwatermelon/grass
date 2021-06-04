@@ -155,7 +155,6 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONUP:
                 mouse_down = false;
-                std::cout << "mouse button up\n";
 
                 if (m_selected_entry)
                 {
