@@ -81,7 +81,6 @@ void Grass::mainloop()
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
     bool mouse_down = false;
-    bool curr_file_image = false;
 
     while (running)
     {
