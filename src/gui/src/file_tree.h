@@ -44,9 +44,12 @@ namespace gui
         /* If already collapsed, folder will expand. */
         void collapse(SDL_Renderer* rend);
 
+        /* Update where all the folders and files will be rendered. */
         void update_rects(SDL_Rect& rect);
 
+        /* Load all the contents directly beneath this folder. This is used to save memory. */
         void load(SDL_Renderer* rend);
+        /* Unload all the contents from the folder, normally called when the folder is closed. */
         void unload();
 
         std::vector<File>& files() { return m_files; }
@@ -81,6 +84,7 @@ namespace gui
         File* check_file_click(Folder& folder, int mx, int my);
         Folder* check_folder_click(Folder& folder, int mx, int my);
 
+        /* Collapses folder, if folder is already collapsed it will be expanded. */
         void collapse_folder(Folder& folder, SDL_Renderer* rend);
 
         void update_display();

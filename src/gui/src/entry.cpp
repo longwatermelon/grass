@@ -627,7 +627,7 @@ bool gui::TextEntry::cursor_visible()
 void gui::TextEntry::move_cursor_to_click(int mx, int my)
 {
     SDL_Point coords = real_to_char_pos({ mx, my });
-
+    
     SDL_Point real_coords = { 
         m_min_visible_indexes.x + coords.x, 
         m_min_visible_indexes.y + coords.y
