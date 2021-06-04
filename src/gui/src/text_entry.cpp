@@ -119,7 +119,7 @@ void gui::TextEntry::remove_char()
 
                 m_cached_textures.erase(m_cached_textures.begin() + m_cursor.display_char_pos(m_rect, m_min_bounds).y);
                 m_cached_textures.emplace_back(nullptr);
-                placeholder_at_cache(cursor_coords.y - 1);
+                placeholder_at_cache(std::max(cursor_coords.y - 1 - m_min_bounds.y, 0));
 
                 int diff = m_text.get_line(cursor_coords.y - 1).size();
                 move_cursor_characters(diff, -1);
@@ -220,6 +220,8 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
 
     m_min_bounds.x = std::max(0, m_min_bounds.x);
     m_min_bounds.y = std::max(0, m_min_bounds.y);
+
+    m_max_bounds.x = std::max(m_rect.w / m_text.char_dim().x, m_max_bounds.x);
 
     if (x == 0)
         shift_cache(y);
@@ -347,6 +349,11 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
 
     int y_diff = coords.y - m_cursor.char_pos(m_rect).y;
 
+    if (out_of_bounds_x())
+    {
+        clear_cache();
+    }
+
     m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
     conditional_jump_to_eol();
     conditional_move_bounds_characters(0, y_diff);
@@ -447,7 +454,7 @@ void gui::TextEntry::highlight_line(SDL_Renderer* rend, int y_index)
     SDL_Rect rect = {
         m_rect.x,
         (y_index - m_min_bounds.y) * m_text.char_dim().y + m_rect.y,
-        std::min((int)line.size() * m_text.char_dim().x, m_rect.w) - m_min_bounds.x * m_text.char_dim().x,
+        std::min((int)line.size() * m_text.char_dim().x - m_min_bounds.x * m_text.char_dim().x, m_rect.w),
         m_text.char_dim().y
     };
 
