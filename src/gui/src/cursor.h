@@ -7,6 +7,7 @@ namespace gui
     class Cursor
     {
     public:
+        Cursor() = default;
         Cursor(SDL_Point pos, SDL_Color color, SDL_Point char_dim);
 
         void render(SDL_Renderer* rend, SDL_Point min_bounds);

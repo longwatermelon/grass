@@ -12,7 +12,6 @@ namespace gui
     public:
         Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
 
-    public:
         void render(SDL_Renderer* rend);
 
         /* If (mx, my) is inside of m_rect, it will call m_function.

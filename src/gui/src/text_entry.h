@@ -7,6 +7,12 @@
 
 namespace gui
 {
+    enum class Mode
+    {
+        NORMAL,
+        HIGHLIGHT
+    };
+
     class TextEntry
     {
     public:
@@ -54,6 +60,16 @@ namespace gui
         void move_cursor_to_click(int mx, int my);
         // x and y measured in characters
         void set_cursor_pos_characters(int x, int y);
+        
+        void stop_highlight();
+        // stop highlight if nothing is highlighted
+        void conditional_stop_highlight();
+
+        void draw_highlighted_areas(SDL_Renderer* rend);
+        // y_index measured in chars
+        void highlight_line(SDL_Renderer* rend, int y_index);
+        // y_index measured in chars, x2 and x2 measured in pixels
+        void highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2);
 
 
         Text* text() { return &m_text; }
@@ -76,5 +92,9 @@ namespace gui
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
 
         int m_move_bounds_by{ 5 };
+
+        // not rendered
+        Cursor m_highlight_start;
+        Mode m_mode{ Mode::NORMAL };
     };
 }

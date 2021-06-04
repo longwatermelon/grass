@@ -119,8 +119,7 @@ void Grass::mainloop()
                     {
                         m_selected_entry = &e;
                         has_selected_item = true;
-                        /*m_selected_entry->move_cursor_to_click(mx, my);
-                        m_selected_entry->start_highlight();*/
+                        m_selected_entry->mouse_down(mx, my);
                     }
                 }
 
@@ -132,12 +131,11 @@ void Grass::mainloop()
                 if (file)
                 {
                     std::string fp = file->path();
-                    if (fp.substr(fp.length() - 4, fp.length()) == ".png")
+                    if (fp.substr(fp.size() - 4, fp.size()) == ".png")
                     {
                         img = IMG_LoadTexture(m_rend, fp.c_str());
                         text_entries[0].text()->set_contents({ "" });
                     }
-
                     else
                     {
                         if (img)
@@ -152,7 +150,6 @@ void Grass::mainloop()
                         ifs.close();
 
                         text_entries[0].text()->set_contents(lines);
-
                     }
 
                     text_entries[0].reset_bounds_x();
@@ -178,6 +175,11 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONUP:
                 mouse_down = false;
+
+                if (m_selected_entry)
+                {
+                    m_selected_entry->mouse_up();
+                }
 
                 for (auto& btn : buttons)
                 {

@@ -14,8 +14,6 @@ namespace gui
 
         Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
 
-    public:
-
         /* Inserts a character at m_contents[y][x]. */
         void insert(int x, int y, char c);
 
