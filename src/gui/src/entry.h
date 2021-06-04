@@ -111,6 +111,8 @@ namespace gui
 
         void bound_cursor_to_box();
 
+        void mouse_up();
+
         // getter functions
 
         Text* text() { return &m_text; }
@@ -132,6 +134,9 @@ namespace gui
         SDL_Color m_cursor_color;
 
         Cursor m_highlight_orig{ -1, -1 };
+        // Visible indexes when highlighting started
+        SDL_Point m_last_min_visible_indexes;
+
         Mode m_mode{ Mode::NORMAL };
     };
 }

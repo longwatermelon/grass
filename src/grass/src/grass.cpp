@@ -161,6 +161,7 @@ void Grass::mainloop()
                 if (m_selected_entry)
                 {
                     m_selected_entry->stop_highlight_if_not_highlight();
+                    m_selected_entry->mouse_up();
                     m_selected_entry->bound_cursor_to_box();
                 }
 
