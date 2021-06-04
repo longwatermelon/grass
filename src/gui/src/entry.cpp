@@ -718,3 +718,10 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
 
     SDL_RenderFillRect(rend, &rect);
 }
+
+
+void gui::TextEntry::bound_cursor_to_box()
+{
+    m_cursor.display_pos.x = std::min(std::max(m_cursor.display_pos.x, m_rect.x), m_rect.x + m_rect.w);
+    m_cursor.display_pos.y = std::min(std::max(m_cursor.display_pos.y, m_rect.y), m_rect.y + m_rect.h);
+}

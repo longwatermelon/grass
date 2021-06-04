@@ -78,6 +78,8 @@ void Grass::mainloop()
 
     bool mouse_down = false;
 
+    SDL_CaptureMouse(SDL_TRUE);
+
     while (running)
     {
         int mx, my;
@@ -157,6 +159,7 @@ void Grass::mainloop()
                 if (m_selected_entry)
                 {
                     m_selected_entry->stop_highlight_if_not_highlight();
+                    m_selected_entry->bound_cursor_to_box();
                 }
 
                 for (auto& btn : buttons)

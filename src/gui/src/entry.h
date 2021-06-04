@@ -109,6 +109,8 @@ namespace gui
         /* y_index measured in characters, x1 and x2 are measured in pixels */
         void highlight_section(SDL_Renderer* rend, int y_index, int x1, int x2);
 
+        void bound_cursor_to_box();
+
         // getter functions
 
         Text* text() { return &m_text; }
