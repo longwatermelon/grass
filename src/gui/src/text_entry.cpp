@@ -15,12 +15,13 @@ gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& curso
 }
 
 
-void gui::TextEntry::render(SDL_Renderer* rend)
+void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
 {
     SDL_SetRenderDrawColor(rend, m_bg_color.r, m_bg_color.g, m_bg_color.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
 
-    m_cursor.render(rend, m_min_bounds);
+    if (show_cursor)
+        m_cursor.render(rend, m_min_bounds);
 
     placeholder_at_cache(m_cursor.display_char_pos(m_rect, m_min_bounds).y);
 
@@ -527,5 +528,42 @@ void gui::TextEntry::erase_highlighted_section()
 
         stop_highlight();
         clear_cache();
+    }
+    else // cursor below origin
+    {
+        SDL_Point original_cursor_coords = m_cursor.char_pos(m_rect);
+
+        for (int i = highlight_char_coords.y + 1; i < cursor_char_coords.y;)
+        {
+            m_text.remove_line(i);
+            --cursor_char_coords.y;
+        }
+
+        std::string& orig_string = m_text.get_line_ref(highlight_char_coords.y);
+        orig_string.erase(highlight_char_coords.x, orig_string.size() - highlight_char_coords.x);
+
+        std::string& cursor_string = m_text.get_line_ref(cursor_char_coords.y);
+        if (cursor_char_coords.x == cursor_string.size())
+            m_text.remove_line(cursor_char_coords.y);
+        else
+            cursor_string.erase(0, cursor_char_coords.x);
+
+        stop_highlight();
+        clear_cache();
+
+        int diff_x = highlight_char_coords.x - original_cursor_coords.x;
+        int diff_y = highlight_char_coords.y - original_cursor_coords.y;
+
+        move_cursor_characters(diff_x, diff_y);
+
+        if (out_of_bounds_x())
+        {
+            move_bounds_characters(diff_x + (diff_x > 0 ? 1 : -1) * m_move_bounds_by, 0);
+        }
+
+        if (out_of_bounds_y())
+        {
+            move_bounds_characters(0, diff_y - m_move_bounds_by);
+        }
     }
 }

@@ -130,7 +130,10 @@ void Grass::mainloop()
 
                 if (file)
                 {
+                    text_entries[0].stop_highlight();
+
                     std::string fp = file->path();
+
                     if (fp.substr(fp.size() - 4, fp.size()) == ".png")
                     {
                         img = IMG_LoadTexture(m_rend, fp.c_str());
@@ -140,6 +143,7 @@ void Grass::mainloop()
                     {
                         if (img)
                             SDL_DestroyTexture(img);
+
                         img = nullptr;
                         std::ifstream ifs(fp);
 
@@ -463,7 +467,11 @@ void Grass::mainloop()
 
         for (auto& e : text_entries)
         {
-            e.render(m_rend);
+            bool render_mouse = false;
+            if (m_selected_entry == &e)
+                render_mouse = true;
+
+            e.render(m_rend, render_mouse);
         }
 
         if (prev_wx != wx || prev_wy != wy)

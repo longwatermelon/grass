@@ -18,7 +18,7 @@ namespace gui
     public:
         TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const Text& text);
 
-        void render(SDL_Renderer* rend);
+        void render(SDL_Renderer* rend, bool show_cursor = false);
 
         bool check_clicked(int mx, int my);
 
