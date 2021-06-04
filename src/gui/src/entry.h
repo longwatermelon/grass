@@ -1,3 +1,4 @@
+#if 0
 #pragma once
 #include "text.h"
 #include "common.h"
@@ -140,3 +141,4 @@ namespace gui
         Mode m_mode{ Mode::NORMAL };
     };
 }
+#endif

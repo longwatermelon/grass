@@ -9,12 +9,14 @@ add_library(gui
     src/button.cpp
     src/common.h
     src/common.cpp
-    src/entry.h
-    src/entry.cpp
     src/text.h
     src/text.cpp
     src/file_tree.h
     src/file_tree.cpp
+    src/cursor.h
+    src/cursor.cpp
+    src/text_entry.h
+    src/text_entry.cpp
 )
 
 target_link_libraries(gui PUBLIC

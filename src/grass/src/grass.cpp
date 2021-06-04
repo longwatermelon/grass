@@ -3,6 +3,7 @@
 #include "button.h"
 #include "entry.h"
 #include "file_tree.h"
+#include "text_entry.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -51,7 +52,8 @@ void Grass::mainloop()
     TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 36);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 9, 18 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
+    //text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 9, 18 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, { 9, 18 }), gui::Text(font_regular, { main_text_dimensions.x, main_text_dimensions.y }, "", { 9, 18 }, { 255, 255, 255 })));
 
     std::vector<gui::Button> buttons;
 
@@ -88,6 +90,125 @@ void Grass::mainloop()
         int wx, wy;
         SDL_GetWindowSize(m_window, &wx, &wy);
 
+        while (SDL_PollEvent(&evt))
+        {
+            switch (evt.type)
+            {
+            case SDL_QUIT:
+                running = false;
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+            {
+                for (auto& btn : buttons)
+                {
+                    btn.check_clicked(mx, my);
+                }
+
+                bool has_selected_item{ false };
+
+                for (auto& e : text_entries)
+                {
+                    if (e.check_clicked(mx, my))
+                    {
+                        m_selected_entry = &e;
+                        has_selected_item = true;
+                        /*m_selected_entry->move_cursor_to_click(mx, my);
+                        m_selected_entry->start_highlight();*/
+                    }
+                }
+
+                if (!has_selected_item)
+                    m_selected_entry = nullptr;
+            } break;
+
+            case SDL_MOUSEBUTTONUP:
+                for (auto& btn : buttons)
+                {
+                    btn.set_down(false);
+                }
+                break;
+
+            case SDL_TEXTINPUT:
+                if (m_selected_entry)
+                {
+                    m_selected_entry->insert_char(evt.text.text[0]);
+                    //m_selected_entry->stop_highlight();
+                }
+                break;
+            case SDL_KEYDOWN:
+            {
+                if (m_selected_entry)
+                {
+                    switch (evt.key.keysym.scancode)
+                    {
+                    case SDL_SCANCODE_RETURN:
+                        m_selected_entry->insert_char('\n');
+                        //m_selected_entry->stop_highlight();
+                        break;
+                    case SDL_SCANCODE_BACKSPACE:
+                        if (!mouse_down)
+                            m_selected_entry->remove_char();
+                        break;
+                    }
+                }
+
+                if (m_selected_entry)
+                {
+                    switch (evt.key.keysym.sym)
+                    {
+                    case SDLK_RIGHT:
+                    {
+                        gui::Text* t = m_selected_entry->text();
+                        /*std::string line = t->get_line(m_selected_entry->real_to_char_pos(m_selected_entry->real()).y);
+                        int cursor_pos = m_selected_entry->real_to_char_pos(m_selected_entry->real()).x;*/
+
+                        m_selected_entry->move_cursor_characters(1, 0);
+
+                        /*if (cursor_pos < line.size())
+                            m_selected_entry->move_cursor_characters(1, 0);*/
+
+                        //m_selected_entry->stop_highlight();
+                    } break;
+                    case SDLK_LEFT:
+                        m_selected_entry->move_cursor_characters(-1, 0);
+                        //m_selected_entry->stop_highlight();
+                        break;
+                    case SDLK_UP:
+                        m_selected_entry->move_cursor_characters(0, -1);
+
+                        /*if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
+                            m_selected_entry->jump_to_eol();*/
+
+                        //m_selected_entry->stop_highlight();
+                        break;
+                    case SDLK_DOWN:
+                        m_selected_entry->move_cursor_characters(0, 1);
+
+                        /*if (m_selected_entry->get_current_line().size() <= m_selected_entry->get_coords().x)
+                            m_selected_entry->jump_to_eol();*/
+
+                        //m_selected_entry->stop_highlight();
+                        break;
+                    case SDLK_TAB:
+                    {
+                        gui::Text* t = m_selected_entry->text();
+                        //SDL_Point coords = m_selected_entry->real_to_char_pos(m_selected_entry->real());
+
+                        /*for (int i = 0; i < 4; ++i)
+                        {
+                            t->insert(coords.x, coords.y, ' ');
+                            m_selected_entry->move_cursor_characters(1, 0);
+                        }*/
+                    } break;
+                    }
+                }
+            } break;
+            }
+            
+        }
+
+#if 0
         while (SDL_PollEvent(&evt))
         {
             switch (evt.type)
@@ -268,6 +389,7 @@ void Grass::mainloop()
                 break;
             }
         }
+#endif
 
         SDL_RenderClear(m_rend);
 
@@ -275,7 +397,7 @@ void Grass::mainloop()
         {
             if (m_selected_entry)
             {
-                m_selected_entry->move_cursor_to_click(mx, my);
+                //m_selected_entry->move_cursor_to_click(mx, my);
             }
         }
 
@@ -292,14 +414,9 @@ void Grass::mainloop()
             e.render(m_rend);
         }
 
-        if (m_selected_entry)
-        {
-            m_selected_entry->draw_cursor(m_rend);
-        }
-
         if (prev_wx != wx || prev_wy != wy)
         {
-            text_entries[0].resize_to(wx, wy);
+            //text_entries[0].resize_to(wx, wy);
             prev_wx = wx;
             prev_wy = wy;
         }

@@ -1,6 +1,8 @@
+#if 0
 #include "entry.h"
 #include "common.h"
 #include <iostream>
+#include "text_entry.h"
 
 
 gui::TextEntry::TextEntry(SDL_Rect rect, const Text& text, SDL_Color bg_col, SDL_Color cursor_col)
@@ -416,6 +418,10 @@ bool gui::TextEntry::move_bounds(int x, int y)
 }
 
 
+void gui::TextEntry::move_bounds_characters(int x, int y)
+{
+}
+
 void gui::TextEntry::reset_bounds_x()
 {
     m_min_visible_indexes.x = 0;
@@ -813,3 +819,4 @@ void gui::TextEntry::mouse_up()
         m_cursor.display_pos.y += (m_cursor.display_pos.y < m_rect.y ? 1 : -1) * m_text.char_dim().y;
     }
 }
+#endif
