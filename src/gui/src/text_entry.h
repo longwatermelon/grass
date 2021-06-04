@@ -36,6 +36,8 @@ namespace gui
         void reset_bounds_y();
 
         bool out_of_bounds();
+        bool out_of_bounds_x();
+        bool out_of_bounds_y();
 
         void clear_cache();
         // marks m_cached_textures[i] to be re rendered

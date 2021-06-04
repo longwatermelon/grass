@@ -31,6 +31,9 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         // take the section of the string from the min bounds to either the end of the line if its visible, otherwise the max bound x
         std::string visible = line.substr(m_min_bounds.x, std::min((int)line.size(), m_max_bounds.x + m_move_bounds_by) - m_min_bounds.x);
 
+        if (visible.empty())
+            continue;
+
         if (!m_cached_textures[i].get())
         {
             m_cached_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.c_str(), m_text.color()));
@@ -43,11 +46,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             m_text.char_dim().y
         };
 
-        // if the string was an empty string it is still possible that code execution got here but the cached texture is nullptr
-        if (m_cached_textures[i].get())
-        {
-            SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
-        }
+        SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
     }
 }
 
@@ -77,7 +76,6 @@ void gui::TextEntry::insert_char(char c)
 
         if (out_of_bounds())
         {
-            //shift_cache(m_move_bounds_by);
             move_bounds_characters(0, m_move_bounds_by);
         }
 
@@ -101,6 +99,24 @@ void gui::TextEntry::insert_char(char c)
 
 void gui::TextEntry::remove_char()
 {
+    SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
+    std::string line = m_text.get_line(cursor_coords.y);
+
+    if (line.empty()) // backspace onto previous line
+    {
+        if (cursor_coords.y != 0) // dont move up if cursor is at top of the text box
+        {
+            int diff = m_text.get_line(cursor_coords.y - 1).size() - cursor_coords.x; // cursor x will probably be 0 but add it in just to be safe
+            move_cursor_characters(diff, -1);
+        }
+    }
+    else // normal backspace
+    {
+        move_cursor_characters(-1, 0);
+        cursor_coords = m_cursor.char_pos(m_rect);
+
+        m_text.erase(cursor_coords.x, cursor_coords.y);
+    }
 }
 
 
@@ -168,7 +184,11 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
     m_min_bounds.x = std::max(0, m_min_bounds.x);
     m_min_bounds.y = std::max(0, m_min_bounds.y);
 
-    shift_cache(y);
+    if (x == 0)
+        shift_cache(y);
+    else
+        // no way to shift the cache horizontally, that would cause text to leak out of the box
+        clear_cache();
 }
 
 
@@ -188,11 +208,25 @@ void gui::TextEntry::reset_bounds_y()
 
 bool gui::TextEntry::out_of_bounds()
 {
+    return out_of_bounds_x() || out_of_bounds_y();
+}
+
+
+bool gui::TextEntry::out_of_bounds_x()
+{
     SDL_Point display_pos_pixels = m_cursor.display_pos(m_min_bounds);
 
     int max_x = m_rect.x + (int)(m_rect.w / m_text.char_dim().x) * m_text.char_dim().x;
     if (display_pos_pixels.x < m_rect.x || display_pos_pixels.x > max_x)
         return true;
+
+    return false;
+}
+
+
+bool gui::TextEntry::out_of_bounds_y()
+{
+    SDL_Point display_pos_pixels = m_cursor.display_pos(m_min_bounds);
 
     int max_y = m_rect.y + (int)(m_rect.h / m_text.char_dim().y) * m_text.char_dim().y;
     if (display_pos_pixels.y < m_rect.y || display_pos_pixels.y > max_y)
