@@ -46,13 +46,14 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
 
         SDL_Rect rect = {
             m_rect.x,
-            m_rect.y + m_text.char_dim().y * i,
-            m_text.char_dim().x * (int)visible.size(),
-            m_text.char_dim().y
+            m_rect.y + m_text.char_dim().y * i
         };
 
         if (m_cached_textures[i].get())
+        {
+            SDL_QueryTexture(m_cached_textures[i].get(), nullptr, nullptr, &rect.w, &rect.h);
             SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
+        }
     }
 
     if (m_mode == Mode::HIGHLIGHT)

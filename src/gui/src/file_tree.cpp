@@ -28,15 +28,14 @@ void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::
     {
         SDL_Rect text_rect = {
             m_rect.x + offset,
-            m_rect.y,
-            m_name.char_dim().x * (int)m_name.str().size(),
-            m_name.char_dim().y
+            m_rect.y
         };
 
+        SDL_QueryTexture(m_tex.get(), nullptr, nullptr, &text_rect.w, &text_rect.h);
         SDL_RenderCopy(rend, m_tex.get(), nullptr, &text_rect);
 
         SDL_Rect icon_rect = {
-            text_rect.x - m_name.char_dim().x * 2,
+            text_rect.x - m_name.char_dim().x * 2 - 2,
             text_rect.y,
             m_name.char_dim().y,
             m_name.char_dim().y
@@ -73,15 +72,14 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
     {
         SDL_Rect text_rect = {
             m_rect.x + offset,
-            m_rect.y,
-            m_name.char_dim().x * (int)m_name.str().size(),
-            m_name.char_dim().y
+            m_rect.y
         };
 
+        SDL_QueryTexture(m_tex.get(), nullptr, nullptr, &text_rect.w, &text_rect.h);
         SDL_RenderCopy(rend, m_tex.get(), nullptr, &text_rect);
 
         SDL_Rect folder_rect = {
-            text_rect.x - m_name.char_dim().x * 2,
+            text_rect.x - m_name.char_dim().x * 2 - 2,
             text_rect.y,
             m_name.char_dim().y,
             m_name.char_dim().y

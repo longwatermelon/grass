@@ -53,18 +53,25 @@ void Grass::mainloop()
 
     SDL_Rect dstrect;
 
-    TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 36);
+    TTF_Font* font_textbox = TTF_OpenFont("res/CascadiaCode.ttf", 16);
+    TTF_Font* font_tree = TTF_OpenFont("res/CascadiaCode.ttf", 14);
+
+    SDL_Point font_textbox_dim;
+    TTF_SizeText(font_textbox, " ", &font_textbox_dim.x, &font_textbox_dim.y);
+
+    SDL_Point font_tree_dim;
+    TTF_SizeText(font_tree, " ", &font_tree_dim.x, &font_tree_dim.y);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, { 9, 18 }), gui::Text(font_regular, { main_text_dimensions.x, main_text_dimensions.y }, "", { 9, 18 }, { 255, 255, 255 })));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox_dim), gui::Text(font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox_dim, { 255, 255, 255 })));
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder(".", gui::Text(font_regular, { 0, 60 }, "", { 8, 16 }, { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(".", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, 16 },
+        { 0, main_text_dimensions.y, 200, font_tree_dim.y },
         m_rend
     );
 
@@ -385,7 +392,7 @@ void Grass::mainloop()
         SDL_RenderPresent(m_rend);
     }
 
-    TTF_CloseFont(font_regular);
+    TTF_CloseFont(font_textbox);
     
     for (auto& path : tree.unsaved())
     {
