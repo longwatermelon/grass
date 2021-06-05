@@ -51,7 +51,7 @@ void Grass::mainloop()
         800 - 40
     };
 
-    SDL_Rect dstrect;
+    /* Core ui elements that should not be touched */
 
     TTF_Font* font_textbox = TTF_OpenFont("res/CascadiaCode.ttf", 16);
     TTF_Font* font_tree = TTF_OpenFont("res/CascadiaCode.ttf", 14);
@@ -67,7 +67,7 @@ void Grass::mainloop()
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder("C:/Users/qianh/Documents", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(".", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
@@ -83,16 +83,19 @@ void Grass::mainloop()
 
     tree.update_display();
 
+    bool running = true;
+    SDL_Event evt;
+
+    /* Extra misc variables that should be added to */
 
     std::string current_open_fp;
     SDL_Texture* editor_image = nullptr;
 
-    
-    bool running = true;
-    SDL_Event evt;
-
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
+
+
+    /* Kb event variables and other very simple variables here */
 
     bool mouse_down = false;
     bool ctrl_down = false;
@@ -374,7 +377,7 @@ void Grass::mainloop()
             int img_x = (text_entries[0].rect().w / 2) - img_w/2 + text_entries[0].rect().x;
             int img_y = (text_entries[0].rect().h / 2) - img_h/2 + text_entries[0].rect().y;
 
-            dstrect = {
+            SDL_Rect dstrect = {
                 img_x,
                 img_y,
                 img_w,
