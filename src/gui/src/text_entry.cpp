@@ -56,7 +56,7 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
         }
     }
 
-    if (m_mode == Mode::HIGHLIGHT)
+    if (m_mode == EntryMode::HIGHLIGHT)
         draw_highlighted_areas(rend);
 }
 
@@ -109,7 +109,7 @@ void gui::TextEntry::insert_char(char c)
 
 void gui::TextEntry::remove_char()
 {
-    if (m_mode == Mode::NORMAL)
+    if (m_mode == EntryMode::NORMAL)
     {
         SDL_Point cursor_coords = m_cursor.char_pos(m_rect);
         std::string line = m_text.get_line(cursor_coords.y);
@@ -333,8 +333,20 @@ void gui::TextEntry::shift_cache(int y)
 void gui::TextEntry::mouse_down(int mx, int my)
 {
     move_cursor_to_click(mx, my);
+
+    SDL_Point coords = m_cursor.char_pos(m_rect);
+    std::string line = m_text.get_line(coords.y);
+
+    if (coords.x > line.size())
+    {
+        if (jump_to_eol())
+        {
+            move_bounds_characters(line.size() - coords.x - m_move_bounds_by, 0);
+        }
+    }
+
     m_highlight_start = m_cursor;
-    m_mode = Mode::HIGHLIGHT;
+    m_mode = EntryMode::HIGHLIGHT;
 }
 
 
@@ -395,7 +407,7 @@ void gui::TextEntry::set_cursor_pos_characters(int x, int y)
 
 void gui::TextEntry::stop_highlight()
 {
-    m_mode = Mode::NORMAL;
+    m_mode = EntryMode::NORMAL;
     m_highlight_start.move_characters(-1 - m_highlight_start.char_pos(m_rect).x, -1 - m_highlight_start.char_pos(m_rect).y);
 }
 

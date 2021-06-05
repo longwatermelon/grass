@@ -7,7 +7,7 @@
 
 namespace gui
 {
-    enum class Mode
+    enum class EntryMode
     {
         NORMAL,
         HIGHLIGHT
@@ -107,7 +107,7 @@ namespace gui
 
         // not rendered
         Cursor m_highlight_start;
-        Mode m_mode{ Mode::NORMAL };
+        EntryMode m_mode{ EntryMode::NORMAL };
 
         bool m_hidden{ false };
     };

@@ -17,6 +17,8 @@ add_library(gui
     src/cursor.cpp
     src/text_entry.h
     src/text_entry.cpp
+    src/explorer.h
+    src/explorer.cpp
 )
 
 target_link_libraries(gui PUBLIC
