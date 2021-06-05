@@ -103,8 +103,12 @@ void Grass::mainloop()
         int wx, wy;
         SDL_GetWindowSize(m_window, &wx, &wy);
 
-        while (SDL_PollEvent(&evt))
+        bool check_for_evt = true;
+
+        while (SDL_PollEvent(&evt) && check_for_evt)
         {
+            SDL_CaptureMouse(SDL_TRUE);
+
             switch (evt.type)
             {
             case SDL_QUIT:
@@ -204,6 +208,8 @@ void Grass::mainloop()
                     m_selected_entry->insert_char(evt.text.text[0]);
                     //m_selected_entry->stop_highlight();
                 }
+
+                check_for_evt = false;
                 break;
             case SDL_KEYDOWN:
             {
@@ -250,12 +256,18 @@ void Grass::mainloop()
             } break;
             case SDL_MOUSEWHEEL:
                 if (mx > 0 && mx < main_text_dimensions.x)
+                {
                     tree.scroll(-evt.wheel.y, wy);
+                }
                 else
+                {
                     text_entries[0].scroll(-evt.wheel.y);
+                    check_for_evt = false;
+                }
                 break;
             }
             
+            SDL_CaptureMouse(SDL_FALSE);
         }
 
         SDL_RenderClear(m_rend);

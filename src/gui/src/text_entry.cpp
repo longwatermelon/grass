@@ -117,6 +117,11 @@ void gui::TextEntry::remove_char()
         {
             if (cursor_coords.y != 0) // dont move up if cursor is at top of the text box
             {
+                if (out_of_bounds_y())
+                {
+                    move_bounds_characters(0, std::min(cursor_coords.y - m_min_bounds.y - 1, cursor_coords.y - m_max_bounds.y + 1));
+                }
+
                 m_text.remove_line(cursor_coords.y);
 
                 m_cached_textures.erase(m_cached_textures.begin() + m_cursor.display_char_pos(m_rect, m_min_bounds).y);
@@ -132,11 +137,6 @@ void gui::TextEntry::remove_char()
                 {
                     move_bounds_characters(diff - m_move_bounds_by, 0);
                 }
-
-                if (out_of_bounds_y())
-                {
-                    move_bounds_characters(0, -m_move_bounds_by);
-                }
             }
         }
         else // normal backspace
@@ -146,9 +146,14 @@ void gui::TextEntry::remove_char()
 
             m_text.erase(cursor_coords.x, cursor_coords.y);
 
-            if (out_of_bounds())
+            if (out_of_bounds_x())
             {
                 move_bounds_characters(-m_move_bounds_by, 0);
+            }
+
+            if (out_of_bounds_y())
+            {
+                move_bounds_characters(0, cursor_coords.y - m_min_bounds.y - 1);
             }
         }
     }
@@ -225,9 +230,9 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
 
     m_max_bounds.x = std::max(m_rect.w / m_text.char_dim().x, m_max_bounds.x);
 
-    if (x == 0)
-        shift_cache(y);
-    else
+    shift_cache(y);
+
+    if (x != 0)
         // no way to shift the cache horizontally, that would cause text to leak out of the box
         clear_cache();
 }
@@ -528,6 +533,9 @@ void gui::TextEntry::erase_highlighted_section()
             jump_to_eol();
 
         stop_highlight();
+
+        if (out_of_bounds())
+            move_bounds_characters(cursor_char_coords.x - m_min_bounds.x, cursor_char_coords.y - m_min_bounds.y);
     }
     else if (cursor_char_coords.y < highlight_char_coords.y) // cursor above origin
     {
@@ -545,6 +553,9 @@ void gui::TextEntry::erase_highlighted_section()
             m_text.remove_line(highlight_char_coords.y);
         else
             orig_string.erase(0, highlight_char_coords.x);
+
+        if (out_of_bounds())
+            move_bounds_characters(cursor_char_coords.x - m_min_bounds.x, cursor_char_coords.y - m_min_bounds.y);
 
         stop_highlight();
         clear_cache();
