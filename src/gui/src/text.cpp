@@ -19,6 +19,9 @@ gui::Text::Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_
 
 void gui::Text::insert(int x, int y, char c)
 {
+    if (m_contents.size() == 0)
+        m_contents.emplace_back("");
+
     if (c == '\n')
         m_contents.insert(m_contents.begin() + y + 1, "");
     else

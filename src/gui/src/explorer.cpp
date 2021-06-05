@@ -3,14 +3,16 @@
 #include <iostream>
 
 
-gui::Explorer::Explorer(const std::string& path, ExplorerMode mode)
+gui::Explorer::Explorer(const std::string& path, ExplorerMode mode, SDL_Point pos)
     : m_current_path(path), m_mode(mode)
 {
-    m_window = SDL_CreateWindow("Open file dialog", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 600, 400, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::FOLDER ? "folder" : "file")).c_str(), pos.x, pos.y, 600, 400, SDL_WINDOW_SHOWN);
     m_rend = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderClear(m_rend);
     SDL_RenderPresent(m_rend);
+
+    SDL_SetWindowGrab(m_window, SDL_TRUE);
 }
 
 
@@ -29,7 +31,7 @@ void gui::Explorer::mainloop()
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
-    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Select", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Close", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
     }));
 
@@ -86,6 +88,8 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons, TTF_Font** font)
 
     TTF_CloseFont(*font);
     *font = 0;
+
+    SDL_SetWindowGrab(m_window, SDL_FALSE);
 
     SDL_DestroyRenderer(m_rend);
     SDL_DestroyWindow(m_window);

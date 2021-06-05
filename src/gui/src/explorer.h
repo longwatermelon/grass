@@ -18,7 +18,7 @@ namespace gui
     class Explorer
     {
     public:
-        Explorer(const std::string& path, ExplorerMode mode);
+        Explorer(const std::string& path, ExplorerMode mode, SDL_Point pos);
 
         void mainloop();
 

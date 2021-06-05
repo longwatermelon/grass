@@ -215,13 +215,7 @@ void Grass::mainloop()
                     tree.collapse_folder(*folder, m_rend);
                     tree.update_display();
 
-                    tree.set_selected_highlight_rect({
-                        /*tree.rect().x,
-                        folder->rect().y,
-                        tree.rect().w,
-                        folder->name().char_dim().y*/
-                        0, 0, 0, 0
-                    });
+                    tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                 }
             } break;
 
@@ -250,27 +244,12 @@ void Grass::mainloop()
                 break;
             case SDL_KEYDOWN:
             {
-                if (m_selected_entry)
+                switch (evt.key.keysym.scancode)
                 {
-                    switch (evt.key.keysym.scancode)
-                    {
-                    case SDL_SCANCODE_RETURN:
-                        m_selected_entry->insert_char('\n');
-                        tree.append_unsaved_file(current_open_fp, m_window);
-                        m_selected_entry->stop_highlight();
-                        break;
-                    case SDL_SCANCODE_BACKSPACE:
-                        if (!mouse_down)
-                        {
-                            m_selected_entry->remove_char();
-                            tree.append_unsaved_file(current_open_fp, m_window);
-                        }
-                        break;
-                    case SDL_SCANCODE_RCTRL:
-                    case SDL_SCANCODE_LCTRL:
-                        ctrl_down = true;
-                        break;
-                    }
+                case SDL_SCANCODE_RCTRL:
+                case SDL_SCANCODE_LCTRL:
+                    ctrl_down = true;
+                    break;
                 }
 
                 switch (evt.key.keysym.sym)
@@ -292,7 +271,7 @@ void Grass::mainloop()
                             tree.erase_unsaved_file(current_open_fp, m_window);
                         }
                     }
-                    
+
                     break;
                 case SDLK_d:
                     if (m_selected_entry)
@@ -303,16 +282,56 @@ void Grass::mainloop()
                             load_file(current_open_fp, text_entries[0]);
                         }
                     }
-                    
+
                     break;
                 case SDLK_o:
                     if (ctrl_down)
                     {
-                        gui::Explorer e(".", gui::ExplorerMode::FOLDER);
+                        SDL_Rect rect = { 0, 0, wx, wy };
+                        SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
+                        SDL_RenderFillRect(m_rend, &rect);
+
+                        std::string waiting_text = "Waiting for open folder dialog to finish";
+                        SDL_Texture* text = gui::common::render_text(m_rend, font_textbox, waiting_text.c_str());
+                        rect.x = wx / 2 - waiting_text.size() * font_textbox_dim.x / 2;
+                        rect.y = wy / 2 - font_textbox_dim.y / 2;
+
+                        SDL_QueryTexture(text, nullptr, nullptr, &rect.w, &rect.h);
+                        SDL_RenderCopy(m_rend, text, nullptr, &rect);
+
+                        SDL_RenderPresent(m_rend);
+
+                        // new window will take all input and releasing ctrl wont be detected in the main window
+                        ctrl_down = false;
+
+                        SDL_Point pos;
+                        SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
+                        gui::Explorer e(".", gui::ExplorerMode::FOLDER, pos);
                         e.mainloop();
+
+                        SDL_DestroyTexture(text);
                     }
 
                     break;
+                }
+
+                if (m_selected_entry)
+                {
+                    switch (evt.key.keysym.scancode)
+                    {
+                    case SDL_SCANCODE_RETURN:
+                        m_selected_entry->insert_char('\n');
+                        tree.append_unsaved_file(current_open_fp, m_window);
+                        m_selected_entry->stop_highlight();
+                        break;
+                    case SDL_SCANCODE_BACKSPACE:
+                        if (!mouse_down)
+                        {
+                            m_selected_entry->remove_char();
+                            tree.append_unsaved_file(current_open_fp, m_window);
+                        }
+                        break;
+                    }
                 }
 
                 if (m_selected_entry)
