@@ -155,6 +155,13 @@ void Grass::mainloop()
 
                 if (file)
                 {
+                    tree.set_selected_highlight_rect({
+                        tree.rect().x,
+                        file->rect().y,
+                        tree.rect().w,
+                        file->name().char_dim().y
+                    });
+
                     if (tree.is_unsaved(current_open_fp))
                     {
                         std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
@@ -205,6 +212,13 @@ void Grass::mainloop()
                 {
                     tree.collapse_folder(*folder, m_rend);
                     tree.update_display();
+
+                    tree.set_selected_highlight_rect({
+                        tree.rect().x,
+                        folder->rect().y,
+                        tree.rect().w,
+                        folder->name().char_dim().y
+                    });
                 }
             } break;
 
@@ -347,6 +361,9 @@ void Grass::mainloop()
         }
 
         tree.render(m_rend);
+
+        if (gui::common::within_rect(tree.rect(), mx, my))
+            tree.highlight_element(m_rend, mx, my);
 
         for (auto& e : text_entries)
         {

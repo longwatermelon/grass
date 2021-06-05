@@ -86,7 +86,7 @@ namespace gui
         File* check_file_click(Folder& folder, int mx, int my);
         Folder* check_folder_click(Folder& folder, int mx, int my);
 
-        /* Collapses folder, if folder is already collapsed it will be expanded. */
+        // collapses folder if not already collapsed, otherwise expands the folder
         void collapse_folder(Folder& folder, SDL_Renderer* rend);
 
         void update_display();
@@ -97,6 +97,10 @@ namespace gui
         void erase_unsaved_file(const std::string& fp, SDL_Window* window);
         bool is_unsaved(const std::string& fp);
 
+        // highlights a file / folder based off where mouse position is
+        void highlight_element(SDL_Renderer* rend, int mx, int my);
+
+        void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
         std::vector<std::string> unsaved() { return m_unsaved_files; }
         SDL_Rect rect() { return m_rect; }
@@ -113,5 +117,7 @@ namespace gui
         std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_file_textures;
 
         std::vector<std::string> m_unsaved_files;
+
+        SDL_Rect m_selected_highlight_rect{ 0, 0, 0, 0 };
     };
 }

@@ -213,6 +213,14 @@ void gui::Tree::render(SDL_Renderer* rend)
     {
         file.render(rend, offset, m_rect.y, m_file_textures, m_unsaved_files);
     }
+
+    if (m_selected_highlight_rect.y >= m_rect.y)
+    {
+        SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(rend, 255, 255, 255, 100);
+        SDL_RenderFillRect(rend, &m_selected_highlight_rect);
+        SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
+    }
 }
 
 
@@ -224,7 +232,9 @@ gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
     for (auto& file : folder.files())
     {
         if (common::within_rect(file.rect(), mx, my))
+        {
             return &file;
+        }
     }
 
     for (auto& f : folder.folders())
@@ -232,7 +242,9 @@ gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
         File* file = check_file_click(f, mx, my);
 
         if (file)
+        {
             return file;
+        }
     }
 
     return nullptr;
@@ -298,11 +310,15 @@ void gui::Tree::scroll(int y, int window_h)
         if (y > 0) // scrolling downwards, everything moves up
         {
             if (last_file.rect().y + last_file.rect().h - y * char_height + char_height >= window_h)
+            {
                 m_default_rect.y -= char_height * y;
+                m_selected_highlight_rect.y -= char_height * y;
+            }
         }
         else // scrolling upwards, everything moves down
         {
             m_default_rect.y -= char_height * y;
+            m_selected_highlight_rect.y -= char_height * y;
         }
     }
 
@@ -347,4 +363,25 @@ void gui::Tree::erase_unsaved_file(const std::string& fp, SDL_Window* window)
 bool gui::Tree::is_unsaved(const std::string& fp)
 {
     return std::find(m_unsaved_files.begin(), m_unsaved_files.end(), fp) != m_unsaved_files.end();
+}
+
+
+void gui::Tree::highlight_element(SDL_Renderer* rend, int mx, int my)
+{
+    SDL_Rect rect = {
+        m_rect.x,
+        (int)((my - m_rect.y) / m_folder.name().char_dim().y) * m_folder.name().char_dim().y + m_rect.y,
+        m_rect.w,
+        m_folder.name().char_dim().y
+    };
+
+    File& bottom_file = m_folder.files()[m_folder.files().size() - 1];
+    
+    if (rect.y > bottom_file.rect().y)
+        return;
+
+    SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(rend, 255, 255, 255, 50);
+    SDL_RenderFillRect(rend, &rect);
+    SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
 }
