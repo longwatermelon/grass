@@ -79,10 +79,15 @@ namespace gui
         void scroll(int y);
 
 
+        void hide() { m_hidden = true; }
+        void show() { m_hidden = false; }
+
+
         Text* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
         Cursor cursor() { return m_cursor; }
         int move_bounds_by() { return m_move_bounds_by; }
+        bool hidden() { return m_hidden; }
 
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
 
@@ -103,5 +108,7 @@ namespace gui
         // not rendered
         Cursor m_highlight_start;
         Mode m_mode{ Mode::NORMAL };
+
+        bool m_hidden{ false };
     };
 }

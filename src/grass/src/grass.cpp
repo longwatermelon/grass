@@ -54,8 +54,6 @@ void Grass::mainloop()
     SDL_Rect dstrect;
 
     TTF_Font* font_regular = TTF_OpenFont("res/CascadiaCode.ttf", 36);
-    SDL_Texture* img = nullptr;
-    int img_x, img_y, img_w, img_h;
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, { 9, 18 }), gui::Text(font_regular, { main_text_dimensions.x, main_text_dimensions.y }, "", { 9, 18 }, { 255, 255, 255 })));
@@ -77,7 +75,10 @@ void Grass::mainloop()
 
     tree.update_display();
 
+
     std::string current_open_fp;
+    SDL_Texture* editor_image = nullptr;
+
     
     bool running = true;
     SDL_Event evt;
@@ -161,16 +162,19 @@ void Grass::mainloop()
 
                     if (current_open_fp.substr(current_open_fp.size() - 4, current_open_fp.size()) == ".png")
                     {
-                        img = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+                        editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
                         text_entries[0].text()->set_contents({ "" });
                         reset_entry_to_default(text_entries[0]);
+                        text_entries[0].hide();
                     }
                     else
                     {
-                        if (img)
-                            SDL_DestroyTexture(img);
+                        if (editor_image)
+                            SDL_DestroyTexture(editor_image);
 
-                        img = nullptr;
+                        editor_image = nullptr;
+
+                        text_entries[0].show();
                         
                         if (fs::exists(current_open_fp + ".tmp"))
                             load_file(current_open_fp + ".tmp", text_entries[0]);
@@ -273,8 +277,6 @@ void Grass::mainloop()
                     case SDLK_s:
                         if (ctrl_down && m_selected_entry == &text_entries[0])
                         {
-                            std::cout << "saving\n";
-
                             std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
 
                             for (auto& line : text_entries[0].text()->contents())
@@ -284,16 +286,12 @@ void Grass::mainloop()
 
                             ofs.close();
 
-                            std::cout << "finished saving\n";
-
                             tree.erase_unsaved_file(current_open_fp, m_window);
                         }
                         break;
                     case SDLK_d:
                         if (ctrl_down && m_selected_entry == &text_entries[0])
                         {
-                            std::cout << "discarding changes\n";
-
                             tree.erase_unsaved_file(current_open_fp, m_window);
                             load_file(current_open_fp, text_entries[0]);
                         }
@@ -346,6 +344,9 @@ void Grass::mainloop()
 
         for (auto& e : text_entries)
         {
+            if (e.hidden())
+                continue;
+
             bool render_mouse = false;
             if (m_selected_entry == &e)
                 render_mouse = true;
@@ -363,18 +364,22 @@ void Grass::mainloop()
 
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
 
-        if (img)
+        if (editor_image)
         {
-            SDL_QueryTexture(img, nullptr, nullptr, &img_w, &img_h);
-            img_x = (text_entries[0].rect().w / 2) - img_w/2 + text_entries[0].rect().x;
-            img_y = (text_entries[0].rect().h / 2) - img_h/2 + text_entries[0].rect().y;
+            int img_w, img_h;
+            SDL_QueryTexture(editor_image, nullptr, nullptr, &img_w, &img_h);
+
+            int img_x = (text_entries[0].rect().w / 2) - img_w/2 + text_entries[0].rect().x;
+            int img_y = (text_entries[0].rect().h / 2) - img_h/2 + text_entries[0].rect().y;
+
             dstrect = {
                 img_x,
                 img_y,
                 img_w,
                 img_h
             };
-            SDL_RenderCopy(m_rend, img, nullptr, &dstrect);
+
+            SDL_RenderCopy(m_rend, editor_image, nullptr, &dstrect);
         }
 
         SDL_RenderPresent(m_rend);

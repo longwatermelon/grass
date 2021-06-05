@@ -62,7 +62,7 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
 
 bool gui::TextEntry::check_clicked(int mx, int my)
 {
-    return common::within_rect(m_rect, mx, my);
+    return common::within_rect(m_rect, mx, my) && !m_hidden;
 }
 
 
