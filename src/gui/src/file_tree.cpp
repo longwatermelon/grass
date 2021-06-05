@@ -332,6 +332,11 @@ void gui::Tree::erase_unsaved_file(const std::string& fp, SDL_Window* window)
         title = title.substr(0, title.size() - std::string(" - UNSAVED").size());
         
         SDL_SetWindowTitle(window, title.c_str());
+
+        if (fs::exists(fp + ".tmp"))
+        {
+            fs::remove(fp + ".tmp");
+        }
     }
 }
 

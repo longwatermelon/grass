@@ -6,9 +6,12 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <filesystem>
 #include <SDL_image.h>
 
 #define BG_COLOR 30, 30, 30
+
+namespace fs = std::filesystem;
 
 
 Grass::Grass()
@@ -145,6 +148,13 @@ void Grass::mainloop()
 
                 if (file)
                 {
+                    if (tree.is_unsaved(current_open_fp))
+                    {
+                        std::ofstream ofs(current_open_fp + ".tmp", std::ofstream::out | std::ofstream::trunc);
+                        ofs << text_entries[0].text()->str();
+                        ofs.close();
+                    }
+
                     text_entries[0].stop_highlight();
 
                     current_open_fp = file->path();
@@ -162,7 +172,10 @@ void Grass::mainloop()
 
                         img = nullptr;
                         
-                        load_file(current_open_fp, text_entries[0]);
+                        if (fs::exists(current_open_fp + ".tmp"))
+                            load_file(current_open_fp + ".tmp", text_entries[0]);
+                        else
+                            load_file(current_open_fp, text_entries[0]);
                     }
 
                     tree.update_display();
@@ -368,6 +381,12 @@ void Grass::mainloop()
     }
 
     TTF_CloseFont(font_regular);
+    
+    for (auto& path : tree.unsaved())
+    {
+        if (fs::exists(path + ".tmp"))
+            fs::remove(path + ".tmp");
+    }
 }
 
 

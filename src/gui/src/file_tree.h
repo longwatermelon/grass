@@ -98,6 +98,7 @@ namespace gui
         bool is_unsaved(const std::string& fp);
 
         Folder& folder() { return m_folder; }
+        std::vector<std::string> unsaved() { return m_unsaved_files; }
 
     private:
         Folder m_folder;
