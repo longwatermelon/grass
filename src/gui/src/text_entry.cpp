@@ -415,18 +415,6 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
     // single line highlight
     if (cursor_char_coords.y == highlight_char_coords.y)
     {
-        /*SDL_Point cursor_display_coords = m_cursor.display_pos(m_min_bounds);
-        SDL_Point highlight_display_coords = m_highlight_start.display_pos(m_min_bounds);
-
-        SDL_Rect rect = {
-            std::max(highlight_display_coords.x, m_rect.x),
-            highlight_display_coords.y,
-            std::min(cursor_display_coords.x - highlight_display_coords.x, (int)m_text.get_line(cursor_char_coords.y).size() * m_text.char_dim().x - m_min_bounds.x * m_text.char_dim().x),
-            m_text.char_dim().y
-        };
-
-        SDL_RenderFillRect(rend, &rect);*/
-
         SDL_Point highlight_coords = m_highlight_start.pos();
         SDL_Point cursor_coords = m_cursor.pos();
 
