@@ -85,10 +85,20 @@ void Grass::mainloop()
 
     while (running)
     {
-        SDL_CaptureMouse(SDL_TRUE);
-
         int mx, my;
-        SDL_GetMouseState(&mx, &my);
+
+        {
+            // sdl_capturemouse is not good so here is a workaround
+            int global_mx, global_my;
+            SDL_GetGlobalMouseState(&global_mx, &global_my);
+
+            int wx, wy;
+            SDL_GetWindowPosition(m_window, &wx, &wy);
+
+            mx = global_mx - wx;
+            my = global_my - wy;
+        }
+        
 
         int wx, wy;
         SDL_GetWindowSize(m_window, &wx, &wy);
@@ -163,8 +173,6 @@ void Grass::mainloop()
                     tree.update_display();
 
                     SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
-
-                    //text_entries[0].stop_highlight();
                 }
 
                 gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);

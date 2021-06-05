@@ -356,9 +356,13 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
 
     m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
 
-    /*if (out_of_bounds_x())
-    {*/
-    conditional_jump_to_eol();
+    SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
+    std::string line = m_text.get_line(cursor_pos.y);
+
+    if (cursor_pos.x > (int)line.size())
+    {
+        jump_to_eol();
+    }
 
     SDL_Point cursor_coords = m_cursor.display_pos(m_min_bounds);
 
@@ -371,9 +375,7 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
     {
         move_bounds_characters(m_move_bounds_by, 0);
     }
-    //}
     
-    //conditional_jump_to_eol();
     conditional_move_bounds_characters(0, y_diff);
 }
 
@@ -413,7 +415,7 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
     // single line highlight
     if (cursor_char_coords.y == highlight_char_coords.y)
     {
-        SDL_Point cursor_display_coords = m_cursor.display_pos(m_min_bounds);
+        /*SDL_Point cursor_display_coords = m_cursor.display_pos(m_min_bounds);
         SDL_Point highlight_display_coords = m_highlight_start.display_pos(m_min_bounds);
 
         SDL_Rect rect = {
@@ -423,7 +425,12 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
             m_text.char_dim().y
         };
 
-        SDL_RenderFillRect(rend, &rect);
+        SDL_RenderFillRect(rend, &rect);*/
+
+        SDL_Point highlight_coords = m_highlight_start.pos();
+        SDL_Point cursor_coords = m_cursor.pos();
+
+        highlight_section(rend, cursor_char_coords.y, cursor_coords.x, highlight_coords.x);
     }
     else if (cursor_char_coords.y < highlight_char_coords.y) // cursor is higher than origin
     {
