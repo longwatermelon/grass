@@ -55,7 +55,6 @@ void Grass::mainloop()
     int img_x, img_y, img_w, img_h;
 
     std::vector<gui::TextEntry> text_entries;
-    //text_entries.emplace_back(gui::TextEntry(main_text_dimensions, gui::Text(font_regular, { 60, 60 }, "", { 9, 18 }, { 255, 255, 255 }), { 50, 50, 50 }, { 255, 255, 255 }));
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, { 9, 18 }), gui::Text(font_regular, { main_text_dimensions.x, main_text_dimensions.y }, "", { 9, 18 }, { 255, 255, 255 })));
 
     std::vector<gui::Button> buttons;
@@ -154,6 +153,7 @@ void Grass::mainloop()
                     {
                         img = IMG_LoadTexture(m_rend, current_open_fp.c_str());
                         text_entries[0].text()->set_contents({ "" });
+                        reset_entry_to_default(text_entries[0]);
                     }
                     else
                     {
@@ -161,25 +161,15 @@ void Grass::mainloop()
                             SDL_DestroyTexture(img);
 
                         img = nullptr;
-                        std::ifstream ifs(current_open_fp);
-
-                        std::vector<std::string> lines;
-                        std::string line;
-                        while (std::getline(ifs, line)) lines.emplace_back(line);
-
-                        ifs.close();
-
-                        text_entries[0].text()->set_contents(lines);
+                        
+                        load_file(current_open_fp, text_entries[0]);
                     }
-
-                    text_entries[0].reset_bounds_x();
-                    text_entries[0].reset_bounds_y();
-                    text_entries[0].set_cursor_pos_characters(0, 0);
-                    text_entries[0].update_cache();
 
                     tree.update_display();
 
-                    SDL_SetWindowTitle(m_window, (std::string("Grass | Editing ") + file->name().str().c_str()).c_str());
+                    SDL_SetWindowTitle(m_window,
+                        (std::string("Grass | Editing ") + file->name().str().c_str() + (tree.is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
+                    );
                 }
 
                 gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
@@ -209,6 +199,8 @@ void Grass::mainloop()
                 if (m_selected_entry)
                 {
                     m_selected_entry->insert_char(evt.text.text[0]);
+                    m_selected_entry->stop_highlight();
+                    tree.append_unsaved_file(current_open_fp, m_window);
                 }
 
                 check_for_evt = false;
@@ -221,11 +213,15 @@ void Grass::mainloop()
                     {
                     case SDL_SCANCODE_RETURN:
                         m_selected_entry->insert_char('\n');
-                        //m_selected_entry->stop_highlight();
+                        tree.append_unsaved_file(current_open_fp, m_window);
+                        m_selected_entry->stop_highlight();
                         break;
                     case SDL_SCANCODE_BACKSPACE:
                         if (!mouse_down)
+                        {
                             m_selected_entry->remove_char();
+                            tree.append_unsaved_file(current_open_fp, m_window);
+                        }
                         break;
                     case SDL_SCANCODE_RCTRL:
                     case SDL_SCANCODE_LCTRL:
@@ -262,7 +258,7 @@ void Grass::mainloop()
                     switch (evt.key.keysym.sym)
                     {
                     case SDLK_s:
-                        if (ctrl_down)
+                        if (ctrl_down && m_selected_entry == &text_entries[0])
                         {
                             std::cout << "saving\n";
 
@@ -273,9 +269,21 @@ void Grass::mainloop()
                                 ofs << line << "\n";
                             }
 
+                            ofs.close();
+
                             std::cout << "finished saving\n";
+
+                            tree.erase_unsaved_file(current_open_fp, m_window);
                         }
                         break;
+                    case SDLK_d:
+                        if (ctrl_down && m_selected_entry == &text_entries[0])
+                        {
+                            std::cout << "discarding changes\n";
+
+                            tree.erase_unsaved_file(current_open_fp, m_window);
+                            load_file(current_open_fp, text_entries[0]);
+                        }
                     }
                 }
             } break;
@@ -288,7 +296,7 @@ void Grass::mainloop()
                     ctrl_down = false;
                     break;
                 }
-            }
+            } break;
             case SDL_MOUSEWHEEL:
                 if (mx > 0 && mx < main_text_dimensions.x)
                 {
@@ -360,4 +368,28 @@ void Grass::mainloop()
     }
 
     TTF_CloseFont(font_regular);
+}
+
+
+void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
+{
+    std::ifstream ifs(fp);
+
+    std::vector<std::string> lines;
+    std::string line;
+    while (std::getline(ifs, line)) lines.emplace_back(line);
+
+    ifs.close();
+
+    entry.text()->set_contents(lines);
+    reset_entry_to_default(entry);
+}
+
+
+void Grass::reset_entry_to_default(gui::TextEntry& entry)
+{
+    entry.reset_bounds_x();
+    entry.reset_bounds_y();
+    entry.set_cursor_pos_characters(0, 0);
+    entry.update_cache();
 }

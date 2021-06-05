@@ -1,6 +1,7 @@
 #include "file_tree.h"
 #include <filesystem>
 #include <iostream>
+#include <algorithm>
 #include <SDL_image.h>
 
 #if defined(_WIN32)
@@ -21,7 +22,7 @@ gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* re
 }
 
 
-void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures)
+void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files)
 {
     if (m_rect.y >= top_y)
     {
@@ -41,7 +42,11 @@ void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::
             m_name.char_dim().y
         };
 
-        SDL_RenderCopy(rend, file_textures["na"].get(), nullptr, &icon_rect);
+        // not unsaved
+        if (std::find(unsaved_files.begin(), unsaved_files.end(), path()) == unsaved_files.end())
+            SDL_RenderCopy(rend, file_textures["na"].get(), nullptr, &icon_rect);
+        else
+            SDL_RenderCopy(rend, file_textures["na_unsaved"].get(), nullptr, &icon_rect);
     }
 }
 
@@ -62,7 +67,7 @@ gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures)
+void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files)
 {
     if (m_rect.y >= top_y)
     {
@@ -95,12 +100,12 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
 
     for (auto& folder : m_folders)
     {
-        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y, file_textures);
+        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y, file_textures, unsaved_files);
     }
 
     for (auto& file : m_files)
     {
-        file.render(rend, offset + 10, top_y, file_textures);
+        file.render(rend, offset + 10, top_y, file_textures, unsaved_files);
     }
 }
 
@@ -185,6 +190,7 @@ gui::Tree::Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
     m_opened_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_open.png"));
 
     m_file_textures["na"] = unique(IMG_LoadTexture(rend, "res/file_na.png"));
+    m_file_textures["na_unsaved"] = unique(IMG_LoadTexture(rend, "res/file_na_unsaved.png"));
 
     m_top_y = m_default_rect.y;
 }
@@ -197,12 +203,12 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y, m_file_textures);
+        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y, m_file_textures, m_unsaved_files);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, offset, m_top_y, m_file_textures);
+        file.render(rend, offset, m_top_y, m_file_textures, m_unsaved_files);
     }
 }
 
@@ -298,4 +304,39 @@ void gui::Tree::scroll(int y, int window_h)
     }
 
     update_display();
+}
+
+
+void gui::Tree::append_unsaved_file(const std::string& fp, SDL_Window* window)
+{
+    if (fp.empty())
+        return;
+
+    if (std::find(m_unsaved_files.begin(), m_unsaved_files.end(), fp) == m_unsaved_files.end())
+    {
+        m_unsaved_files.emplace_back(fp);
+        SDL_SetWindowTitle(window, (std::string(SDL_GetWindowTitle(window)) + std::string(" - UNSAVED")).c_str());
+    }
+}
+
+
+void gui::Tree::erase_unsaved_file(const std::string& fp, SDL_Window* window)
+{
+    auto pos = std::find(m_unsaved_files.begin(), m_unsaved_files.end(), fp);
+
+    if (pos != m_unsaved_files.end())
+    {
+        m_unsaved_files.erase(pos);
+
+        std::string title = SDL_GetWindowTitle(window);
+        title = title.substr(0, title.size() - std::string(" - UNSAVED").size());
+        
+        SDL_SetWindowTitle(window, title.c_str());
+    }
+}
+
+
+bool gui::Tree::is_unsaved(const std::string& fp)
+{
+    return std::find(m_unsaved_files.begin(), m_unsaved_files.end(), fp) != m_unsaved_files.end();
 }
