@@ -74,6 +74,11 @@ namespace gui
         void erase_highlighted_section();
 
 
+        void resize_to(int w, int h);
+
+        void scroll(int y);
+
+
         Text* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
         Cursor cursor() { return m_cursor; }

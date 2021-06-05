@@ -20,10 +20,11 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
     SDL_SetRenderDrawColor(rend, m_bg_color.r, m_bg_color.g, m_bg_color.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
 
-    if (show_cursor)
+    if (show_cursor && m_cursor.display_pos(m_min_bounds).y >= m_rect.y)
         m_cursor.render(rend, m_min_bounds);
 
-    placeholder_at_cache(m_cursor.display_char_pos(m_rect, m_min_bounds).y);
+    if (m_cursor.display_char_pos(m_rect, m_min_bounds).y >= 0)
+        placeholder_at_cache(m_cursor.display_char_pos(m_rect, m_min_bounds).y);
 
     for (int i = 0; i < m_cached_textures.size(); ++i)
     {
@@ -50,11 +51,14 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
             m_text.char_dim().y
         };
 
-        SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
+        if (m_cached_textures[i].get())
+            SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
     }
 
     if (m_mode == Mode::HIGHLIGHT)
         draw_highlighted_areas(rend);
+
+    std::cout << m_cursor.char_pos(m_rect).x << ", " << m_cursor.char_pos(m_rect).y << "\n";
 }
 
 
@@ -355,20 +359,24 @@ void gui::TextEntry::move_cursor_to_click(int mx, int my)
 
     m_cursor.move_characters(coords.x - m_cursor.char_pos(m_rect).x, coords.y - m_cursor.char_pos(m_rect).y);
 
-    if (out_of_bounds_x())
-    {
-        SDL_Point cursor_coords = m_cursor.display_char_pos(m_rect, m_min_bounds);
-
-        if (cursor_coords.x < 0)
-        {
-            move_bounds_characters(-m_move_bounds_by, 0);
-            move_cursor_characters(m_min_bounds.x - m_cursor.char_pos(m_rect).x, 0);
-        }
-        else
-            move_bounds_characters(m_move_bounds_by, 0);
-    }
-    
+    /*if (out_of_bounds_x())
+    {*/
     conditional_jump_to_eol();
+
+    SDL_Point cursor_coords = m_cursor.display_pos(m_min_bounds);
+
+    if (cursor_coords.x < m_rect.x)
+    {
+        move_bounds_characters(-m_move_bounds_by, 0);
+        move_cursor_characters(m_min_bounds.x - m_cursor.char_pos(m_rect).x, 0);
+    }
+    else if (cursor_coords.x > (m_rect.x + m_rect.w))
+    {
+        move_bounds_characters(m_move_bounds_by, 0);
+    }
+    //}
+    
+    //conditional_jump_to_eol();
     conditional_move_bounds_characters(0, y_diff);
 }
 
@@ -584,6 +592,58 @@ void gui::TextEntry::erase_highlighted_section()
         if (out_of_bounds_y())
         {
             move_bounds_characters(0, diff_y - m_move_bounds_by);
+        }
+    }
+}
+
+
+void gui::TextEntry::resize_to(int w, int h)
+{
+    stop_highlight();
+
+    m_rect.w = w - m_rect.x;
+    m_rect.h = h - m_rect.y;
+
+    m_max_bounds = {
+        m_min_bounds.x + (int)(m_rect.w / m_text.char_dim().x),
+        m_min_bounds.y + (int)(m_rect.h / m_text.char_dim().y)
+    };
+
+    if (m_max_bounds.y >= m_text.contents().size())
+    {
+        move_bounds_characters(0, -(std::min(m_max_bounds.y - (int)m_text.contents().size(), m_min_bounds.y)));
+    }
+
+    m_cursor.move_pixels(
+        std::min(m_max_bounds.x * m_text.char_dim().x + m_rect.x, m_cursor.pos().x) - m_cursor.pos().x,
+        std::min(m_max_bounds.y * m_text.char_dim().y + m_rect.y, m_cursor.pos().y) - m_cursor.pos().y
+    );
+
+    conditional_jump_to_eol();
+    update_cache();
+}
+
+
+void gui::TextEntry::scroll(int y)
+{
+    auto shift = [&]() {
+        move_bounds_characters(0, y);
+        shift_cache(y);
+        clear_cache();
+    };
+
+    if (y > 0) // scrolling down
+    {
+        if (m_max_bounds.y + y <= m_text.contents().size())
+        {
+            shift();
+        }
+    }
+    else // scrolling up
+    {
+        if (m_min_bounds.y + y >= 0)
+        {
+            shift();
         }
     }
 }

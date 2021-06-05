@@ -244,8 +244,8 @@ void Grass::mainloop()
             case SDL_MOUSEWHEEL:
                 if (mx > 0 && mx < main_text_dimensions.x)
                     tree.scroll(-evt.wheel.y, wy);
-                /*else
-                    text_entries[0].scroll(-evt.wheel.y);*/
+                else
+                    text_entries[0].scroll(-evt.wheel.y);
                 break;
             }
             
@@ -476,7 +476,8 @@ void Grass::mainloop()
 
         if (prev_wx != wx || prev_wy != wy)
         {
-            //text_entries[0].resize_to(wx, wy);
+            // if sdl_capturemouse is not supported, this will move the cursor to the right place if the window is resized
+            text_entries[0].resize_to(wx, wy);
             prev_wx = wx;
             prev_wy = wy;
         }
@@ -496,6 +497,7 @@ void Grass::mainloop()
             };
             SDL_RenderCopy(m_rend, img, nullptr, &dstrect);
         }
+
         SDL_RenderPresent(m_rend);
     }
 
