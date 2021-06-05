@@ -307,7 +307,7 @@ void Grass::mainloop()
                         SDL_Point pos;
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
                         gui::Explorer e(".", gui::ExplorerMode::FOLDER, pos);
-                        e.mainloop();
+                        std::cout << "Selected " << fs::absolute(e.get_path()).string() << "\n";
 
                         SDL_DestroyTexture(text);
                     }

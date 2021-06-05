@@ -16,10 +16,12 @@ gui::Explorer::Explorer(const std::string& path, ExplorerMode mode, SDL_Point po
 }
 
 
-void gui::Explorer::mainloop()
+std::string gui::Explorer::get_path()
 {
     bool running = true;
     SDL_Event evt;
+
+    bool return_path = false;
 
     TTF_Font* font_button = TTF_OpenFont("res/CascadiaCode.ttf", 14);
     SDL_Point font_button_dim;
@@ -31,6 +33,12 @@ void gui::Explorer::mainloop()
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
+    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Select", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+        running = false;
+        return_path = true;
+    }));
+
+    button_pos.x -= 100;
     buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Close", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
     }));
@@ -70,9 +78,11 @@ void gui::Explorer::mainloop()
         if (!running)
         {
             cleanup(buttons, &font_button);
-            return;
+            return (return_path ? m_current_path : "");
         }
     }
+
+    return "";
 }
 
 

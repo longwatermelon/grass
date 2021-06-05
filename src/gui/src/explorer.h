@@ -20,7 +20,7 @@ namespace gui
     public:
         Explorer(const std::string& path, ExplorerMode mode, SDL_Point pos);
 
-        void mainloop();
+        std::string get_path();
 
         void cleanup(std::vector<Button*>& buttons, TTF_Font** font);
 

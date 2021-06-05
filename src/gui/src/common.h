@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+
 namespace gui::common
 {
     struct TextureDeleter
