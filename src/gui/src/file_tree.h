@@ -79,7 +79,7 @@ namespace gui
     class Tree
     {
     public:
-        Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
+        Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
 
         void render(SDL_Renderer* rend);
 
@@ -99,12 +99,13 @@ namespace gui
 
         Folder& folder() { return m_folder; }
         std::vector<std::string> unsaved() { return m_unsaved_files; }
+        SDL_Rect rect() { return m_rect; }
 
     private:
+        SDL_Rect m_rect;
+
         Folder m_folder;
         SDL_Rect m_default_rect;
-        /* top of the rendered folder tree */
-        int m_top_y;
 
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_opened_folder_texture;
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_closed_folder_texture;

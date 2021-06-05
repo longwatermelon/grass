@@ -160,7 +160,14 @@ void gui::Folder::load(SDL_Renderer* rend)
         if (ec)
             continue;
 
-        t.set_contents({ entry.path().filename().string() });
+        std::string file_path = entry.path().filename().string();
+        std::string ext = fs::path(file_path).extension().string();
+
+        if (fs::path(file_path).has_extension() && ext[ext.size() - 1] == '~')
+            continue;
+
+        t.set_contents({ file_path });
+        
 
         if (entry.is_directory())
         {
@@ -181,16 +188,14 @@ void gui::Folder::unload()
 }
 
 
-gui::Tree::Tree(Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
-    : m_folder(std::move(folder)), m_default_rect(starting_rect)
+gui::Tree::Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend)
+    : m_folder(std::move(folder)), m_default_rect(starting_rect), m_rect(rect)
 {
     m_closed_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_closed.png"));
     m_opened_folder_texture = unique(IMG_LoadTexture(rend, "res/folder_open.png"));
 
     m_file_textures["na"] = unique(IMG_LoadTexture(rend, "res/file_na.png"));
     m_file_textures["na_unsaved"] = unique(IMG_LoadTexture(rend, "res/file_na_unsaved.png"));
-
-    m_top_y = m_default_rect.y;
 }
 
 
@@ -201,19 +206,19 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_top_y, m_file_textures, m_unsaved_files);
+        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_rect.y, m_file_textures, m_unsaved_files);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, offset, m_top_y, m_file_textures, m_unsaved_files);
+        file.render(rend, offset, m_rect.y, m_file_textures, m_unsaved_files);
     }
 }
 
 
 gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
 {
-    if (my < m_top_y)
+    if (my < m_rect.y)
         return nullptr;
 
     for (auto& file : folder.files())
@@ -236,7 +241,7 @@ gui::File* gui::Tree::check_file_click(Folder& folder, int mx, int my)
 
 gui::Folder* gui::Tree::check_folder_click(Folder& folder, int mx, int my)
 {
-    if (my < m_top_y)
+    if (my < m_rect.y)
         return nullptr;
 
     if (common::within_rect(folder.rect(), mx, my))
@@ -288,7 +293,7 @@ void gui::Tree::scroll(int y, int window_h)
     Folder& first_folder = m_folder.folders()[0];
     int char_height = m_folder.name().char_dim().y;
 
-    if (first_folder.rect().y - y * char_height <= m_top_y)
+    if (first_folder.rect().y - y * char_height <= m_rect.y)
     {
         if (y > 0) // scrolling downwards, everything moves up
         {
@@ -331,9 +336,9 @@ void gui::Tree::erase_unsaved_file(const std::string& fp, SDL_Window* window)
         
         SDL_SetWindowTitle(window, title.c_str());
 
-        if (fs::exists(fp + ".tmp"))
+        if (fs::exists(fp + "~"))
         {
-            fs::remove(fp + ".tmp");
+            fs::remove(fp + "~");
         }
     }
 }

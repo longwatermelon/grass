@@ -67,8 +67,9 @@ void Grass::mainloop()
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder(".", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder("C:/Users/qianh/Documents", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
+        { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
         { 0, main_text_dimensions.y, 200, font_tree_dim.y },
@@ -111,17 +112,12 @@ void Grass::mainloop()
             mx = global_mx - wx;
             my = global_my - wy;
         }
-        
 
         int wx, wy;
         SDL_GetWindowSize(m_window, &wx, &wy);
 
-        bool check_for_evt = true;
-
-        while (SDL_PollEvent(&evt) && check_for_evt)
+        while (SDL_PollEvent(&evt))
         {
-            SDL_CaptureMouse(SDL_TRUE);
-
             switch (evt.type)
             {
             case SDL_QUIT:
@@ -158,7 +154,7 @@ void Grass::mainloop()
                 {
                     if (tree.is_unsaved(current_open_fp))
                     {
-                        std::ofstream ofs(current_open_fp + ".tmp", std::ofstream::out | std::ofstream::trunc);
+                        std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
                         ofs << text_entries[0].text()->str();
                         ofs.close();
                     }
@@ -170,6 +166,10 @@ void Grass::mainloop()
                     if (current_open_fp.substr(current_open_fp.size() - 4, current_open_fp.size()) == ".png")
                     {
                         editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+
+                        if (!editor_image)
+                            editor_image = gui::common::render_text(m_rend, font_textbox, SDL_GetError());
+
                         text_entries[0].text()->set_contents({ "" });
                         reset_entry_to_default(text_entries[0]);
                         text_entries[0].hide();
@@ -183,8 +183,8 @@ void Grass::mainloop()
 
                         text_entries[0].show();
                         
-                        if (fs::exists(current_open_fp + ".tmp"))
-                            load_file(current_open_fp + ".tmp", text_entries[0]);
+                        if (fs::exists(current_open_fp + "~"))
+                            load_file(current_open_fp + "~", text_entries[0]);
                         else
                             load_file(current_open_fp, text_entries[0]);
                     }
@@ -227,7 +227,6 @@ void Grass::mainloop()
                     tree.append_unsaved_file(current_open_fp, m_window);
                 }
 
-                check_for_evt = false;
                 break;
             case SDL_KEYDOWN:
             {
@@ -316,19 +315,16 @@ void Grass::mainloop()
                 }
             } break;
             case SDL_MOUSEWHEEL:
-                if (mx > 0 && mx < main_text_dimensions.x)
+                if (gui::common::within_rect(tree.rect(), mx, my))
                 {
                     tree.scroll(-evt.wheel.y, wy);
                 }
-                else
+                else if (gui::common::within_rect(text_entries[0].rect(), mx, my))
                 {
                     text_entries[0].scroll(-evt.wheel.y);
-                    check_for_evt = false;
                 }
                 break;
             }
-            
-            SDL_CaptureMouse(SDL_FALSE);
         }
 
         SDL_RenderClear(m_rend);
@@ -363,7 +359,6 @@ void Grass::mainloop()
 
         if (prev_wx != wx || prev_wy != wy)
         {
-            // if sdl_capturemouse is not supported, this will move the cursor to the right place if the window is resized
             text_entries[0].resize_to(wx, wy);
             prev_wx = wx;
             prev_wy = wy;
@@ -396,8 +391,8 @@ void Grass::mainloop()
     
     for (auto& path : tree.unsaved())
     {
-        if (fs::exists(path + ".tmp"))
-            fs::remove(path + ".tmp");
+        if (fs::exists(path + "~"))
+            fs::remove(path + "~");
     }
 }
 
