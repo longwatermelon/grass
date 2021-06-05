@@ -16,7 +16,6 @@ gui::Button::~Button()
         SDL_DestroyTexture(m_tex);
 
     m_tex = nullptr;
-    m_continue_rendering = false;
 }
 
 
@@ -44,8 +43,7 @@ void gui::Button::render(SDL_Renderer* rend)
     SDL_SetRenderDrawColor(rend, col.r, col.g, col.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
 
-    if (m_continue_rendering)
-        common::center_rendered_text(rend, m_tex, m_text.str().c_str(), m_rect, m_text.char_dim(), m_text.color());
+    common::center_rendered_text(rend, m_tex, m_text.str().c_str(), m_rect, m_text.char_dim(), m_text.color());
 }
 
 

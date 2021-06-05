@@ -1,7 +1,8 @@
 #pragma once
+#include "button.h"
 #include <string>
 #include <filesystem>
-#include <SDL.h>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -20,6 +21,8 @@ namespace gui
         Explorer(const std::string& path, ExplorerMode mode);
 
         void mainloop();
+
+        void cleanup(std::vector<Button*>& buttons, TTF_Font** font);
 
     private:
         SDL_Window* m_window{ nullptr };

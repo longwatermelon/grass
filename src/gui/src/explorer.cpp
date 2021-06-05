@@ -28,9 +28,10 @@ void gui::Explorer::mainloop()
 
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
-    Button* save_button = new Button(m_rend, Text(font_button, button_pos, "Select", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    std::vector<Button*> buttons;
+    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Select", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
-    });
+    }));
 
     while (running)
     {
@@ -42,33 +43,50 @@ void gui::Explorer::mainloop()
             switch (evt.type)
             {
             case SDL_MOUSEBUTTONDOWN:
-                save_button->check_clicked(mx, my);
+                for (auto& btn : buttons)
+                {
+                    btn->check_clicked(mx, my);
+                }
                 break;
             }
         }
 
         SDL_RenderClear(m_rend);
 
-        if (save_button)
+        for (auto& btn : buttons)
         {
-            save_button->check_hover(mx, my);
-
-            save_button->render(m_rend);
+            if (btn)
+            {
+                btn->check_hover(mx, my);
+                btn->render(m_rend);
+            }
         }
 
-        SDL_SetRenderDrawColor(m_rend, 10, 10, 10, 255);
+        SDL_SetRenderDrawColor(m_rend, 50, 50, 50, 255);
         SDL_RenderPresent(m_rend);
         
         if (!running)
         {
-            delete save_button;
-            save_button = 0;
+            cleanup(buttons, &font_button);
+            return;
         }
     }
+}
+
+
+void gui::Explorer::cleanup(std::vector<Button*>& buttons, TTF_Font** font)
+{
+    for (auto& btn : buttons)
+    {
+        delete btn;
+        btn = 0;
+    }
+
+    buttons.clear();
+
+    TTF_CloseFont(*font);
+    *font = 0;
 
     SDL_DestroyRenderer(m_rend);
     SDL_DestroyWindow(m_window);
-
-    TTF_CloseFont(font_button);
-    font_button = nullptr;
 }

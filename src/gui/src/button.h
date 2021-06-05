@@ -32,7 +32,6 @@ namespace gui
     private:
         Text m_text;
         SDL_Texture* m_tex{ nullptr };
-        bool m_continue_rendering{ true };
 
         SDL_Rect m_rect;
         SDL_Color m_color;
