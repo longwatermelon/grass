@@ -57,8 +57,6 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
 
     if (m_mode == Mode::HIGHLIGHT)
         draw_highlighted_areas(rend);
-
-    std::cout << m_cursor.char_pos(m_rect).x << ", " << m_cursor.char_pos(m_rect).y << "\n";
 }
 
 
@@ -330,7 +328,6 @@ void gui::TextEntry::mouse_down(int mx, int my)
 {
     move_cursor_to_click(mx, my);
     m_highlight_start = m_cursor;
-    //std::cout << "set highlight start to " << m_highlight_start.char_pos(m_rect).x << ", " << m_highlight_start.char_pos(m_rect).y << "\n";
     m_mode = Mode::HIGHLIGHT;
 }
 
