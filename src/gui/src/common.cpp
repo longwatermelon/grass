@@ -32,7 +32,8 @@ void gui::common::center_rendered_text(SDL_Renderer* rend, SDL_Texture* tex, con
         text_height
     };
 
-    SDL_RenderCopy(rend, tex, nullptr, &rect);
+    if (tex)
+        SDL_RenderCopy(rend, tex, nullptr, &rect);
 }
 
 

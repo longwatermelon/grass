@@ -3,6 +3,7 @@
 #include "button.h"
 #include "file_tree.h"
 #include "text_entry.h"
+#include "explorer.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -27,7 +28,7 @@ Grass::Grass()
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
 
     TTF_Init();
-    IMG_Init(IMG_INIT_PNG);
+    IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 }
 
 
@@ -172,8 +173,9 @@ void Grass::mainloop()
                     text_entries[0].stop_highlight();
 
                     current_open_fp = file->path();
+                    std::string ext = fs::path(current_open_fp).extension().string();
 
-                    if (current_open_fp.substr(current_open_fp.size() - 4, current_open_fp.size()) == ".png")
+                    if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
                     {
                         editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
 
@@ -214,10 +216,11 @@ void Grass::mainloop()
                     tree.update_display();
 
                     tree.set_selected_highlight_rect({
-                        tree.rect().x,
+                        /*tree.rect().x,
                         folder->rect().y,
                         tree.rect().w,
-                        folder->name().char_dim().y
+                        folder->name().char_dim().y*/
+                        0, 0, 0, 0
                     });
                 }
             } break;
@@ -270,6 +273,48 @@ void Grass::mainloop()
                     }
                 }
 
+                switch (evt.key.keysym.sym)
+                {
+                case SDLK_s:
+                    if (m_selected_entry)
+                    {
+                        if (ctrl_down && m_selected_entry == &text_entries[0])
+                        {
+                            std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
+
+                            for (auto& line : text_entries[0].text()->contents())
+                            {
+                                ofs << line << "\n";
+                            }
+
+                            ofs.close();
+
+                            tree.erase_unsaved_file(current_open_fp, m_window);
+                        }
+                    }
+                    
+                    break;
+                case SDLK_d:
+                    if (m_selected_entry)
+                    {
+                        if (ctrl_down && m_selected_entry == &text_entries[0])
+                        {
+                            tree.erase_unsaved_file(current_open_fp, m_window);
+                            load_file(current_open_fp, text_entries[0]);
+                        }
+                    }
+                    
+                    break;
+                case SDLK_o:
+                    if (ctrl_down)
+                    {
+                        gui::Explorer e(".", gui::ExplorerMode::FOLDER);
+                        e.mainloop();
+                    }
+
+                    break;
+                }
+
                 if (m_selected_entry)
                 {
                     SDL_Point movement{ 0, 0 };
@@ -289,36 +334,11 @@ void Grass::mainloop()
                     m_selected_entry->move_cursor_characters(movement.x, movement.y);
 
                     m_selected_entry->conditional_move_bounds_characters(
-                        movement.x * m_selected_entry->move_bounds_by(), 
+                        movement.x * m_selected_entry->move_bounds_by(),
                         movement.y * m_selected_entry->move_bounds_by()
                     );
 
                     m_selected_entry->conditional_jump_to_eol();
-
-                    switch (evt.key.keysym.sym)
-                    {
-                    case SDLK_s:
-                        if (ctrl_down && m_selected_entry == &text_entries[0])
-                        {
-                            std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
-
-                            for (auto& line : text_entries[0].text()->contents())
-                            {
-                                ofs << line << "\n";
-                            }
-
-                            ofs.close();
-
-                            tree.erase_unsaved_file(current_open_fp, m_window);
-                        }
-                        break;
-                    case SDLK_d:
-                        if (ctrl_down && m_selected_entry == &text_entries[0])
-                        {
-                            tree.erase_unsaved_file(current_open_fp, m_window);
-                            load_file(current_open_fp, text_entries[0]);
-                        }
-                    }
                 }
             } break;
             case SDL_KEYUP:
@@ -380,6 +400,7 @@ void Grass::mainloop()
         if (prev_wx != wx || prev_wy != wy)
         {
             text_entries[0].resize_to(wx, wy);
+            tree.resize_to(wy);
             prev_wx = wx;
             prev_wy = wy;
         }
@@ -391,8 +412,8 @@ void Grass::mainloop()
             int img_w, img_h;
             SDL_QueryTexture(editor_image, nullptr, nullptr, &img_w, &img_h);
 
-            int img_x = (text_entries[0].rect().w / 2) - img_w/2 + text_entries[0].rect().x;
-            int img_y = (text_entries[0].rect().h / 2) - img_h/2 + text_entries[0].rect().y;
+            int img_x = (text_entries[0].rect().w / 2) - img_w / 2 + text_entries[0].rect().x;
+            int img_y = (text_entries[0].rect().h / 2) - img_h / 2 + text_entries[0].rect().y;
 
             SDL_Rect dstrect = {
                 img_x,

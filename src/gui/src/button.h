@@ -11,6 +11,7 @@ namespace gui
     {
     public:
         Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
+        ~Button();
 
         void render(SDL_Renderer* rend);
 
@@ -30,7 +31,8 @@ namespace gui
 
     private:
         Text m_text;
-        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
+        SDL_Texture* m_tex{ nullptr };
+        bool m_continue_rendering{ true };
 
         SDL_Rect m_rect;
         SDL_Color m_color;

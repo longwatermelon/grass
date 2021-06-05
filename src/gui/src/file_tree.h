@@ -99,6 +99,7 @@ namespace gui
 
         // highlights a file / folder based off where mouse position is
         void highlight_element(SDL_Renderer* rend, int mx, int my);
+        void resize_to(int h) { m_rect.h = h; }
 
         void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
