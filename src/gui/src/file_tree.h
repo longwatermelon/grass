@@ -32,6 +32,8 @@ namespace gui
         Text m_name;
 
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
+
+        bool m_saved{ true };
     };
 
     class Folder

@@ -74,6 +74,8 @@ void Grass::mainloop()
     }
 
     tree.update_display();
+
+    std::string current_open_fp;
     
     bool running = true;
     SDL_Event evt;
@@ -82,6 +84,7 @@ void Grass::mainloop()
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
     bool mouse_down = false;
+    bool ctrl_down = false;
 
     while (running)
     {
@@ -145,11 +148,11 @@ void Grass::mainloop()
                 {
                     text_entries[0].stop_highlight();
 
-                    std::string fp = file->path();
+                    current_open_fp = file->path();
 
-                    if (fp.substr(fp.size() - 4, fp.size()) == ".png")
+                    if (current_open_fp.substr(current_open_fp.size() - 4, current_open_fp.size()) == ".png")
                     {
-                        img = IMG_LoadTexture(m_rend, fp.c_str());
+                        img = IMG_LoadTexture(m_rend, current_open_fp.c_str());
                         text_entries[0].text()->set_contents({ "" });
                     }
                     else
@@ -158,7 +161,7 @@ void Grass::mainloop()
                             SDL_DestroyTexture(img);
 
                         img = nullptr;
-                        std::ifstream ifs(fp);
+                        std::ifstream ifs(current_open_fp);
 
                         std::vector<std::string> lines;
                         std::string line;
@@ -206,7 +209,6 @@ void Grass::mainloop()
                 if (m_selected_entry)
                 {
                     m_selected_entry->insert_char(evt.text.text[0]);
-                    //m_selected_entry->stop_highlight();
                 }
 
                 check_for_evt = false;
@@ -224,6 +226,10 @@ void Grass::mainloop()
                     case SDL_SCANCODE_BACKSPACE:
                         if (!mouse_down)
                             m_selected_entry->remove_char();
+                        break;
+                    case SDL_SCANCODE_RCTRL:
+                    case SDL_SCANCODE_LCTRL:
+                        ctrl_down = true;
                         break;
                     }
                 }
@@ -252,8 +258,37 @@ void Grass::mainloop()
                     );
 
                     m_selected_entry->conditional_jump_to_eol();
+
+                    switch (evt.key.keysym.sym)
+                    {
+                    case SDLK_s:
+                        if (ctrl_down)
+                        {
+                            std::cout << "saving\n";
+
+                            std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
+
+                            for (auto& line : text_entries[0].text()->contents())
+                            {
+                                ofs << line << "\n";
+                            }
+
+                            std::cout << "finished saving\n";
+                        }
+                        break;
+                    }
                 }
             } break;
+            case SDL_KEYUP:
+            {
+                switch (evt.key.keysym.scancode)
+                {
+                case SDL_SCANCODE_RCTRL:
+                case SDL_SCANCODE_LCTRL:
+                    ctrl_down = false;
+                    break;
+                }
+            }
             case SDL_MOUSEWHEEL:
                 if (mx > 0 && mx < main_text_dimensions.x)
                 {
