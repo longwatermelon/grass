@@ -1,6 +1,9 @@
 #include "explorer.h"
 #include "button.h"
 #include <iostream>
+#include <chrono>
+
+namespace chrono = std::chrono;
 
 
 gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos)
@@ -50,13 +53,12 @@ std::string gui::Explorer::get_path()
         running = false;
     }));
 
-    button_pos.x -= 100;
-    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Enter Folder", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
-        m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
-    }));
-
     int entry_start = 50;
     int entry_width = 400;
+
+    chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
+    chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
+    bool ready_for_first_click = true;
 
     while (running)
     {
@@ -81,6 +83,7 @@ std::string gui::Explorer::get_path()
                 {
                     m_selected_item = elem_at_mouse_pos(my, font_button_dim.y);
 
+                    // clicked a valid item
                     if (!m_selected_item.empty())
                     {
                         m_selected_item_highlight = {
@@ -89,6 +92,19 @@ std::string gui::Explorer::get_path()
                             entry_width,
                             font_button_dim.y
                         };
+
+                        if (ready_for_first_click)
+                        {
+                            first_click_time = chrono::system_clock::now();
+                            ready_for_first_click = false;
+                        }
+                        else if (chrono::duration_cast<chrono::milliseconds>(second_click_time - first_click_time).count() < 500)
+                        {
+                            m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
+                            m_selected_item_highlight = { 0, 0, 0, 0 };
+                            m_selected_item.clear();
+                            ready_for_first_click = true;
+                        }
                     }
                 }
 
@@ -105,6 +121,11 @@ std::string gui::Explorer::get_path()
         }
 
         SDL_RenderClear(m_rend);
+
+        second_click_time = chrono::system_clock::now();
+
+        if (!ready_for_first_click && chrono::duration_cast<chrono::milliseconds>(second_click_time - first_click_time).count() > 500)
+            ready_for_first_click = true;
 
         for (auto& btn : buttons)
         {

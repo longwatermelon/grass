@@ -342,6 +342,11 @@ void Grass::mainloop()
 
                             text_entries[0].text()->set_contents({ "" });
                             reset_entry_to_default(text_entries[0]);
+                            
+                            if (editor_image)
+                                SDL_DestroyTexture(editor_image);
+
+                            editor_image = 0;
                         }
 
                         SDL_DestroyTexture(text);
@@ -532,4 +537,5 @@ void Grass::reset_entry_to_default(gui::TextEntry& entry)
     entry.reset_bounds_y();
     entry.set_cursor_pos_characters(0, 0);
     entry.update_cache();
+    entry.show();
 }

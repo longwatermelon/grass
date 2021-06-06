@@ -7,6 +7,7 @@
 
 namespace gui
 {
+    // not renderable, only contains information helpful in rendering text that spans over multiple lines
     class Text
     {
     public:
