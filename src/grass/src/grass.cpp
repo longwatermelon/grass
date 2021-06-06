@@ -461,7 +461,7 @@ void Grass::mainloop()
 
         if (!scrollbar.down())
         {
-            scrollbar.set_bounds(min_bound.y, min_bound.y + (max_bound.y - min_bound.y), text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y) - 1);
+            scrollbar.set_bounds(min_bound.y, max_bound.y, text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
         }
         else
         {

@@ -48,7 +48,7 @@ void gui::Scrollbar::set_bounds(int min_bar_bound, int max_bar_bound, int total_
     m_total_bar_height = total_size;
     
     m_bar_rect.y = y_to_bar_pos(min_bar_bound);
-    m_bar_rect.h = y_to_bar_pos(max_bar_bound - min_bar_bound + 1) - 1;
+    m_bar_rect.h = y_to_bar_pos(max_bar_bound - min_bar_bound + 1);
 
     m_bar_rect.y += m_rect.y;
 }
@@ -59,7 +59,7 @@ int gui::Scrollbar::y_to_bar_pos(int y)
     if (m_total_bar_height == 0)
         return 0;
 
-    int result = (int)((float)y * (float)((float)m_rect.h / (float)m_total_bar_height));
+    int result = ((float)y * (float)((float)m_rect.h / (float)(m_total_bar_height)));
 
     return result;
 }
@@ -84,11 +84,20 @@ void gui::Scrollbar::mouse_up()
 
 void gui::Scrollbar::move_with_cursor(int my)
 {
-    m_bar_rect.y = std::max(std::min(m_rect.y + (int)((float)((my - m_bar_and_mouse_diff) - m_rect.y) / (m_rect.h / m_total_bar_height)) * (m_rect.h / m_total_bar_height), m_rect.y + m_rect.h - m_bar_rect.h), m_rect.y);
+    float pixels_per_unit = (float)m_rect.h / (float)m_total_bar_height;
+
+    int new_pos = (my - m_bar_and_mouse_diff - m_rect.y);
+    m_bar_rect.y = m_rect.y + new_pos;/*(int)((((float)(my - m_bar_and_mouse_diff - m_rect.y + 1) / pixels_per_unit)) * pixels_per_unit);*/
+
+    m_bar_rect.y = m_rect.y + y_to_bar_pos(min_position());
+
+    m_bar_rect.y = std::min(m_bar_rect.y, m_rect.y + m_rect.h - m_bar_rect.h);
+    m_bar_rect.y = std::max(m_bar_rect.y, m_rect.y);
+    //m_bar_rect.y = std::max(std::min((int)(m_rect.y + (int)((float)((float)(my - m_bar_and_mouse_diff) - m_rect.y) / (float)((float)m_rect.h / (float)(m_total_bar_height))) * ((float)m_rect.h / (float)m_total_bar_height)), m_rect.y + m_rect.h - m_bar_rect.h), m_rect.y);
 }
 
 
 int gui::Scrollbar::min_position()
 {
-    return ((float)(m_bar_rect.y - m_rect.y) / (float)(m_rect.h)) * (m_total_bar_height + 1);
+    return (int)std::roundf(((float)(m_bar_rect.y - m_rect.y) / (float)(m_rect.h)) * (m_total_bar_height));
 }
