@@ -55,6 +55,9 @@ std::string gui::Explorer::get_path()
         m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
     }));
 
+    int entry_start = 50;
+    int entry_width = 400;
+
     while (running)
     {
         int mx, my;
@@ -77,6 +80,16 @@ std::string gui::Explorer::get_path()
                 if (!clicked)
                 {
                     m_selected_item = elem_at_mouse_pos(my, font_button_dim.y);
+
+                    if (!m_selected_item.empty())
+                    {
+                        m_selected_item_highlight = {
+                            entry_start,
+                            (int)(my / font_button_dim.y) * font_button_dim.y,
+                            entry_width,
+                            font_button_dim.y
+                        };
+                    }
                 }
 
                 break;
@@ -103,8 +116,13 @@ std::string gui::Explorer::get_path()
         }
 
         update_current_directory();
-        render_current_directory(font_button, font_button_dim);
-        highlight_elem_at_mouse(my, font_button_dim.y);
+        render_current_directory(font_button, font_button_dim, entry_start);
+        highlight_elem_at_mouse(my, font_button_dim.y, entry_start, entry_width);
+
+        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 100);
+        SDL_RenderFillRect(m_rend, &m_selected_item_highlight);
+        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
 
         SDL_SetRenderDrawColor(m_rend, 50, 50, 50, 255);
         SDL_RenderPresent(m_rend);
@@ -173,9 +191,9 @@ void gui::Explorer::update_current_directory()
 }
 
 
-void gui::Explorer::render_current_directory(TTF_Font* font, SDL_Point font_dim)
+void gui::Explorer::render_current_directory(TTF_Font* font, SDL_Point font_dim, int entry_start)
 {
-    SDL_Rect current_text_rect = { 50, 0 };
+    SDL_Rect current_text_rect = { entry_start, 0 };
 
     for (int i = 0; i < m_current_names.size(); ++i)
     {
@@ -219,15 +237,13 @@ std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
 }
 
 
-void gui::Explorer::highlight_elem_at_mouse(int my, int font_dim_y)
+void gui::Explorer::highlight_elem_at_mouse(int my, int font_dim_y, int entry_start, int entry_width)
 {
     if ((int)(my / font_dim_y) >= m_current_names.size())
         return;
 
     int y = (my / font_dim_y) * font_dim_y;
-    SDL_Rect rect = {
-        50, y, 300, font_dim_y
-    };
+    SDL_Rect rect = { entry_start, y, entry_width, font_dim_y };
 
     SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 50);

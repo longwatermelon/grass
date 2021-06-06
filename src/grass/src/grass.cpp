@@ -311,10 +311,12 @@ void Grass::mainloop()
                         
                         if (!path.empty())
                         {
-                            std::cout << "cd to " << fs::absolute(path).string() << "\n";
                             tree.folder().change_directory(fs::absolute(path).string(), m_rend);
                             tree.update_display();
                             tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+
+                            text_entries[0].text()->set_contents({ "" });
+                            reset_entry_to_default(text_entries[0]);
                         }
 
                         SDL_DestroyTexture(text);

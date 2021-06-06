@@ -26,10 +26,10 @@ namespace gui
         void cleanup(std::vector<Button*>& buttons, TTF_Font** font);
 
         void update_current_directory();
-        void render_current_directory(TTF_Font* font, SDL_Point font_dim);
+        void render_current_directory(TTF_Font* font, SDL_Point font_dim, int entry_start);
 
         std::string elem_at_mouse_pos(int my, int font_dim_y);
-        void highlight_elem_at_mouse(int my, int font_dim_y);
+        void highlight_elem_at_mouse(int my, int font_dim_y, int entry_start, int entry_width);
 
     private:
         SDL_Window* m_window{ nullptr };
@@ -41,5 +41,7 @@ namespace gui
 
         std::vector<std::string> m_current_names;
         std::vector<SDL_Texture*> m_current_textures;
+
+        SDL_Rect m_selected_item_highlight{ 0, 0, 0, 0 };
     };
 }
