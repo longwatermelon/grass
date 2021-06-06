@@ -36,7 +36,7 @@ void Scrollbar::move(int x, int y)
 
 void Scrollbar::resize(int window_h)
 {
-    m_rect.h = window_h;
+    m_rect.h = window_h - m_rect.y;
 }
 
 
