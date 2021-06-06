@@ -88,7 +88,7 @@ void Grass::mainloop()
 
     tree.update_display();
 
-    Scrollbar scrollbar = Scrollbar({
+    gui::Scrollbar scrollbar({
         main_text_dimensions.x + main_text_dimensions.w,
         main_text_dimensions.y,
         scrollbar_width,
@@ -438,7 +438,9 @@ void Grass::mainloop()
             e.render(m_rend, render_mouse);
         }
 
-        scrollbar.set_bounds(text_entries[0].min_bounds().y, text_entries[0].max_bounds().y, text_entries[0].text()->contents().size());
+        int max_bound = std::min(text_entries[0].max_bounds().y, (int)text_entries[0].text()->contents().size());
+
+        scrollbar.set_bounds(text_entries[0].min_bounds().y, max_bound, text_entries[0].text()->contents().size());
         scrollbar.render(m_rend);
 
         if (prev_wx != wx || prev_wy != wy)

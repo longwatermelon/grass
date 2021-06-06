@@ -1,6 +1,6 @@
 #include "scrollbar.h"
 
-Scrollbar::Scrollbar(SDL_Rect rect, int min_bar_bound, int max_bar_bound, int total_size, SDL_Color bg_color, SDL_Color bar_color)
+gui::Scrollbar::Scrollbar(SDL_Rect rect, int min_bar_bound, int max_bar_bound, int total_size, SDL_Color bg_color, SDL_Color bar_color)
     : m_rect(rect), m_bg_color(bg_color), m_bar_color(bar_color), m_total_bar_height(total_size)
 {
     m_bar_rect = {
@@ -14,7 +14,7 @@ Scrollbar::Scrollbar(SDL_Rect rect, int min_bar_bound, int max_bar_bound, int to
 }
 
 
-void Scrollbar::render(SDL_Renderer* rend)
+void gui::Scrollbar::render(SDL_Renderer* rend)
 {
     SDL_SetRenderDrawColor(rend, m_bg_color.r, m_bg_color.g, m_bg_color.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
@@ -24,7 +24,7 @@ void Scrollbar::render(SDL_Renderer* rend)
 }
 
 
-void Scrollbar::move(int x, int y)
+void gui::Scrollbar::move(int x, int y)
 {
     m_rect.x += x;
     m_bar_rect.x += x;
@@ -34,13 +34,13 @@ void Scrollbar::move(int x, int y)
 }
 
 
-void Scrollbar::resize(int window_h)
+void gui::Scrollbar::resize(int window_h)
 {
     m_rect.h = window_h - m_rect.y;
 }
 
 
-void Scrollbar::set_bounds(int min_bar_bound, int max_bar_bound, int total_size)
+void gui::Scrollbar::set_bounds(int min_bar_bound, int max_bar_bound, int total_size)
 {
     m_total_bar_height = total_size;
     
@@ -51,7 +51,7 @@ void Scrollbar::set_bounds(int min_bar_bound, int max_bar_bound, int total_size)
 }
 
 
-int Scrollbar::y_to_bar_pos(int y)
+int gui::Scrollbar::y_to_bar_pos(int y)
 {
     if (m_total_bar_height == 0)
         return 0;
