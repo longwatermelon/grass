@@ -88,6 +88,8 @@ namespace gui
         Cursor cursor() { return m_cursor; }
         int move_bounds_by() { return m_move_bounds_by; }
         bool hidden() { return m_hidden; }
+        SDL_Point min_bounds() { return m_min_bounds; }
+        SDL_Point max_bounds() { return m_max_bounds; }
 
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
 

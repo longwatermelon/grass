@@ -4,6 +4,7 @@
 #include "file_tree.h"
 #include "text_entry.h"
 #include "explorer.h"
+#include "scrollbar.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -45,10 +46,13 @@ Grass::~Grass()
 
 void Grass::mainloop()
 {
+    /* constants */
+    constexpr int scrollbar_width = 20;
+
     constexpr SDL_Rect main_text_dimensions = {
         300,
         40,
-        1000 - 300,
+        1000 - 300 - scrollbar_width,
         800 - 40
     };
 
@@ -83,6 +87,14 @@ void Grass::mainloop()
     }
 
     tree.update_display();
+
+    Scrollbar scrollbar = Scrollbar({
+        main_text_dimensions.x + main_text_dimensions.w,
+        main_text_dimensions.y,
+        scrollbar_width,
+        main_text_dimensions.h
+    }, 0, 0, 0, { 40, 40, 40 }, { 100, 100, 100 });
+
 
     bool running = true;
     SDL_Event evt;
@@ -426,15 +438,21 @@ void Grass::mainloop()
             e.render(m_rend, render_mouse);
         }
 
+        scrollbar.set_bounds(text_entries[0].min_bounds().y, text_entries[0].max_bounds().y, text_entries[0].text()->contents().size());
+        scrollbar.render(m_rend);
+
         if (prev_wx != wx || prev_wy != wy)
         {
-            text_entries[0].resize_to(wx, wy);
+            text_entries[0].resize_to(wx - scrollbar_width, wy);
             tree.resize_to(wy);
+            
+            SDL_Rect entry_rect = text_entries[0].rect();
+            scrollbar.move((entry_rect.x + entry_rect.w) - scrollbar.rect().x, 0);
+            scrollbar.resize(wy);
+
             prev_wx = wx;
             prev_wy = wy;
         }
-
-        SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
 
         if (editor_image)
         {
@@ -454,6 +472,7 @@ void Grass::mainloop()
             SDL_RenderCopy(m_rend, editor_image, nullptr, &dstrect);
         }
 
+        SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
         SDL_RenderPresent(m_rend);
     }
 
