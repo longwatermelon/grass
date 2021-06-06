@@ -230,18 +230,18 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
 
     if (m_min_bounds.y + y >= 0)
     {
-        if (m_max_bounds.y + y <= m_text.contents().size())
+        if (m_min_bounds.y + y < m_text.contents().size())
         {
             m_min_bounds.y += y;
             m_max_bounds.y += y;
         }
         else
         {
-            shift_cache(m_text.contents().size() - m_max_bounds.y);
+            shift_cache(m_text.contents().size() - m_min_bounds.y);
             shift = false;
 
-            m_min_bounds.y += m_text.contents().size() - m_max_bounds.y;
-            m_max_bounds.y += m_text.contents().size() - m_max_bounds.y;
+            m_min_bounds.y += m_text.contents().size() - m_min_bounds.y;
+            m_max_bounds.y += m_text.contents().size() - m_min_bounds.y;
         }
     }
     else
@@ -651,9 +651,9 @@ void gui::TextEntry::resize_to(int w, int h)
         m_min_bounds.y + (int)(m_rect.h / m_text.char_dim().y)
     };
 
-    if (m_max_bounds.y >= m_text.contents().size())
+    if (m_min_bounds.y > m_text.contents().size())
     {
-        move_bounds_characters(0, -(std::min(m_max_bounds.y - (int)m_text.contents().size(), m_min_bounds.y)));
+        move_bounds_characters(0, -(std::min(m_min_bounds.y - (int)m_text.contents().size(), m_min_bounds.y)));
     }
 
     m_cursor.move_pixels(
@@ -670,7 +670,7 @@ void gui::TextEntry::scroll(int y)
 {
     if (y > 0) // scrolling down
     {
-        if (m_max_bounds.y + y <= m_text.contents().size())
+        if (m_min_bounds.y + y < m_text.contents().size())
         {
             move_bounds_characters(0, y);
         }

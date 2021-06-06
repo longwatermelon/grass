@@ -456,17 +456,18 @@ void Grass::mainloop()
             e.render(m_rend, render_mouse);
         }
 
-        int max_bound = std::min(text_entries[0].max_bounds().y, (int)text_entries[0].text()->contents().size());
+        SDL_Point min_bound = text_entries[0].min_bounds();
+        SDL_Point max_bound = text_entries[0].max_bounds();
 
         if (!scrollbar.down())
         {
-            scrollbar.set_bounds(text_entries[0].min_bounds().y, max_bound, text_entries[0].text()->contents().size());
+            scrollbar.set_bounds(min_bound.y, min_bound.y + (max_bound.y - min_bound.y), text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y) - 1);
         }
         else
         {
             scrollbar.move_with_cursor(my);
 
-            text_entries[0].move_bounds_characters(0, scrollbar.min_position() - text_entries[0].min_bounds().y);
+            text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
         }
 
         scrollbar.render(m_rend);
