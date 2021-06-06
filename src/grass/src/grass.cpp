@@ -162,7 +162,14 @@ void Grass::mainloop()
                 }
 
                 if (!has_selected_item)
+                {
                     m_selected_entry = nullptr;
+
+                    for (auto& e : text_entries)
+                    {
+                        e.stop_highlight();
+                    }
+                }
 
                 gui::File* file = tree.check_file_click(tree.folder(), mx, my);
 

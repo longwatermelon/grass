@@ -226,7 +226,6 @@ std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
         if (index == 0)
         {
             m_current_dir = fs::absolute(fs::path(m_current_dir)).parent_path().string();
-            std::cout << m_current_dir << "\n";
             return "";
         }
 

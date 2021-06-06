@@ -162,6 +162,9 @@ void gui::TextEntry::remove_char()
     {
         erase_highlighted_section();
     }
+
+    if (m_max_bounds.y > m_text.contents().size())
+        move_bounds_characters(0, m_text.contents().size() - m_max_bounds.y);
 }
 
 
@@ -223,15 +226,38 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
     m_min_bounds.x += x;
     m_max_bounds.x += x;
 
-    m_min_bounds.y += y;
-    m_max_bounds.y += y;
+    bool shift = true;
+
+    if (m_min_bounds.y + y >= 0)
+    {
+        if (m_max_bounds.y + y <= m_text.contents().size())
+        {
+            m_min_bounds.y += y;
+            m_max_bounds.y += y;
+        }
+        else
+        {
+            shift_cache(m_text.contents().size() - m_max_bounds.y);
+            shift = false;
+
+            m_min_bounds.y += m_text.contents().size() - m_max_bounds.y;
+            m_max_bounds.y += m_text.contents().size() - m_max_bounds.y;
+        }
+    }
+    else
+    {
+        shift_cache(-m_min_bounds.y);
+        shift = false;
+
+        m_max_bounds.y -= m_min_bounds.y;
+        m_min_bounds.y = 0;
+    }
 
     m_min_bounds.x = std::max(0, m_min_bounds.x);
-    m_min_bounds.y = std::max(0, m_min_bounds.y);
-
     m_max_bounds.x = std::max(m_rect.w / m_text.char_dim().x, m_max_bounds.x);
 
-    shift_cache(y);
+    if (shift)
+        shift_cache(y);
 
     if (x != 0)
         // no way to shift the cache horizontally, that would cause text to leak out of the box
@@ -642,24 +668,18 @@ void gui::TextEntry::resize_to(int w, int h)
 
 void gui::TextEntry::scroll(int y)
 {
-    auto shift = [&]() {
-        move_bounds_characters(0, y);
-        shift_cache(y);
-        clear_cache();
-    };
-
     if (y > 0) // scrolling down
     {
         if (m_max_bounds.y + y <= m_text.contents().size())
         {
-            shift();
+            move_bounds_characters(0, y);
         }
     }
     else // scrolling up
     {
         if (m_min_bounds.y + y >= 0)
         {
-            shift();
+            move_bounds_characters(0, y);
         }
     }
 }
