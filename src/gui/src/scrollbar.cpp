@@ -87,13 +87,12 @@ void gui::Scrollbar::move_with_cursor(int my)
     float pixels_per_unit = (float)m_rect.h / (float)m_total_bar_height;
 
     int new_pos = (my - m_bar_and_mouse_diff - m_rect.y);
-    m_bar_rect.y = m_rect.y + new_pos;/*(int)((((float)(my - m_bar_and_mouse_diff - m_rect.y + 1) / pixels_per_unit)) * pixels_per_unit);*/
+    m_bar_rect.y = m_rect.y + new_pos;
 
     m_bar_rect.y = m_rect.y + y_to_bar_pos(min_position());
 
     m_bar_rect.y = std::min(m_bar_rect.y, m_rect.y + m_rect.h - m_bar_rect.h);
     m_bar_rect.y = std::max(m_bar_rect.y, m_rect.y);
-    //m_bar_rect.y = std::max(std::min((int)(m_rect.y + (int)((float)((float)(my - m_bar_and_mouse_diff) - m_rect.y) / (float)((float)m_rect.h / (float)(m_total_bar_height))) * ((float)m_rect.h / (float)m_total_bar_height)), m_rect.y + m_rect.h - m_bar_rect.h), m_rect.y);
 }
 
 
