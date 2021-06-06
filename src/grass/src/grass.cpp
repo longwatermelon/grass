@@ -229,6 +229,9 @@ void Grass::mainloop()
 
                     tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                 }
+
+                scrollbar.check_clicked(mx, my);
+
             } break;
 
             case SDL_MOUSEBUTTONUP:
@@ -243,6 +246,9 @@ void Grass::mainloop()
                 {
                     btn.set_down(false);
                 }
+
+                scrollbar.mouse_up();
+
                 break;
 
             case SDL_TEXTINPUT:
@@ -440,7 +446,17 @@ void Grass::mainloop()
 
         int max_bound = std::min(text_entries[0].max_bounds().y, (int)text_entries[0].text()->contents().size());
 
-        scrollbar.set_bounds(text_entries[0].min_bounds().y, max_bound, text_entries[0].text()->contents().size());
+        if (!scrollbar.down())
+        {
+            scrollbar.set_bounds(text_entries[0].min_bounds().y, max_bound, text_entries[0].text()->contents().size());
+        }
+        else
+        {
+            scrollbar.move_with_cursor(my);
+
+            text_entries[0].move_bounds_characters(0, scrollbar.min_position() - text_entries[0].min_bounds().y);
+        }
+
         scrollbar.render(m_rend);
 
         if (prev_wx != wx || prev_wy != wy)

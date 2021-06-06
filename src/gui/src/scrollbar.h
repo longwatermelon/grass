@@ -20,9 +20,20 @@ namespace gui
         // converts a y position between 0 and m_total_bar_height to where it would display on the bar
         int y_to_bar_pos(int y);
 
+        // sets m_down to true if clicked
+        void check_clicked(int mx, int my);
+        void mouse_up();
+
+        // follows the cursor y position if m_down is true, returns the amount of units the bar was moved by
+        void move_with_cursor(int my);
+
+        int min_position();
+
 
         SDL_Rect rect() { return m_rect; }
         SDL_Rect bar_rect() { return m_bar_rect; }
+
+        bool down() { return m_down; }
 
     private:
         SDL_Rect m_rect;
@@ -31,5 +42,8 @@ namespace gui
         int m_total_bar_height;
 
         SDL_Color m_bg_color, m_bar_color;
+
+        bool m_down{ false };
+        int m_bar_and_mouse_diff{ 0 };
     };
 }
