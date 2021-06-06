@@ -306,8 +306,15 @@ void Grass::mainloop()
 
                         SDL_Point pos;
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
-                        gui::Explorer e(".", gui::ExplorerMode::FOLDER, pos);
-                        std::cout << "Selected " << fs::absolute(e.get_path()).string() << "\n";
+                        gui::Explorer e(".", gui::ExplorerMode::DIR, pos);
+                        std::string path = e.get_path();
+                        
+                        if (!path.empty())
+                        {
+                            std::cout << "cd to " << fs::absolute(path).string() << "\n";
+                            tree.folder().change_directory(fs::absolute(path).string(), m_rend);
+                            tree.update_display();
+                        }
 
                         SDL_DestroyTexture(text);
                     }

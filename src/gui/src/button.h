@@ -15,11 +15,11 @@ namespace gui
 
         void render(SDL_Renderer* rend);
 
-        /* If (mx, my) is inside of m_rect, it will call m_function.
+        /* If (mx, my) is inside of m_rect, it will call m_function. Returns true if button was clicked
         * mx: mouse x
         * my: mouse y
         */
-        void check_clicked(int mx, int my);
+        bool check_clicked(int mx, int my);
 
         /* If (mx, my) is inside of m_rect, m_hover will be set to true and the button will glow.
         * mx: mouse x

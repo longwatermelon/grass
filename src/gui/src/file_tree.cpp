@@ -151,6 +151,9 @@ void gui::Folder::update_rects(SDL_Rect& rect)
 
 void gui::Folder::load(SDL_Renderer* rend)
 {
+    m_folders.clear();
+    m_files.clear();
+
     Text t = m_name;
     std::string sname = m_name.str();
 
@@ -185,6 +188,95 @@ void gui::Folder::unload()
 {
     m_files.clear();
     m_folders.clear();
+}
+
+
+void gui::Folder::change_directory(const std::string& fp, SDL_Renderer* rend)
+{
+    fs::path p(fp);
+
+    m_base_path = p.parent_path().string();
+    m_name.set_contents({ p.filename().string() });
+
+    load(rend);
+
+    for (auto& f : m_folders)
+    {
+        f.collapse(rend);
+    }
+}
+
+
+gui::Folder* gui::Folder::find_lowest_folder()
+{
+    if (m_folders.empty())
+        return 0;
+
+    Folder* f = m_folders[m_folders.size() - 1].find_lowest_folder();
+
+    if (!f)
+        return &m_folders[m_folders.size() - 1];
+    else
+    {
+        Folder* tmp = f->find_lowest_folder();
+
+        if (tmp)
+            return tmp;
+        else
+            return f;
+    }
+}
+
+
+gui::File* gui::Folder::find_lowest_file()
+{
+    if (m_files.empty())
+        return 0;
+
+    return &m_files[m_files.size() - 1];
+}
+
+
+gui::Folder* gui::Folder::find_last_folder_with_files()
+{
+    if (!m_files.empty())
+        return this;
+
+    for (int i = m_folders.size() - 1; i >= 0; --i)
+    {
+        Folder* tmp = m_folders[i].find_last_folder_with_files();
+
+        if (tmp)
+            return tmp;
+    }
+
+    return 0;
+}
+
+
+SDL_Rect gui::Folder::find_lowest_rect()
+{
+    Folder* f = find_lowest_folder();
+
+    if (!f)
+        return m_rect;
+    
+    File* file = find_lowest_file();
+
+    if (file)
+        return file->rect();
+    else
+    {
+        Folder* first_folder = find_last_folder_with_files();
+
+        if (first_folder)
+            file = first_folder->find_lowest_file();
+
+        if (file)
+            return file->rect();
+        else
+            return f->rect();
+    }
 }
 
 
@@ -301,15 +393,15 @@ void gui::Tree::update_display()
 
 void gui::Tree::scroll(int y, int window_h)
 {
-    File& last_file = m_folder.files()[m_folder.files().size() - 1];
-    Folder& first_folder = m_folder.folders()[0];
+    //File& last_file = m_folder.files()[m_folder.files().size() - 1];
+    SDL_Rect bottom_rect = m_folder.find_lowest_rect();
     int char_height = m_folder.name().char_dim().y;
 
-    if (first_folder.rect().y - y * char_height <= m_rect.y)
+    if (m_default_rect.y - y * char_height <= m_rect.y)
     {
         if (y > 0) // scrolling downwards, everything moves up
         {
-            if (last_file.rect().y + last_file.rect().h - y * char_height + char_height >= window_h)
+            if (bottom_rect.y + bottom_rect.h - y * char_height + char_height >= window_h)
             {
                 m_default_rect.y -= char_height * y;
                 m_selected_highlight_rect.y -= char_height * y;
@@ -375,9 +467,10 @@ void gui::Tree::highlight_element(SDL_Renderer* rend, int mx, int my)
         m_folder.name().char_dim().y
     };
 
-    File& bottom_file = m_folder.files()[m_folder.files().size() - 1];
-    
-    if (rect.y > bottom_file.rect().y)
+    //File& bottom_file = m_folder.files()[m_folder.files().size() - 1];
+    SDL_Rect lowest_rect = m_folder.find_lowest_rect();
+
+    if (rect.y > lowest_rect.y)
         return;
 
     SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);

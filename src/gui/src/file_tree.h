@@ -54,6 +54,15 @@ namespace gui
         /* Unload all the contents from the folder, normally called when the folder is closed. */
         void unload();
 
+        void change_directory(const std::string& fp, SDL_Renderer* rend);
+
+        Folder* find_lowest_folder();
+        File* find_lowest_file();
+        Folder* find_last_folder_with_files();
+
+        SDL_Rect find_lowest_rect();
+
+
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
         Text name() const { return m_name; }

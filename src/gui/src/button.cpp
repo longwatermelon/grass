@@ -47,13 +47,16 @@ void gui::Button::render(SDL_Renderer* rend)
 }
 
 
-void gui::Button::check_clicked(int mx, int my)
+bool gui::Button::check_clicked(int mx, int my)
 {
     if (common::within_rect(m_rect, mx, my))
     {
         m_down = true;
         m_function();
+        return true;
     }
+
+    return false;
 }
 
 
