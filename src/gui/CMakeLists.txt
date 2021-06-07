@@ -9,8 +9,8 @@ add_library(gui
     src/button.cpp
     src/common.h
     src/common.cpp
-    src/text.h
-    src/text.cpp
+    src/gui_string.h
+    src/gui_string.cpp
     src/file_tree.h
     src/file_tree.cpp
     src/cursor.h

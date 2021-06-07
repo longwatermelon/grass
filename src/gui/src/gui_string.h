@@ -8,12 +8,12 @@
 namespace gui
 {
     // not renderable, only contains information helpful in rendering text that spans over multiple lines
-    class Text
+    class String
     {
     public:
-        Text() = default;
+        String() = default;
 
-        Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
+        String(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
 
         /* Inserts a character at m_contents[y][x]. */
         void insert(int x, int y, char c);

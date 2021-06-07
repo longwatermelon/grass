@@ -15,7 +15,7 @@
 namespace fs = std::filesystem;
 
 
-gui::File::File(const std::string& base_path, const Text& name, SDL_Renderer* rend)
+gui::File::File(const std::string& base_path, const String& name, SDL_Renderer* rend)
     : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }
 {
     m_tex = unique(common::render_text(rend, m_name.font(), m_name.str().c_str(), m_name.color()));
@@ -56,7 +56,7 @@ std::string gui::File::path()
 }
 
 
-gui::Folder::Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend, bool load_directory)
+gui::Folder::Folder(const std::string& base_path, const String& name, SDL_Renderer* rend, bool load_directory)
     : m_base_path(base_path), m_name(name), m_rect{ 0, 0, 0, 0 }, m_loaded(load_directory)
 {
     if (load_directory)
@@ -154,7 +154,7 @@ void gui::Folder::load(SDL_Renderer* rend)
     m_folders.clear();
     m_files.clear();
 
-    Text t = m_name;
+    String t = m_name;
     std::string sname = m_name.str();
 
     std::error_code ec;

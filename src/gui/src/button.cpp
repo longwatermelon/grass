@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-gui::Button::Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func)
+gui::Button::Button(SDL_Renderer* rend, const String& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func)
     : m_text(text), m_rect(rect), m_color(color), m_function(func)
 {
     m_tex = common::render_text(rend, m_text.font(), m_text.str().c_str(), m_text.color());

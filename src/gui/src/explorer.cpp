@@ -41,13 +41,13 @@ std::string gui::Explorer::get_path()
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
-    buttons.emplace_back(new Button(m_rend, Text(font_button.font(), button_pos, "Select", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Select", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
         return_path = true;
     }));
 
     button_pos.x -= 100;
-    buttons.emplace_back(new Button(m_rend, Text(font_button.font(), button_pos, "Cancel", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Cancel", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
     }));
 

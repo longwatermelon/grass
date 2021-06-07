@@ -1,5 +1,5 @@
 #pragma once
-#include "text.h"
+#include "gui_string.h"
 #include "common.h"
 #include <functional>
 #include <memory>
@@ -10,7 +10,7 @@ namespace gui
     class Button
     {
     public:
-        Button(SDL_Renderer* rend, const Text& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
+        Button(SDL_Renderer* rend, const String& text, SDL_Rect rect, SDL_Color color, const std::function<void()>& func);
         ~Button();
 
         void render(SDL_Renderer* rend);
@@ -30,7 +30,7 @@ namespace gui
         void set_down(bool b) { m_down = b; }
 
     private:
-        Text m_text;
+        String m_text;
         SDL_Texture* m_tex{ nullptr };
 
         SDL_Rect m_rect;

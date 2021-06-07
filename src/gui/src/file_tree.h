@@ -1,5 +1,5 @@
 #pragma once
-#include "text.h"
+#include "gui_string.h"
 #include "common.h"
 #include <string>
 #include <vector>
@@ -13,14 +13,14 @@ namespace gui
     {
     public:
         File() = default;
-        File(const std::string& base_path, const Text& name, SDL_Renderer* rend);
+        File(const std::string& base_path, const String& name, SDL_Renderer* rend);
 
         void render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files);
 
         void update_rect(SDL_Rect& r) { m_rect = r; r.y += m_name.char_dim().y; }
 
         std::string path();
-        Text name() const { return m_name; }
+        String name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
 
         void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
@@ -29,7 +29,7 @@ namespace gui
         SDL_Rect m_rect;
 
         std::string m_base_path;
-        Text m_name;
+        String m_name;
 
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
 
@@ -39,7 +39,7 @@ namespace gui
     class Folder
     {
     public:
-        Folder(const std::string& base_path, const Text& name, SDL_Renderer* rend, bool load_directory);
+        Folder(const std::string& base_path, const String& name, SDL_Renderer* rend, bool load_directory);
 
         void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files);
 
@@ -65,7 +65,7 @@ namespace gui
 
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
-        Text name() const { return m_name; }
+        String name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
 
         void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
@@ -74,7 +74,7 @@ namespace gui
         SDL_Rect m_rect;
 
         std::string m_base_path;
-        Text m_name;
+        String m_name;
 
         std::vector<File> m_files;
         std::vector<Folder> m_folders;

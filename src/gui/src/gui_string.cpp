@@ -1,9 +1,9 @@
-#include "text.h"
+#include "gui_string.h"
 #include "common.h"
 #include <sstream>
 
 
-gui::Text::Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col)
+gui::String::String(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col)
     : m_font(font), m_char_dim(char_dimensions), m_color(col)
 {
     m_rect = { pos.x, pos.y, char_dimensions.x * (int)contents.size(), char_dimensions.y };
@@ -17,7 +17,7 @@ gui::Text::Text(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_
 }
 
 
-void gui::Text::insert(int x, int y, char c)
+void gui::String::insert(int x, int y, char c)
 {
     if (m_contents.size() == 0)
         m_contents.emplace_back("");
@@ -29,7 +29,7 @@ void gui::Text::insert(int x, int y, char c)
 }
 
 
-void gui::Text::erase(int x, int y, bool erase_nl)
+void gui::String::erase(int x, int y, bool erase_nl)
 {
     if (m_contents[y].empty())
     {
@@ -46,7 +46,7 @@ void gui::Text::erase(int x, int y, bool erase_nl)
 }
 
 
-std::string gui::Text::str()
+std::string gui::String::str()
 {
     std::string s;
 

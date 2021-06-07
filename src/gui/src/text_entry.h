@@ -1,5 +1,5 @@
 #pragma once
-#include "text.h"
+#include "gui_string.h"
 #include "cursor.h"
 #include "common.h"
 #include <memory>
@@ -16,7 +16,7 @@ namespace gui
     class TextEntry
     {
     public:
-        TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const Text& text);
+        TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const String& text);
 
         void render(SDL_Renderer* rend, bool show_cursor = false);
 
@@ -81,7 +81,7 @@ namespace gui
         void show() { m_hidden = false; }
 
 
-        Text* text() { return &m_text; }
+        String* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
         Cursor cursor() { return m_cursor; }
         int move_bounds_by() { return m_move_bounds_by; }
@@ -99,7 +99,7 @@ namespace gui
         // measured in characters
         SDL_Point m_min_bounds, m_max_bounds;
 
-        Text m_text;
+        String m_text;
 
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
 

@@ -62,11 +62,11 @@ void Grass::mainloop()
     gui::common::Font font_tree("res/CascadiaCode.ttf", 14);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::Text(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder(".", gui::Text(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(".", gui::String(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,

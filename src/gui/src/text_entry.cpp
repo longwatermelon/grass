@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const Text& text)
+gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const String& text)
     : m_rect(rect), m_cursor(cursor), m_bg_color(bg_color), m_text(text)
 {
     m_highlight_start = Cursor({ -1, -1 }, { 255, 255, 255 }, m_text.char_dim());
