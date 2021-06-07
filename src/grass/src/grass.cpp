@@ -58,26 +58,20 @@ void Grass::mainloop()
 
     /* Core ui elements that should not be touched */
 
-    TTF_Font* font_textbox = TTF_OpenFont("res/CascadiaCode.ttf", 16);
-    TTF_Font* font_tree = TTF_OpenFont("res/CascadiaCode.ttf", 14);
-
-    SDL_Point font_textbox_dim;
-    TTF_SizeText(font_textbox, " ", &font_textbox_dim.x, &font_textbox_dim.y);
-
-    SDL_Point font_tree_dim;
-    TTF_SizeText(font_tree, " ", &font_tree_dim.x, &font_tree_dim.y);
+    gui::common::Font font_textbox("res/CascadiaCode.ttf", 16);
+    gui::common::Font font_tree("res/CascadiaCode.ttf", 14);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox_dim), gui::Text(font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox_dim, { 255, 255, 255 })));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::Text(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder(".", gui::Text(font_tree, { 0, 60 }, "", font_tree_dim, { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(".", gui::Text(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, font_tree_dim.y },
+        { 0, main_text_dimensions.y, 200, font_tree.char_dim().y },
         m_rend
     );
 
@@ -199,11 +193,12 @@ void Grass::mainloop()
                         editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
 
                         if (!editor_image)
-                            editor_image = gui::common::render_text(m_rend, font_textbox, SDL_GetError());
+                            editor_image = gui::common::render_text(m_rend, font_textbox.font(), SDL_GetError());
 
                         text_entries[0].text()->set_contents({ "" });
                         reset_entry_to_default(text_entries[0]);
                         text_entries[0].hide();
+                        scrollbar.hide();
                     }
                     else
                     {
@@ -213,6 +208,7 @@ void Grass::mainloop()
                         editor_image = nullptr;
 
                         text_entries[0].show();
+                        scrollbar.show();
                         
                         if (fs::exists(current_open_fp + "~"))
                             load_file(current_open_fp + "~", text_entries[0]);
@@ -317,9 +313,9 @@ void Grass::mainloop()
                         SDL_RenderFillRect(m_rend, &rect);
 
                         std::string waiting_text = "Waiting for open folder dialog to finish";
-                        SDL_Texture* text = gui::common::render_text(m_rend, font_textbox, waiting_text.c_str());
-                        rect.x = wx / 2 - waiting_text.size() * font_textbox_dim.x / 2;
-                        rect.y = wy / 2 - font_textbox_dim.y / 2;
+                        SDL_Texture* text = gui::common::render_text(m_rend, font_textbox.font(), waiting_text.c_str());
+                        rect.x = wx / 2 - waiting_text.size() * font_textbox.char_dim().x / 2;
+                        rect.y = wy / 2 - font_textbox.char_dim().y / 2;
 
                         SDL_QueryTexture(text, nullptr, nullptr, &rect.w, &rect.h);
                         SDL_RenderCopy(m_rend, text, nullptr, &rect);
@@ -456,21 +452,25 @@ void Grass::mainloop()
             e.render(m_rend, render_mouse);
         }
 
-        SDL_Point min_bound = text_entries[0].min_bounds();
-        SDL_Point max_bound = text_entries[0].max_bounds();
 
-        if (!scrollbar.down())
+        if (!scrollbar.hidden())
         {
-            scrollbar.set_bounds(min_bound.y, max_bound.y, text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
-        }
-        else
-        {
-            scrollbar.move_with_cursor(my);
+            SDL_Point min_bound = text_entries[0].min_bounds();
+            SDL_Point max_bound = text_entries[0].max_bounds();
 
-            text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
-        }
+            if (!scrollbar.down())
+            {
+                scrollbar.set_bounds(min_bound.y, max_bound.y, text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
+            }
+            else
+            {
+                scrollbar.move_with_cursor(my);
 
-        scrollbar.render(m_rend);
+                text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
+            }
+
+            scrollbar.render(m_rend);
+        }
 
         if (prev_wx != wx || prev_wy != wy)
         {
@@ -506,8 +506,6 @@ void Grass::mainloop()
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
         SDL_RenderPresent(m_rend);
     }
-
-    TTF_CloseFont(font_textbox);
     
     for (auto& path : tree.unsaved())
     {

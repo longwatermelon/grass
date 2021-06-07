@@ -1,8 +1,8 @@
 #pragma once
-#include <SDL.h>
-#include <SDL_ttf.h>
 #include <vector>
 #include <string>
+#include <SDL.h>
+#include <SDL_ttf.h>
 
 
 namespace gui::common
@@ -14,6 +14,24 @@ namespace gui::common
             if (ptr)
                 SDL_DestroyTexture(ptr);
         }
+    };
+
+    class Font
+    {
+    public:
+        Font(const std::string& ttf_path, int pt_size);
+        ~Font();
+        
+        // closes current font and loads new font
+        void load_font(const std::string& ttf_path, int pt_size);
+
+        TTF_Font* font() { return m_font; }
+        TTF_Font** font_ptr() { return &m_font; }
+        SDL_Point char_dim() { return m_char_dim; }
+
+    private:
+        TTF_Font* m_font;
+        SDL_Point m_char_dim;
     };
 
     // nodiscard just to make sure i dont leak memory

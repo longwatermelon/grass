@@ -26,7 +26,7 @@ namespace gui
         void cleanup(std::vector<Button*>& buttons, TTF_Font** font);
 
         void update_current_directory();
-        void render_current_directory(TTF_Font* font, SDL_Point font_dim, int entry_start);
+        void render_current_directory(common::Font& font, int entry_start);
 
         std::string elem_at_mouse_pos(int my, int font_dim_y);
         void highlight_elem_at_mouse(int my, int font_dim_y, int entry_start, int entry_width);

@@ -42,3 +42,25 @@ bool gui::common::within_rect(SDL_Rect rect, int x, int y)
     return x > rect.x && x < rect.x + rect.w
         && y > rect.y && y < rect.y + rect.h;
 }
+
+
+gui::common::Font::Font(const std::string& ttf_path, int pt_size)
+{
+    m_font = TTF_OpenFont(ttf_path.c_str(), pt_size);
+    TTF_SizeText(m_font, " ", &m_char_dim.x, &m_char_dim.y);
+}
+
+
+gui::common::Font::~Font()
+{
+    TTF_CloseFont(m_font);
+}
+
+
+void gui::common::Font::load_font(const std::string& ttf_path, int pt_size)
+{
+    TTF_CloseFont(m_font);
+
+    m_font = TTF_OpenFont(ttf_path.c_str(), pt_size);
+    TTF_SizeText(m_font, " ", &m_char_dim.x, &m_char_dim.y);
+}

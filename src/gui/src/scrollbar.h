@@ -35,6 +35,11 @@ namespace gui
 
         bool down() { return m_down; }
 
+        void hide() { m_hidden = true; }
+        void show() { m_hidden = false; }
+
+        bool hidden() { return m_hidden; }
+
     private:
         SDL_Rect m_rect;
         SDL_Rect m_bar_rect;
@@ -45,5 +50,7 @@ namespace gui
 
         bool m_down{ false };
         int m_bar_and_mouse_diff{ 0 };
+
+        bool m_hidden{ false };
     };
 }

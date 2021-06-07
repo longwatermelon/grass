@@ -33,9 +33,7 @@ std::string gui::Explorer::get_path()
 
     bool return_path = false;
 
-    TTF_Font* font_button = TTF_OpenFont("res/CascadiaCode.ttf", 14);
-    SDL_Point font_button_dim;
-    TTF_SizeText(font_button, " ", &font_button_dim.x, &font_button_dim.y);
+    common::Font font_button("res/CascadiaCode.ttf", 14);
     
     SDL_Point window_size;
     SDL_GetWindowSize(m_window, &window_size.x, &window_size.y);
@@ -43,13 +41,13 @@ std::string gui::Explorer::get_path()
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
-    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Select", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, Text(font_button.font(), button_pos, "Select", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
         return_path = true;
     }));
 
     button_pos.x -= 100;
-    buttons.emplace_back(new Button(m_rend, Text(font_button, button_pos, "Cancel", font_button_dim, { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, Text(font_button.font(), button_pos, "Cancel", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
     }));
 
@@ -81,16 +79,16 @@ std::string gui::Explorer::get_path()
 
                 if (!clicked)
                 {
-                    m_selected_item = elem_at_mouse_pos(my, font_button_dim.y);
+                    m_selected_item = elem_at_mouse_pos(my, font_button.char_dim().y);
 
                     // clicked a valid item
                     if (!m_selected_item.empty())
                     {
                         m_selected_item_highlight = {
                             entry_start,
-                            (int)(my / font_button_dim.y) * font_button_dim.y,
+                            (int)(my / font_button.char_dim().y) * font_button.char_dim().y,
                             entry_width,
-                            font_button_dim.y
+                            font_button.char_dim().y
                         };
 
                         if (ready_for_first_click)
@@ -137,8 +135,8 @@ std::string gui::Explorer::get_path()
         }
 
         update_current_directory();
-        render_current_directory(font_button, font_button_dim, entry_start);
-        highlight_elem_at_mouse(my, font_button_dim.y, entry_start, entry_width);
+        render_current_directory(font_button, entry_start);
+        highlight_elem_at_mouse(my, font_button.char_dim().y, entry_start, entry_width);
 
         SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 100);
@@ -150,7 +148,7 @@ std::string gui::Explorer::get_path()
         
         if (!running)
         {
-            cleanup(buttons, &font_button);
+            cleanup(buttons, font_button.font_ptr());
 
             if (return_path)
                 return m_current_dir + (m_selected_item.empty() ? "" : '/' + m_selected_item);
@@ -212,7 +210,7 @@ void gui::Explorer::update_current_directory()
 }
 
 
-void gui::Explorer::render_current_directory(TTF_Font* font, SDL_Point font_dim, int entry_start)
+void gui::Explorer::render_current_directory(common::Font& font, int entry_start)
 {
     SDL_Rect current_text_rect = { entry_start, 0 };
 
@@ -225,14 +223,14 @@ void gui::Explorer::render_current_directory(TTF_Font* font, SDL_Point font_dim,
 
         if (!m_current_textures[i])
         {
-            m_current_textures[i] = common::render_text(m_rend, font, m_current_names[i].c_str());
+            m_current_textures[i] = common::render_text(m_rend, font.font(), m_current_names[i].c_str());
         }
 
         if (m_current_textures[i])
         {
             SDL_QueryTexture(m_current_textures[i], 0, 0, &current_text_rect.w, &current_text_rect.h);
             SDL_RenderCopy(m_rend, m_current_textures[i], 0, &current_text_rect);
-            current_text_rect.y += font_dim.y;
+            current_text_rect.y += font.char_dim().y;
         }
     }
 }
