@@ -67,6 +67,7 @@ namespace gui
         std::vector<Folder>& folders() { return m_folders; }
         String name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
+        std::string path() { return m_base_path + '/' + m_name.str(); }
 
         void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
 

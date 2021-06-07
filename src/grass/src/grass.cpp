@@ -327,7 +327,7 @@ void Grass::mainloop()
 
                         SDL_Point pos;
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
-                        gui::Explorer e(".", gui::ExplorerMode::DIR, pos);
+                        gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos);
                         std::string path = e.get_path();
                         
                         if (!path.empty())

@@ -39,6 +39,19 @@ std::string gui::Explorer::get_path()
     SDL_Point window_size;
     SDL_GetWindowSize(m_window, &window_size.x, &window_size.y);
 
+    int entry_start_x = 50;
+    int entry_width = 400;
+
+    int bottom_menu_height = 70;
+
+    chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
+    chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
+    bool ready_for_first_click = true;
+    std::string first_clicked_item;
+
+    Text path_text(m_rend, font_button, { entry_start_x, window_size.y - 50 }, "Path: " + fs::absolute(fs::path(m_current_dir)).string(), { 255, 255, 255 });
+
+
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
@@ -52,17 +65,13 @@ std::string gui::Explorer::get_path()
         running = false;
     }));
 
-    int entry_start_x = 50;
-    int entry_width = 400;
-
-    int bottom_menu_height = 70;
-
-    chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
-    chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
-    bool ready_for_first_click = true;
-    std::string first_clicked_item;
-
-    Text path_text(m_rend, font_button, { entry_start_x, window_size.y - 50 }, "Path: " + fs::absolute(fs::path(m_current_dir)).string(), { 255, 255, 255 });
+    button_pos.x -= 200;
+    buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Move up a dir", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 195, 20 }, { 100, 100, 100 }, [&]() {
+        m_current_dir = fs::absolute(fs::path(m_current_dir)).parent_path().string();
+        m_selected_item.clear();
+        m_selected_item_highlight = { 0, 0, 0, 0 };
+        path_text.set_text("Path: " + m_current_dir);
+    }));
 
     while (running)
     {
@@ -214,7 +223,6 @@ void gui::Explorer::update_current_directory()
 {
     m_current_names.clear();
     m_current_textures.clear();
-    m_current_names.emplace_back("(Move up a directory)");
 
     for (auto& entry : fs::directory_iterator(m_current_dir, fs::directory_options::skip_permission_denied))
     {
@@ -267,16 +275,7 @@ std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
     int index = my / font_dim_y;
 
     if (index < m_current_names.size())
-    {
-        if (index == 0)
-        {
-            m_current_dir = fs::absolute(fs::path(m_current_dir)).parent_path().string();
-            m_selected_item_highlight = { 0, 0, 0, 0 };
-            return "";
-        }
-
         return m_current_names[index];
-    }
     else
         return "";
 }

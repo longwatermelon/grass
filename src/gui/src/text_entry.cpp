@@ -163,8 +163,8 @@ void gui::TextEntry::remove_char()
         erase_highlighted_section();
     }
 
-    if (m_max_bounds.y > m_text.contents().size())
-        move_bounds_characters(0, m_text.contents().size() - m_max_bounds.y);
+    if (m_min_bounds.y > m_text.contents().size())
+        move_bounds_characters(0, m_text.contents().size() - m_min_bounds.y);
 }
 
 
