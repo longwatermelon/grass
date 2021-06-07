@@ -413,7 +413,7 @@ void Grass::mainloop()
                 }
                 else if (gui::common::within_rect(text_entries[0].rect(), mx, my))
                 {
-                    text_entries[0].scroll(-evt.wheel.y);
+                    text_entries[0].move_bounds_characters(0, -evt.wheel.y);
                 }
                 break;
             }

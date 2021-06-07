@@ -237,11 +237,11 @@ void gui::TextEntry::move_bounds_characters(int x, int y)
         }
         else
         {
-            shift_cache(m_text.contents().size() - m_min_bounds.y);
+            shift_cache(m_text.contents().size() - m_min_bounds.y - 1);
             shift = false;
 
-            m_min_bounds.y += m_text.contents().size() - m_min_bounds.y;
-            m_max_bounds.y += m_text.contents().size() - m_min_bounds.y;
+            m_min_bounds.y += m_text.contents().size() - m_min_bounds.y - 1;
+            m_max_bounds.y += m_text.contents().size() - m_min_bounds.y - 1;
         }
     }
     else
@@ -663,23 +663,4 @@ void gui::TextEntry::resize_to(int w, int h)
 
     conditional_jump_to_eol();
     update_cache();
-}
-
-
-void gui::TextEntry::scroll(int y)
-{
-    if (y > 0) // scrolling down
-    {
-        if (m_min_bounds.y + y < m_text.contents().size())
-        {
-            move_bounds_characters(0, y);
-        }
-    }
-    else // scrolling up
-    {
-        if (m_min_bounds.y + y >= 0)
-        {
-            move_bounds_characters(0, y);
-        }
-    }
 }

@@ -76,8 +76,6 @@ namespace gui
 
         void resize_to(int w, int h);
 
-        void scroll(int y);
-
 
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
