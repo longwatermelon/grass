@@ -44,6 +44,9 @@ std::string gui::Explorer::get_path()
 
     int bottom_menu_height = 70;
 
+    // y position of first entry
+    int top_y = 0;
+
     chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
     chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
     bool ready_for_first_click = true;
@@ -94,7 +97,7 @@ std::string gui::Explorer::get_path()
 
                 if (!clicked && my < window_size.y - bottom_menu_height)
                 {
-                    m_selected_item = elem_at_mouse_pos(my, font_button.char_dim().y);
+                    m_selected_item = elem_at_mouse_pos(my, font_button.char_dim().y, top_y);
 
                     path_text.set_text("Path: " + fs::absolute(fs::path(m_current_dir + (m_selected_item.empty() ? "" : "/" + m_selected_item))).string());
 
@@ -120,13 +123,14 @@ std::string gui::Explorer::get_path()
                             {
                                 ready_for_first_click = false;
                             }
-                            else
+                            else // double click was successful
                             {
                                 m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
                                 m_selected_item_highlight = { 0, 0, 0, 0 };
                                 m_selected_item.clear();
                                 ready_for_first_click = true;
                                 first_clicked_item.clear();
+                                top_y = 0;
                             }
                         }
                     }
@@ -141,6 +145,14 @@ std::string gui::Explorer::get_path()
                     btn->set_down(false);
                 }
             } break;
+            case SDL_MOUSEWHEEL:
+            {
+                int diff = evt.wheel.y * font_button.char_dim().y;
+                int last_visible_y = m_current_names.size() * font_button.char_dim().y + top_y;
+
+                if ((top_y + diff <= 0 && diff > 0) || (last_visible_y >= window_size.y - bottom_menu_height && diff < 0))
+                    top_y += evt.wheel.y * font_button.char_dim().y;
+            } break;
             }
         }
 
@@ -152,10 +164,10 @@ std::string gui::Explorer::get_path()
             ready_for_first_click = true;
 
         update_current_directory();
-        render_current_directory(font_button, entry_start_x);
+        render_current_directory(font_button, entry_start_x, top_y);
 
         if (my < window_size.y - bottom_menu_height)
-            highlight_elem_at_mouse(mx, my, font_button.char_dim().y, entry_start_x, entry_width);
+            highlight_elem_at_mouse(mx, my, font_button.char_dim().y, entry_start_x, entry_width, top_y);
 
         SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 100);
@@ -244,9 +256,9 @@ void gui::Explorer::update_current_directory()
 }
 
 
-void gui::Explorer::render_current_directory(common::Font& font, int entry_start_x)
+void gui::Explorer::render_current_directory(common::Font& font, int entry_start_x, int top_y)
 {
-    SDL_Rect current_text_rect = { entry_start_x, 0 };
+    SDL_Rect current_text_rect = { entry_start_x, top_y };
 
     for (int i = 0; i < m_current_names.size(); ++i)
     {
@@ -270,9 +282,9 @@ void gui::Explorer::render_current_directory(common::Font& font, int entry_start
 }
 
 
-std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
+std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y, int top_y)
 {
-    int index = my / font_dim_y;
+    int index = (int)((my - top_y) / font_dim_y);
 
     if (index < m_current_names.size())
         return m_current_names[index];
@@ -281,9 +293,9 @@ std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
 }
 
 
-void gui::Explorer::highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start_x, int entry_width)
+void gui::Explorer::highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start_x, int entry_width, int top_y)
 {
-    if ((int)(my / font_dim_y) >= m_current_names.size() || mx < entry_start_x || mx > entry_start_x + entry_width)
+    if ((int)((my - top_y) / font_dim_y) >= m_current_names.size() || my - top_y < 0 || mx < entry_start_x || mx > entry_start_x + entry_width)
         return;
 
     int y = (my / font_dim_y) * font_dim_y;
