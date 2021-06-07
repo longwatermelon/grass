@@ -45,22 +45,24 @@ std::string gui::Explorer::get_path()
     buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Select", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
         return_path = true;
-        }));
+    }));
 
     button_pos.x -= 100;
     buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Cancel", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
-        }));
+    }));
 
-    int entry_start = 50;
+    int entry_start_x = 50;
     int entry_width = 400;
+
+    int bottom_menu_height = 70;
 
     chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
     chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
     bool ready_for_first_click = true;
     std::string first_clicked_item;
 
-    Text path_text(m_rend, font_button, { entry_start, window_size.y - 50 }, "Path: " + fs::absolute(fs::path(m_current_dir)).string(), { 255, 255, 255 });
+    Text path_text(m_rend, font_button, { entry_start_x, window_size.y - 50 }, "Path: " + fs::absolute(fs::path(m_current_dir)).string(), { 255, 255, 255 });
 
     while (running)
     {
@@ -81,7 +83,7 @@ std::string gui::Explorer::get_path()
                         clicked = true;
                 }
 
-                if (!clicked)
+                if (!clicked && my < window_size.y - bottom_menu_height)
                 {
                     m_selected_item = elem_at_mouse_pos(my, font_button.char_dim().y);
 
@@ -91,7 +93,7 @@ std::string gui::Explorer::get_path()
                     if (!m_selected_item.empty())
                     {
                         m_selected_item_highlight = {
-                            entry_start,
+                            entry_start_x,
                             (int)(my / font_button.char_dim().y) * font_button.char_dim().y,
                             entry_width,
                             font_button.char_dim().y
@@ -122,14 +124,14 @@ std::string gui::Explorer::get_path()
                 }
 
                 break;
-            }
+            } break;
             case SDL_MOUSEBUTTONUP:
             {
                 for (auto& btn : buttons)
                 {
                     btn->set_down(false);
                 }
-            }
+            } break;
             }
         }
 
@@ -139,6 +141,25 @@ std::string gui::Explorer::get_path()
 
         if (!ready_for_first_click && chrono::duration_cast<chrono::milliseconds>(second_click_time - first_click_time).count() > 500)
             ready_for_first_click = true;
+
+        update_current_directory();
+        render_current_directory(font_button, entry_start_x);
+
+        if (my < window_size.y - bottom_menu_height)
+            highlight_elem_at_mouse(mx, my, font_button.char_dim().y, entry_start_x, entry_width);
+
+        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 100);
+        SDL_RenderFillRect(m_rend, &m_selected_item_highlight);
+        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
+
+        SDL_SetRenderDrawColor(m_rend, 50, 50, 50, 255);
+
+        {
+            SDL_Rect rect = { 0, window_size.y - bottom_menu_height, window_size.x, bottom_menu_height };
+
+            SDL_RenderFillRect(m_rend, &rect);
+        }
 
         for (auto& btn : buttons)
         {
@@ -151,16 +172,7 @@ std::string gui::Explorer::get_path()
 
         path_text.render();
 
-        update_current_directory();
-        render_current_directory(font_button, entry_start);
-        highlight_elem_at_mouse(mx, my, font_button.char_dim().y, entry_start, entry_width);
-
-        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 100);
-        SDL_RenderFillRect(m_rend, &m_selected_item_highlight);
-        SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_NONE);
-
-        SDL_SetRenderDrawColor(m_rend, 50, 50, 50, 255);
+        SDL_SetRenderDrawColor(m_rend, 30, 30, 30, 255);
         SDL_RenderPresent(m_rend);
         
         if (!running)
@@ -224,9 +236,9 @@ void gui::Explorer::update_current_directory()
 }
 
 
-void gui::Explorer::render_current_directory(common::Font& font, int entry_start)
+void gui::Explorer::render_current_directory(common::Font& font, int entry_start_x)
 {
-    SDL_Rect current_text_rect = { entry_start, 0 };
+    SDL_Rect current_text_rect = { entry_start_x, 0 };
 
     for (int i = 0; i < m_current_names.size(); ++i)
     {
@@ -270,13 +282,13 @@ std::string gui::Explorer::elem_at_mouse_pos(int my, int font_dim_y)
 }
 
 
-void gui::Explorer::highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start, int entry_width)
+void gui::Explorer::highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start_x, int entry_width)
 {
-    if ((int)(my / font_dim_y) >= m_current_names.size() || mx < entry_start || mx > entry_start + entry_width)
+    if ((int)(my / font_dim_y) >= m_current_names.size() || mx < entry_start_x || mx > entry_start_x + entry_width)
         return;
 
     int y = (my / font_dim_y) * font_dim_y;
-    SDL_Rect rect = { entry_start, y, entry_width, font_dim_y };
+    SDL_Rect rect = { entry_start_x, y, entry_width, font_dim_y };
 
     SDL_SetRenderDrawBlendMode(m_rend, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(m_rend, 255, 255, 255, 50);

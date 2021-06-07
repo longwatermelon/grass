@@ -26,10 +26,10 @@ namespace gui
         void cleanup(std::vector<Button*>& buttons);
 
         void update_current_directory();
-        void render_current_directory(common::Font& font, int entry_start);
+        void render_current_directory(common::Font& font, int entry_start_x);
 
         std::string elem_at_mouse_pos(int my, int font_dim_y);
-        void highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start, int entry_width);
+        void highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start_x, int entry_width);
 
     private:
         SDL_Window* m_window{ nullptr };
