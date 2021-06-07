@@ -151,7 +151,11 @@ std::string gui::Explorer::get_path()
                 int last_visible_y = m_current_names.size() * font_button.char_dim().y + top_y;
 
                 if ((top_y + diff <= 0 && diff > 0) || (last_visible_y >= window_size.y - bottom_menu_height && diff < 0))
-                    top_y += evt.wheel.y * font_button.char_dim().y;
+                {
+                    top_y += diff;
+                    m_selected_item_highlight.y += diff;
+                }
+
             } break;
             }
         }
