@@ -651,9 +651,9 @@ void gui::TextEntry::resize_to(int w, int h)
         m_min_bounds.y + (int)(m_rect.h / m_text.char_dim().y)
     };
 
-    if (m_min_bounds.y > m_text.contents().size())
+    if (m_max_bounds.y >= m_text.contents().size())
     {
-        move_bounds_characters(0, -(std::min(m_min_bounds.y - (int)m_text.contents().size(), m_min_bounds.y)));
+        move_bounds_characters(0, m_text.contents().size() - m_max_bounds.y);
     }
 
     m_cursor.move_pixels(
