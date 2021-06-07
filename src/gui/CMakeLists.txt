@@ -21,6 +21,8 @@ add_library(gui
     src/explorer.cpp
     src/scrollbar.h
     src/scrollbar.cpp
+    src/text.h
+    src/text.cpp
 )
 
 target_link_libraries(gui PUBLIC

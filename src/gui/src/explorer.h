@@ -23,7 +23,7 @@ namespace gui
 
         std::string get_path();
 
-        void cleanup(std::vector<Button*>& buttons, TTF_Font** font);
+        void cleanup(std::vector<Button*>& buttons);
 
         void update_current_directory();
         void render_current_directory(common::Font& font, int entry_start);

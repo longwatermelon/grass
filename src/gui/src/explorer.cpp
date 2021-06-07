@@ -1,5 +1,6 @@
 #include "explorer.h"
 #include "button.h"
+#include "text.h"
 #include <iostream>
 #include <chrono>
 
@@ -9,7 +10,7 @@ namespace chrono = std::chrono;
 gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos)
     : m_current_dir(dir), m_mode(mode)
 {
-    m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::DIR ? "directory" : "file")).c_str(), pos.x, pos.y, 600, 400, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::DIR ? "directory" : "file")).c_str(), pos.x, pos.y, 800, 400, SDL_WINDOW_SHOWN);
     m_rend = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderClear(m_rend);
@@ -34,7 +35,7 @@ std::string gui::Explorer::get_path()
     bool return_path = false;
 
     common::Font font_button("res/CascadiaCode.ttf", 14);
-    
+
     SDL_Point window_size;
     SDL_GetWindowSize(m_window, &window_size.x, &window_size.y);
 
@@ -44,12 +45,12 @@ std::string gui::Explorer::get_path()
     buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Select", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
         return_path = true;
-    }));
+        }));
 
     button_pos.x -= 100;
     buttons.emplace_back(new Button(m_rend, String(font_button.font(), button_pos, "Cancel", font_button.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
-    }));
+        }));
 
     int entry_start = 50;
     int entry_width = 400;
@@ -58,6 +59,8 @@ std::string gui::Explorer::get_path()
     chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
     bool ready_for_first_click = true;
     std::string first_clicked_item;
+
+    Text path_text(m_rend, font_button, { entry_start, window_size.y - 50 }, "Path: " + fs::absolute(fs::path(m_current_dir)).string(), { 255, 255, 255 });
 
     while (running)
     {
@@ -81,6 +84,8 @@ std::string gui::Explorer::get_path()
                 if (!clicked)
                 {
                     m_selected_item = elem_at_mouse_pos(my, font_button.char_dim().y);
+
+                    path_text.set_text("Path: " + fs::absolute(fs::path(m_current_dir + (m_selected_item.empty() ? "" : "/" + m_selected_item))).string());
 
                     // clicked a valid item
                     if (!m_selected_item.empty())
@@ -144,6 +149,8 @@ std::string gui::Explorer::get_path()
             }
         }
 
+        path_text.render();
+
         update_current_directory();
         render_current_directory(font_button, entry_start);
         highlight_elem_at_mouse(my, font_button.char_dim().y, entry_start, entry_width);
@@ -158,7 +165,7 @@ std::string gui::Explorer::get_path()
         
         if (!running)
         {
-            cleanup(buttons, font_button.font_ptr());
+            cleanup(buttons);
 
             if (return_path)
                 return m_current_dir + (m_selected_item.empty() ? "" : '/' + m_selected_item);
@@ -171,7 +178,7 @@ std::string gui::Explorer::get_path()
 }
 
 
-void gui::Explorer::cleanup(std::vector<Button*>& buttons, TTF_Font** font)
+void gui::Explorer::cleanup(std::vector<Button*>& buttons)
 {
     for (auto& tex : m_current_textures)
     {
@@ -186,9 +193,6 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons, TTF_Font** font)
     }
 
     buttons.clear();
-
-    TTF_CloseFont(*font);
-    *font = 0;
 
     SDL_SetWindowGrab(m_window, SDL_FALSE);
 }

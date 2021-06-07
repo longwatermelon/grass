@@ -53,7 +53,10 @@ gui::common::Font::Font(const std::string& ttf_path, int pt_size)
 
 gui::common::Font::~Font()
 {
-    TTF_CloseFont(m_font);
+    if (m_font)
+        TTF_CloseFont(m_font);
+
+    m_font = nullptr;
 }
 
 
