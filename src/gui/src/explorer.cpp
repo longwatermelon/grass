@@ -57,6 +57,7 @@ std::string gui::Explorer::get_path()
     chrono::system_clock::time_point first_click_time = chrono::system_clock::now();
     chrono::system_clock::time_point second_click_time = chrono::system_clock::now();
     bool ready_for_first_click = true;
+    std::string first_clicked_item;
 
     while (running)
     {
@@ -95,13 +96,22 @@ std::string gui::Explorer::get_path()
                         {
                             first_click_time = chrono::system_clock::now();
                             ready_for_first_click = false;
+                            first_clicked_item = m_selected_item;
                         }
                         else if (chrono::duration_cast<chrono::milliseconds>(second_click_time - first_click_time).count() < 500)
                         {
-                            m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
-                            m_selected_item_highlight = { 0, 0, 0, 0 };
-                            m_selected_item.clear();
-                            ready_for_first_click = true;
+                            if (m_selected_item != first_clicked_item)
+                            {
+                                ready_for_first_click = false;
+                            }
+                            else
+                            {
+                                m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
+                                m_selected_item_highlight = { 0, 0, 0, 0 };
+                                m_selected_item.clear();
+                                ready_for_first_click = true;
+                                first_clicked_item.clear();
+                            }
                         }
                     }
                 }
