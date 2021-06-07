@@ -29,7 +29,7 @@ namespace gui
         void render_current_directory(common::Font& font, int entry_start);
 
         std::string elem_at_mouse_pos(int my, int font_dim_y);
-        void highlight_elem_at_mouse(int my, int font_dim_y, int entry_start, int entry_width);
+        void highlight_elem_at_mouse(int mx, int my, int font_dim_y, int entry_start, int entry_width);
 
     private:
         SDL_Window* m_window{ nullptr };
