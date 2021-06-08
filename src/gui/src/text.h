@@ -1,5 +1,6 @@
 #pragma once
 #include "common.h"
+#include <memory>
 
 
 namespace gui
@@ -8,7 +9,6 @@ namespace gui
     {
     public:
         Text(SDL_Renderer* rend, common::Font& font, SDL_Point pos, const std::string& text, SDL_Color color);
-        ~Text();
 
         void render();
 
@@ -28,7 +28,7 @@ namespace gui
 
         SDL_Color m_color;
 
-        SDL_Texture* m_tex{ 0 };
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex{ nullptr };
 
         // non owning, dont free
         SDL_Renderer* m_rend;

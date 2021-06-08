@@ -135,106 +135,118 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONDOWN:
             {
-                mouse_down = true;
-
-                for (auto& btn : buttons)
+                if (evt.button.button == SDL_BUTTON_LEFT)
                 {
-                    btn.check_clicked(mx, my);
-                }
+                    mouse_down = true;
 
-                bool has_selected_item{ false };
-
-                for (auto& e : text_entries)
-                {
-                    if (e.check_clicked(mx, my))
+                    for (auto& btn : buttons)
                     {
-                        m_selected_entry = &e;
-                        has_selected_item = true;
-                        m_selected_entry->mouse_down(mx, my);
+                        btn.check_clicked(mx, my);
                     }
-                }
 
-                if (!has_selected_item)
-                {
-                    m_selected_entry = nullptr;
+                    bool has_selected_item{ false };
 
                     for (auto& e : text_entries)
                     {
-                        e.stop_highlight();
-                    }
-                }
-
-                gui::File* file = tree.check_file_click(tree.folder(), mx, my);
-
-                if (file)
-                {
-                    tree.set_selected_highlight_rect({
-                        tree.rect().x,
-                        file->rect().y,
-                        tree.rect().w,
-                        file->name().char_dim().y
-                    });
-
-                    if (tree.is_unsaved(current_open_fp))
-                    {
-                        std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
-                        ofs << text_entries[0].text()->str();
-                        ofs.close();
+                        if (e.check_clicked(mx, my))
+                        {
+                            m_selected_entry = &e;
+                            has_selected_item = true;
+                            m_selected_entry->mouse_down(mx, my);
+                        }
                     }
 
-                    text_entries[0].stop_highlight();
-
-                    current_open_fp = file->path();
-                    std::string ext = fs::path(current_open_fp).extension().string();
-
-                    // try and cover all common image file extensions even if they are not supported
-                    if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
+                    if (!has_selected_item)
                     {
-                        editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+                        m_selected_entry = nullptr;
 
-                        if (!editor_image)
-                            editor_image = gui::common::render_text(m_rend, font_textbox.font(), SDL_GetError());
-
-                        text_entries[0].text()->set_contents({ "" });
-                        reset_entry_to_default(text_entries[0]);
-                        text_entries[0].hide();
-                        scrollbar.hide();
+                        for (auto& e : text_entries)
+                        {
+                            e.stop_highlight();
+                        }
                     }
-                    else
+
+                    gui::File* file = tree.check_file_click(tree.folder(), mx, my);
+
+                    if (file)
                     {
-                        if (editor_image)
-                            SDL_DestroyTexture(editor_image);
+                        tree.set_selected_highlight_rect({
+                            tree.rect().x,
+                            file->rect().y,
+                            tree.rect().w,
+                            file->name().char_dim().y
+                            });
 
-                        editor_image = nullptr;
+                        if (tree.is_unsaved(current_open_fp))
+                        {
+                            std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
+                            ofs << text_entries[0].text()->str();
+                            ofs.close();
+                        }
 
-                        text_entries[0].show();
-                        scrollbar.show();
-                        
-                        if (fs::exists(current_open_fp + "~"))
-                            load_file(current_open_fp + "~", text_entries[0]);
+                        text_entries[0].stop_highlight();
+
+                        current_open_fp = file->path();
+                        std::string ext = fs::path(current_open_fp).extension().string();
+
+                        // try and cover all common image file extensions even if they are not supported
+                        if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
+                        {
+                            editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+
+                            if (!editor_image)
+                                editor_image = gui::common::render_text(m_rend, font_textbox.font(), SDL_GetError());
+
+                            text_entries[0].text()->set_contents({ "" });
+                            reset_entry_to_default(text_entries[0]);
+                            text_entries[0].hide();
+                            scrollbar.hide();
+                        }
                         else
-                            load_file(current_open_fp, text_entries[0]);
+                        {
+                            if (editor_image)
+                                SDL_DestroyTexture(editor_image);
+
+                            editor_image = nullptr;
+
+                            text_entries[0].show();
+                            scrollbar.show();
+
+                            if (fs::exists(current_open_fp + "~"))
+                                load_file(current_open_fp + "~", text_entries[0]);
+                            else
+                                load_file(current_open_fp, text_entries[0]);
+                        }
+
+                        tree.update_display();
+
+                        SDL_SetWindowTitle(m_window,
+                            (std::string("Grass | Editing ") + file->name().str().c_str() + (tree.is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
+                        );
                     }
 
-                    tree.update_display();
+                    gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
 
-                    SDL_SetWindowTitle(m_window,
-                        (std::string("Grass | Editing ") + file->name().str().c_str() + (tree.is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
-                    );
+                    if (folder)
+                    {
+                        tree.collapse_folder(*folder, m_rend);
+                        tree.update_display();
+
+                        tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    }
+
+                    scrollbar.check_clicked(mx, my);
                 }
 
-                gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
-
-                if (folder)
+                if (evt.button.button == SDL_BUTTON_RIGHT)
                 {
-                    tree.collapse_folder(*folder, m_rend);
-                    tree.update_display();
+                    /*if (current_menu)
+                        delete current_menu;
 
-                    tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    current_menu = new gui::Menu({ mx, my, 100, 40 }, {
+                        std::make_unique<gui::Text>()
+                    }, { 10, 20, 30 });*/
                 }
-
-                scrollbar.check_clicked(mx, my);
-
             } break;
 
             case SDL_MOUSEBUTTONUP:
