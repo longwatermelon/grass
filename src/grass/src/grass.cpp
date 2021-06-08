@@ -181,6 +181,12 @@ void Grass::mainloop()
 
                     if (file)
                     {
+                        if (!fs::exists(file->path()))
+                        {
+                            SDL_ShowSimpleMessageBox(SDL_MessageBoxFlags::SDL_MESSAGEBOX_ERROR, "Error", std::string("'" + file->path() + "' doesn't exist").c_str(), m_window);
+                            break;
+                        }
+
                         tree.set_selected_highlight_rect({
                             tree.rect().x,
                             file->rect().y,
@@ -261,6 +267,7 @@ void Grass::mainloop()
                                 f->collapse(m_rend);
                                 f->collapse(m_rend);
                                 tree.update_display();
+                                tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
@@ -272,7 +279,7 @@ void Grass::mainloop()
                         menu = new gui::Menu({ mx, my }, 100, {
                             {"Delete file", [&]() {
                                 file->delete_self();
-                                tree.reload_outdated_folders(m_rend, true);
+                                tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
