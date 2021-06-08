@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 #include <SDL_image.h>
 
 #if defined(_WIN32)
@@ -290,6 +291,13 @@ SDL_Rect gui::Folder::find_lowest_rect()
         else
             return f->rect();
     }
+}
+
+
+void gui::Folder::create_new_file(const std::string& name)
+{
+    std::ofstream ofs(m_base_path + '/' + m_name.str() + '/' + name);
+    ofs.close();
 }
 
 

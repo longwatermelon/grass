@@ -62,6 +62,8 @@ namespace gui
 
         SDL_Rect find_lowest_rect();
 
+        void create_new_file(const std::string& name);
+
 
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }

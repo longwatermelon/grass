@@ -101,10 +101,10 @@ void Grass::mainloop()
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
-    gui::Menu* menu = new gui::Menu({ 100, 200 }, 100, {
+    gui::Menu* menu = 0; /*new gui::Menu({ 100, 200 }, 100, {
         {"Option 1", [&]() { std::cout << "hew\n"; }},
         {"Option 2", [&]() { std::cout << "haw\n"; }} 
-    }, font_tree, { 10, 10, 10 }, m_rend);
+    }, font_tree, { 10, 10, 10 }, m_rend);*/
 
 
     /* Kb event variables and other very simple variables here */
@@ -252,6 +252,20 @@ void Grass::mainloop()
                     }
 
                     scrollbar.check_clicked(mx, my);
+                }
+
+                if (evt.button.button == SDL_BUTTON_RIGHT)
+                {
+                    gui::Folder* f = tree.check_folder_click(tree.folder(), mx, my);
+
+                    if (f)
+                    {
+                        menu = new gui::Menu({ mx, my }, 100, {
+                            {"New file", [&]() {f->create_new_file("New file"); }}
+                        }, font_tree, { 40, 40, 40 }, m_rend);
+
+                        //f->create_new_file("New file");
+                    }
                 }
             } break;
 
