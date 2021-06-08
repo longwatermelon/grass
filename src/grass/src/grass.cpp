@@ -5,6 +5,7 @@
 #include "text_entry.h"
 #include "explorer.h"
 #include "scrollbar.h"
+#include "menu.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -99,6 +100,8 @@ void Grass::mainloop()
 
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
+
+    gui::Menu menu({ 100, 200 }, 100, { "Option 1", "Option 2" }, font_tree, { 10, 10, 10 }, m_rend);
 
 
     /* Kb event variables and other very simple variables here */
@@ -489,6 +492,8 @@ void Grass::mainloop()
 
             scrollbar.render(m_rend);
         }
+
+        menu.render(m_rend, mx, my);
 
         if (prev_wx != wx || prev_wy != wy)
         {

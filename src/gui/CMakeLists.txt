@@ -23,6 +23,8 @@ add_library(gui
     src/scrollbar.cpp
     src/text.h
     src/text.cpp
+    src/menu.h
+    src/menu.cpp
 )
 
 target_link_libraries(gui PUBLIC
