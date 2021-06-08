@@ -186,7 +186,7 @@ void Grass::mainloop()
                             file->rect().y,
                             tree.rect().w,
                             file->name().char_dim().y
-                            });
+                        });
 
                         if (tree.is_unsaved(current_open_fp))
                         {
@@ -258,6 +258,9 @@ void Grass::mainloop()
                         menu = new gui::Menu({ mx, my }, 100, {
                             {"New file", [&]() {
                                 f->create_new_file("New file");
+                                f->collapse(m_rend);
+                                f->collapse(m_rend);
+                                tree.update_display();
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
@@ -269,6 +272,7 @@ void Grass::mainloop()
                         menu = new gui::Menu({ mx, my }, 100, {
                             {"Delete file", [&]() {
                                 file->delete_self();
+                                tree.reload_outdated_folders(m_rend, true);
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
@@ -481,7 +485,7 @@ void Grass::mainloop()
             btn.render(m_rend);
         }
 
-        tree.reload_outdated_folders(m_rend);
+        tree.reload_outdated_folders(m_rend, false);
         tree.render(m_rend);
 
         if (gui::common::within_rect(tree.rect(), mx, my))

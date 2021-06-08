@@ -5,6 +5,9 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <chrono>
+
+namespace chrono = std::chrono;
 
 
 namespace gui
@@ -121,7 +124,7 @@ namespace gui
 
         void reset_default_rect();
 
-        void reload_outdated_folders(SDL_Renderer* rend);
+        void reload_outdated_folders(SDL_Renderer* rend, bool force_reload);
 
         void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
@@ -142,5 +145,7 @@ namespace gui
         std::vector<std::string> m_unsaved_files;
 
         SDL_Rect m_selected_highlight_rect{ 0, 0, 0, 0 };
+
+        chrono::system_clock::time_point m_last_filesystem_check{ chrono::system_clock::now() };
     };
 }

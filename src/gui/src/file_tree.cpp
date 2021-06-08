@@ -536,9 +536,13 @@ void gui::Tree::reset_default_rect()
 }
 
 
-void gui::Tree::reload_outdated_folders(SDL_Renderer* rend)
+void gui::Tree::reload_outdated_folders(SDL_Renderer* rend, bool force_reload)
 {
-    m_folder.reload_if_outdated(rend);
+    if (force_reload || chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - m_last_filesystem_check).count() > 1000)
+    {
+        m_last_filesystem_check = chrono::system_clock::now();
 
-    update_display();
+        m_folder.reload_if_outdated(rend);
+        update_display();
+    }
 }
