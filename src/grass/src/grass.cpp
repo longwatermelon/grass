@@ -101,7 +101,10 @@ void Grass::mainloop()
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
-    gui::Menu menu({ 100, 200 }, 100, { "Option 1", "Option 2" }, font_tree, { 10, 10, 10 }, m_rend);
+    gui::Menu* menu = new gui::Menu({ 100, 200 }, 100, {
+        {"Option 1", [&]() { std::cout << "hew\n"; }},
+        {"Option 2", [&]() { std::cout << "haw\n"; }} 
+    }, font_tree, { 10, 10, 10 }, m_rend);
 
 
     /* Kb event variables and other very simple variables here */
@@ -138,9 +141,19 @@ void Grass::mainloop()
 
             case SDL_MOUSEBUTTONDOWN:
             {
-                if (evt.button.button == SDL_BUTTON_LEFT)
+                if (evt.button.button == SDL_BUTTON_LEFT && !mouse_down)
                 {
                     mouse_down = true;
+
+                    if (menu)
+                    {
+                        if (menu->check_clicked(mx, my))
+                        {
+                            delete menu;
+                            menu = 0;
+                            break;
+                        }
+                    }
 
                     for (auto& btn : buttons)
                     {
@@ -239,16 +252,6 @@ void Grass::mainloop()
                     }
 
                     scrollbar.check_clicked(mx, my);
-                }
-
-                if (evt.button.button == SDL_BUTTON_RIGHT)
-                {
-                    /*if (current_menu)
-                        delete current_menu;
-
-                    current_menu = new gui::Menu({ mx, my, 100, 40 }, {
-                        std::make_unique<gui::Text>()
-                    }, { 10, 20, 30 });*/
                 }
             } break;
 
@@ -493,7 +496,8 @@ void Grass::mainloop()
             scrollbar.render(m_rend);
         }
 
-        menu.render(m_rend, mx, my);
+        if (menu)
+            menu->render(m_rend, mx, my);
 
         if (prev_wx != wx || prev_wy != wy)
         {
