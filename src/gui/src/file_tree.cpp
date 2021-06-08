@@ -158,6 +158,7 @@ void gui::Folder::update_rects(SDL_Rect& rect)
 
 void gui::Folder::load(SDL_Renderer* rend)
 {
+    m_loaded = true;
     m_folders.clear();
     m_files.clear();
 
@@ -193,6 +194,7 @@ void gui::Folder::load(SDL_Renderer* rend)
 
 void gui::Folder::unload()
 {
+    m_loaded = false;
     m_files.clear();
     m_folders.clear();
 }
@@ -304,6 +306,27 @@ void gui::Folder::create_new_file(const std::string& name)
 {
     std::ofstream ofs(m_base_path + '/' + m_name.str() + '/' + name);
     ofs.close();
+}
+
+
+void gui::Folder::reload_if_outdated(SDL_Renderer* rend)
+{
+    size_t count = 0;
+
+    for (auto& entry : fs::directory_iterator(path(), fs::directory_options::skip_permission_denied))
+        ++count;
+
+    if (count != m_folders.size() + m_files.size())
+    {
+        collapse(rend);
+        collapse(rend);
+    }
+
+    for (auto& folder : m_folders)
+    {
+        if (folder.loaded())
+            folder.reload_if_outdated(rend);
+    }
 }
 
 
@@ -510,4 +533,12 @@ void gui::Tree::highlight_element(SDL_Renderer* rend, int mx, int my)
 void gui::Tree::reset_default_rect()
 {
     m_default_rect.y = m_rect.y;
+}
+
+
+void gui::Tree::reload_outdated_folders(SDL_Renderer* rend)
+{
+    m_folder.reload_if_outdated(rend);
+
+    update_display();
 }

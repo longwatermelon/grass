@@ -258,9 +258,6 @@ void Grass::mainloop()
                         menu = new gui::Menu({ mx, my }, 100, {
                             {"New file", [&]() {
                                 f->create_new_file("New file");
-                                f->collapse(m_rend);
-                                f->collapse(m_rend);
-                                tree.update_display();
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
@@ -484,6 +481,7 @@ void Grass::mainloop()
             btn.render(m_rend);
         }
 
+        tree.reload_outdated_folders(m_rend);
         tree.render(m_rend);
 
         if (gui::common::within_rect(tree.rect(), mx, my))

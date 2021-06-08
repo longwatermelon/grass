@@ -66,12 +66,16 @@ namespace gui
 
         void create_new_file(const std::string& name);
 
+        void reload_if_outdated(SDL_Renderer* rend);
+
 
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
         String name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }
         std::string path() { return m_base_path + '/' + m_name.str(); }
+
+        bool loaded() { return m_loaded; }
 
         void reset_rect() { m_rect = { -1, -1, -1, -1 }; }
 
@@ -116,6 +120,8 @@ namespace gui
         void resize_to(int h) { m_rect.h = h; }
 
         void reset_default_rect();
+
+        void reload_outdated_folders(SDL_Renderer* rend);
 
         void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
