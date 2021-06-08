@@ -82,8 +82,11 @@ void gui::TextEntry::render_line_numbers(SDL_Renderer* rend)
 
     for (int i = 0; i < m_cached_textures.size(); ++i)
     {
-        if (i + m_min_bounds.y >= limit || i >= m_ln_textures.size())
+        if (i + m_min_bounds.y >= limit)
             break;
+
+        if (i >= m_ln_textures.size())
+            m_ln_textures.emplace_back(nullptr);
 
         if (!m_ln_textures[i].get())
         {
