@@ -343,6 +343,9 @@ void Grass::mainloop()
                                 SDL_DestroyTexture(editor_image);
 
                             editor_image = 0;
+
+                            tree.reset_default_rect();
+                            tree.update_display();
                         }
 
                         SDL_DestroyTexture(text);

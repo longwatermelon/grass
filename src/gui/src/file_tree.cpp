@@ -277,6 +277,10 @@ SDL_Rect gui::Folder::find_lowest_rect()
     else
     {
         Folder* first_folder = find_last_folder_with_files();
+        Folder* last_folder = find_lowest_folder();
+
+        if (first_folder == last_folder)
+            return last_folder->rect();
 
         if (first_folder)
             file = first_folder->find_lowest_file();
@@ -486,4 +490,10 @@ void gui::Tree::highlight_element(SDL_Renderer* rend, int mx, int my)
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 50);
     SDL_RenderFillRect(rend, &rect);
     SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_NONE);
+}
+
+
+void gui::Tree::reset_default_rect()
+{
+    m_default_rect.y = m_rect.y;
 }

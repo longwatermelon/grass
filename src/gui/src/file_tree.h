@@ -111,6 +111,8 @@ namespace gui
         void highlight_element(SDL_Renderer* rend, int mx, int my);
         void resize_to(int h) { m_rect.h = h; }
 
+        void reset_default_rect();
+
         void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
         std::vector<std::string> unsaved() { return m_unsaved_files; }
