@@ -19,6 +19,8 @@ namespace gui
 
         void update_rect(SDL_Rect& r) { m_rect = r; r.y += m_name.char_dim().y; }
 
+        void delete_self();
+
         std::string path();
         String name() const { return m_name; }
         SDL_Rect rect() const { return m_rect; }

@@ -264,6 +264,17 @@ void Grass::mainloop()
                             }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
                     }
+
+                    gui::File* file = tree.check_file_click(tree.folder(), mx, my);
+
+                    if (file)
+                    {
+                        menu = new gui::Menu({ mx, my }, 100, {
+                            {"Delete file", [&]() {
+                                file->delete_self();
+                            }}
+                        }, font_tree, { 40, 40, 40 }, m_rend);
+                    }
                 }
             } break;
 
@@ -360,6 +371,8 @@ void Grass::mainloop()
                         gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos);
                         std::string path = e.get_path();
 
+                        // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
+                        // on a separate thread
                         std::thread thr_cleanup(&gui::Explorer::cleanup_window, &e);
                         thr_cleanup.detach();
                         

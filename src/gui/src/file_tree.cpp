@@ -51,6 +51,12 @@ void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::
 }
 
 
+void gui::File::delete_self()
+{
+    fs::remove(m_base_path + '/' + m_name.str());
+}
+
+
 std::string gui::File::path()
 {
     return m_base_path + PATH_SLASH + m_name.str();
