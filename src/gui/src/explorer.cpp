@@ -3,6 +3,7 @@
 #include "text.h"
 #include <iostream>
 #include <chrono>
+#include <thread>
 
 namespace chrono = std::chrono;
 
@@ -17,13 +18,6 @@ gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos
     SDL_RenderPresent(m_rend);
 
     SDL_SetWindowGrab(m_window, SDL_TRUE);
-}
-
-
-gui::Explorer::~Explorer()
-{
-    SDL_DestroyRenderer(m_rend);
-    SDL_DestroyWindow(m_window);
 }
 
 
@@ -235,10 +229,19 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons)
 }
 
 
+void gui::Explorer::cleanup_window()
+{
+    SDL_HideWindow(m_window);
+
+    SDL_DestroyRenderer(m_rend);
+    SDL_DestroyWindow(m_window);
+}
+
+
 void gui::Explorer::update_current_directory()
 {
+    size_t old_name_count = m_current_names.size();
     m_current_names.clear();
-    m_current_textures.clear();
 
     for (auto& entry : fs::directory_iterator(m_current_dir, fs::directory_options::skip_permission_denied))
     {
@@ -256,6 +259,19 @@ void gui::Explorer::update_current_directory()
                 m_current_names.emplace_back(entry.path().filename().string());
             }
         }
+    }
+
+    if (old_name_count != m_current_names.size())
+    {
+        for (auto& tex : m_current_textures)
+        {
+            if (tex)
+                SDL_DestroyTexture(tex);
+
+            tex = 0;
+        }
+
+        m_current_textures.clear();
     }
 }
 

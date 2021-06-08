@@ -19,11 +19,11 @@ namespace gui
     {
     public:
         Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos);
-        ~Explorer();
 
         std::string get_path();
 
         void cleanup(std::vector<Button*>& buttons);
+        void cleanup_window();
 
         void update_current_directory();
         void render_current_directory(common::Font& font, int entry_start_x, int top_y);

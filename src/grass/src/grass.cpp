@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <filesystem>
+#include <thread>
 #include <SDL_image.h>
 
 namespace fs = std::filesystem;
@@ -64,7 +65,7 @@ void Grass::mainloop()
 
     std::vector<gui::Button> buttons;
 
-    gui::Folder folder(".", gui::String(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(fs::absolute(".").string(), gui::String(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
@@ -328,6 +329,9 @@ void Grass::mainloop()
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
                         gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos);
                         std::string path = e.get_path();
+
+                        std::thread thr_cleanup(&gui::Explorer::cleanup_window, &e);
+                        thr_cleanup.detach();
                         
                         if (!path.empty())
                         {
