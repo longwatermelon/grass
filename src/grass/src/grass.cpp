@@ -101,11 +101,7 @@ void Grass::mainloop()
     int prev_wx, prev_wy;
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
-    gui::Menu* menu = 0; /*new gui::Menu({ 100, 200 }, 100, {
-        {"Option 1", [&]() { std::cout << "hew\n"; }},
-        {"Option 2", [&]() { std::cout << "haw\n"; }} 
-    }, font_tree, { 10, 10, 10 }, m_rend);*/
-
+    gui::Menu* menu = 0;
 
     /* Kb event variables and other very simple variables here */
 
@@ -147,12 +143,11 @@ void Grass::mainloop()
 
                     if (menu)
                     {
-                        if (menu->check_clicked(mx, my))
-                        {
-                            delete menu;
-                            menu = 0;
-                            break;
-                        }
+                        menu->check_clicked(mx, my);
+
+                        delete menu;
+                        menu = 0;
+                        break;
                     }
 
                     for (auto& btn : buttons)
@@ -261,10 +256,13 @@ void Grass::mainloop()
                     if (f)
                     {
                         menu = new gui::Menu({ mx, my }, 100, {
-                            {"New file", [&]() {f->create_new_file("New file"); }}
+                            {"New file", [&]() {
+                                f->create_new_file("New file");
+                                f->collapse(m_rend);
+                                f->collapse(m_rend);
+                                tree.update_display();
+                            }}
                         }, font_tree, { 40, 40, 40 }, m_rend);
-
-                        //f->create_new_file("New file");
                     }
                 }
             } break;
