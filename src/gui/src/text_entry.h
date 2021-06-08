@@ -20,6 +20,8 @@ namespace gui
 
         void render(SDL_Renderer* rend, bool show_cursor = false);
 
+        void render_line_numbers(SDL_Renderer* rend);
+
         bool check_clicked(int mx, int my);
 
         // adds a character to where the cursor currently is
@@ -110,5 +112,8 @@ namespace gui
         EntryMode m_mode{ EntryMode::NORMAL };
 
         bool m_hidden{ false };
+
+        // line numbers
+        std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_ln_textures;
     };
 }

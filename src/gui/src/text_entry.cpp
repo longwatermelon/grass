@@ -12,6 +12,7 @@ gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& curso
 
     m_text.set_contents({ "" });
     m_cached_textures.emplace_back(nullptr);
+    m_ln_textures.emplace_back(nullptr);
 }
 
 
@@ -56,8 +57,50 @@ void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
         }
     }
 
+    render_line_numbers(rend);
+
     if (m_mode == EntryMode::HIGHLIGHT)
         draw_highlighted_areas(rend);
+}
+
+
+void gui::TextEntry::render_line_numbers(SDL_Renderer* rend)
+{
+    // only used once but if calculated m_cached_textures.size() times each frame it can eat up a lot of ram
+    int limit = m_text.contents().size();
+
+    SDL_SetRenderDrawColor(rend, BG_COLOR, 255);
+
+    SDL_Rect rect = {
+        m_rect.x - m_text.char_dim().x - std::to_string(limit).size() * m_text.char_dim().x,
+        m_rect.y,
+        m_rect.x - rect.x,
+        m_rect.h
+    };
+
+    SDL_RenderFillRect(rend, &rect);
+
+    for (int i = 0; i < m_cached_textures.size(); ++i)
+    {
+        if (i + m_min_bounds.y >= limit || i >= m_ln_textures.size())
+            break;
+
+        if (!m_ln_textures[i].get())
+        {
+            m_ln_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), std::to_string(i + m_min_bounds.y + 1).c_str(), m_text.color()));
+        }
+
+        rect = {
+            m_rect.x - (int)std::to_string(i + m_min_bounds.y + 1).size() * m_text.char_dim().x - m_text.char_dim().x,
+            m_rect.y + m_text.char_dim().y * i
+        };
+
+        if (m_ln_textures[i].get())
+        {
+            SDL_QueryTexture(m_ln_textures[i].get(), 0, 0, &rect.w, &rect.h);
+            SDL_RenderCopy(rend, m_ln_textures[i].get(), 0, &rect);
+        }
+    }
 }
 
 
@@ -332,6 +375,7 @@ void gui::TextEntry::update_cache()
 {
     m_cached_textures.clear();
     m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::max(std::min(m_max_bounds.y, (int)m_text.contents().size()) - m_min_bounds.y + 1, 1));
+    m_ln_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::max(std::min(m_max_bounds.y, (int)m_text.contents().size()) - m_min_bounds.y + 1, 1));
 }
 
 
@@ -343,6 +387,9 @@ void gui::TextEntry::shift_cache(int y)
         {
             m_cached_textures.erase(m_cached_textures.begin());
             m_cached_textures.emplace_back(nullptr);
+
+            m_ln_textures.erase(m_ln_textures.begin());
+            m_ln_textures.emplace_back(nullptr);
         }
     }
     else // shift upwards
@@ -351,6 +398,9 @@ void gui::TextEntry::shift_cache(int y)
         {
             m_cached_textures.pop_back();
             m_cached_textures.insert(m_cached_textures.begin(), nullptr);
+
+            m_ln_textures.pop_back();
+            m_ln_textures.insert(m_ln_textures.begin(), nullptr);
         }
     }
 }

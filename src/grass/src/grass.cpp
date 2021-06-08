@@ -11,8 +11,6 @@
 #include <filesystem>
 #include <SDL_image.h>
 
-#define BG_COLOR 30, 30, 30
-
 namespace fs = std::filesystem;
 
 
@@ -50,9 +48,9 @@ void Grass::mainloop()
     constexpr int scrollbar_width = 20;
 
     constexpr SDL_Rect main_text_dimensions = {
-        300,
+        340,
         40,
-        1000 - 300 - scrollbar_width,
+        1000 - 340 - scrollbar_width,
         800 - 40
     };
 
@@ -188,6 +186,7 @@ void Grass::mainloop()
                     current_open_fp = file->path();
                     std::string ext = fs::path(current_open_fp).extension().string();
 
+                    // try and cover all common image file extensions even if they are not supported
                     if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
                     {
                         editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());

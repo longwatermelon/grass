@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#define BG_COLOR 30, 30, 30
+
 
 namespace gui::common
 {
