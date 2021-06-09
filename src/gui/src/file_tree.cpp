@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <set>
 #include <SDL_image.h>
 
 #define unique(ptr) std::unique_ptr<SDL_Texture, common::TextureDeleter>(ptr)
@@ -176,6 +177,29 @@ void gui::Folder::load_folders(SDL_Renderer* rend)
         
         m_folders.emplace_back(Folder(m_base_path + (name.empty() ? "" : '/' + name), s, rend, false));
     }
+
+    std::set<std::string> sorted;
+
+    for (auto& f : m_folders)
+    {
+        sorted.insert(f.name().str());
+    }
+
+    std::vector<Folder> tmp;
+    
+    for (auto& str : sorted)
+    {
+        for (auto& f : m_folders)
+        {
+            if (f.name().str() == str)
+            {
+                tmp.emplace_back(std::move(f));
+                break;
+            }
+        }
+    }
+
+    m_folders = std::move(tmp);
 }
 
 
@@ -566,7 +590,7 @@ void gui::Tree::reset_default_rect()
 
 void gui::Tree::reload_outdated_folders(SDL_Renderer* rend, bool force_reload)
 {
-    if (force_reload || chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - m_last_filesystem_check).count() > 1000)
+    if (force_reload || chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - m_last_filesystem_check).count() > 250)
     {
         m_last_filesystem_check = chrono::system_clock::now();
 
