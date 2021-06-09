@@ -350,8 +350,10 @@ void Grass::mainloop()
             case SDL_TEXTINPUT:
                 if (m_selected_entry)
                 {
+                    if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                        m_selected_entry->erase_highlighted_section();
+
                     m_selected_entry->insert_char(evt.text.text[0]);
-                    m_selected_entry->stop_highlight();
                     tree.append_unsaved_file(current_open_fp, m_window);
                 }
 
@@ -457,9 +459,12 @@ void Grass::mainloop()
                     switch (evt.key.keysym.scancode)
                     {
                     case SDL_SCANCODE_RETURN:
+                        if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                            m_selected_entry->erase_highlighted_section();
+
                         m_selected_entry->insert_char('\n');
                         tree.append_unsaved_file(current_open_fp, m_window);
-                        m_selected_entry->stop_highlight();
+                        
                         break;
                     case SDL_SCANCODE_BACKSPACE:
                         if (!mouse_down)
@@ -491,20 +496,25 @@ void Grass::mainloop()
                     if (evt.key.keysym.sym == SDLK_DOWN)
                         movement.y = 1;
 
-                    if (m_selected_entry->mode() == gui::EntryMode::NORMAL && shift_down)
-                        m_selected_entry->start_highlight();
+                    bool moved = movement.x != 0 || movement.y != 0;
 
-                    m_selected_entry->move_cursor_characters(movement.x, movement.y);
+                    if (moved)
+                    {
+                        if (m_selected_entry->mode() == gui::EntryMode::NORMAL && shift_down)
+                            m_selected_entry->start_highlight();
 
-                    m_selected_entry->conditional_move_bounds_characters(
-                        movement.x * m_selected_entry->move_bounds_by(),
-                        movement.y * m_selected_entry->move_bounds_by()
-                    );
+                        m_selected_entry->move_cursor_characters(movement.x, movement.y);
 
-                    m_selected_entry->conditional_jump_to_eol();
+                        m_selected_entry->conditional_move_bounds_characters(
+                            movement.x * m_selected_entry->move_bounds_by(),
+                            movement.y * m_selected_entry->move_bounds_by()
+                        );
 
-                    if (!shift_down && m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
-                        m_selected_entry->stop_highlight();
+                        m_selected_entry->conditional_jump_to_eol();
+
+                        if (!shift_down && m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                            m_selected_entry->stop_highlight();
+                    }
                 }
             } break;
             case SDL_KEYUP:
