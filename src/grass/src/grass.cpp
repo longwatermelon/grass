@@ -146,12 +146,21 @@ void Grass::mainloop()
                         break;
                     }
 
+                    bool btn_clicked = false;
+
                     for (auto& btn : buttons)
                     {
-                        btn.check_clicked(mx, my);
+                        if (btn.check_clicked(mx, my))
+                        {
+                            btn_clicked = true;
+                            break;
+                        }
                     }
 
-                    bool has_selected_item{ false };
+                    if (btn_clicked)
+                        break;
+
+                    bool has_selected_item = false;
 
                     for (auto& e : text_entries)
                     {
@@ -162,6 +171,9 @@ void Grass::mainloop()
                             m_selected_entry->mouse_down(mx, my);
                         }
                     }
+
+                    if (has_selected_item)
+                        break;
 
                     if (!has_selected_item)
                     {
@@ -236,6 +248,8 @@ void Grass::mainloop()
                         SDL_SetWindowTitle(m_window,
                             (std::string("Grass | Editing ") + file->name().str().c_str() + (tree.is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
                         );
+
+                        break;
                     }
 
                     gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
@@ -251,6 +265,8 @@ void Grass::mainloop()
                             tree.rect().w,
                             folder->name().char_dim().y
                         });
+
+                        break;
                     }
 
                     if (!folder && !file)
@@ -287,6 +303,9 @@ void Grass::mainloop()
                                 {
                                     reset_entry_to_default(text_entries[0]);
                                     text_entries[0].text()->set_contents({ "" });
+
+                                    tree.erase_unsaved_file(file->path(), m_window);
+
                                     if (fs::exists(file->path() + '~'))
                                         fs::remove(file->path() + '~');
                                 }
