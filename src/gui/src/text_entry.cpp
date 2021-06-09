@@ -90,7 +90,7 @@ void gui::TextEntry::render_line_numbers(SDL_Renderer* rend)
 
         if (!m_ln_textures[i].get())
         {
-            m_ln_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), std::to_string(i + m_min_bounds.y + 1).c_str(), { 150, 200, 255 }));
+            m_ln_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), std::to_string(i + m_min_bounds.y + 1).c_str(), { 200, 255, 240 }));
         }
 
         rect = {

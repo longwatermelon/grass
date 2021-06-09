@@ -6,6 +6,7 @@
 #include "explorer.h"
 #include "scrollbar.h"
 #include "menu.h"
+#include "basic_text_entry.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -63,7 +64,7 @@ void Grass::mainloop()
     gui::common::Font font_tree(m_exe_dir + "res/CascadiaCode.ttf", 14);
 
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
 
     std::vector<std::unique_ptr<gui::Button>> buttons;
 
@@ -98,6 +99,12 @@ void Grass::mainloop()
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
     gui::Menu* menu = 0;
+
+    /*gui::BasicTextEntry test_entry({ 100, 100, 100, 20 },
+        gui::Cursor({ 100, 100 }, { 255, 255, 255 }, font_tree.char_dim()), 
+        std::make_unique<gui::Text>(gui::Text(m_rend, font_tree, { 100, 100 }, "", { 255, 255, 255 })),
+        { 30, 30, 30 }
+    );*/
 
     // put the buttons here so they have access to all the previous variables
     buttons.emplace_back(new gui::Button(m_rend, gui::String(font_tree.font(), { 0, 0 }, "Help", font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
@@ -620,6 +627,8 @@ void Grass::mainloop()
 
             scrollbar.render(m_rend);
         }
+
+        //test_entry.render(m_rend);
 
         if (menu)
             menu->render(m_rend, mx, my);

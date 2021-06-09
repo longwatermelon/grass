@@ -12,7 +12,8 @@ gui::Text::Text(SDL_Renderer* rend, common::Font& font, SDL_Point pos, const std
 
 void gui::Text::render()
 {
-    SDL_RenderCopy(m_rend, m_tex.get(), 0, &m_rect);
+    if (m_tex)
+        SDL_RenderCopy(m_rend, m_tex.get(), 0, &m_rect);
 }
 
 
