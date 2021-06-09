@@ -17,6 +17,12 @@ void gui::Text::render()
 }
 
 
+void gui::Text::rerender_texture()
+{
+    set_text(m_text);
+}
+
+
 void gui::Text::set_text(const std::string& text)
 {
     m_text = text;

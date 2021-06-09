@@ -11,4 +11,41 @@ void gui::BasicTextEntry::render(SDL_Renderer* rend)
     SDL_RenderFillRect(rend, &m_rect);
 
     m_text->render();
+
+    if (m_render_cursor)
+        m_cursor.render(rend, { 0, 0 });
+}
+
+
+void gui::BasicTextEntry::add_char(char c)
+{
+    std::string& text = m_text->text_ref();
+
+    if ((m_cursor.char_pos(m_rect).x + 1) * m_text->font_ref().char_dim().x + m_rect.x < m_rect.x + m_rect.w)
+    {
+        text.insert(text.begin() + m_cursor.char_pos(m_rect).x, c);
+        m_cursor.move_characters(1, 0);
+
+        m_text->rerender_texture();
+    }
+}
+
+
+void gui::BasicTextEntry::remove_char()
+{
+    std::string& text = m_text->text_ref();
+
+    if ((m_cursor.char_pos(m_rect).x - 1) * m_text->font_ref().char_dim().x + m_rect.x >= m_rect.x)
+    {
+        text.erase(text.begin() + m_cursor.char_pos(m_rect).x - 1);
+        m_cursor.move_characters(-1, 0);
+
+        m_text->rerender_texture();
+    }
+}
+
+
+bool gui::BasicTextEntry::check_clicked(int mx, int my)
+{
+    return common::within_rect(m_rect, mx, my);
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "text_entry.h"
+#include "basic_text_entry.h"
 
 
 class Grass
@@ -19,6 +20,7 @@ private:
     SDL_Renderer* m_rend;
 
     gui::TextEntry* m_selected_entry{ nullptr };
+    gui::BasicTextEntry* m_selected_basic_entry{ nullptr };
 
     std::string m_exe_dir;
 };

@@ -11,11 +11,14 @@ namespace gui
         Text(SDL_Renderer* rend, common::Font& font, SDL_Point pos, const std::string& text, SDL_Color color);
 
         void render();
+        // in case set_text was not used to change m_text
+        void rerender_texture();
 
         void set_text(const std::string& text);
 
         SDL_Rect rect() { return m_rect; }
         std::string text() { return m_text; }
+        std::string& text_ref() { return m_text; }
         common::Font& font_ref() { return m_font; }
 
         void change_color(SDL_Color color) { m_color = color; }
