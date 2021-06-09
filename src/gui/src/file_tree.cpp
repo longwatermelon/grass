@@ -149,37 +149,62 @@ void gui::Folder::update_rects(SDL_Rect& rect)
 
 
 void gui::Folder::load(SDL_Renderer* rend)
-{
+{    
     m_loaded = true;
-    m_folders.clear();
+    load_folders(rend);
+    load_files(rend);
+}
+
+
+void gui::Folder::load_folders(SDL_Renderer* rend)
+{
+    std::vector<std::string> loaded_paths = find_all_loaded_folders();
+
+    for (int i = 0; i < m_folders.size(); ++i)
+    {
+        // if folder is not loaded, erase it
+        if (std::find(loaded_paths.begin(), loaded_paths.end(), fs::absolute(m_folders[i].path()).string()) == loaded_paths.end())
+        {
+            m_folders.erase(m_folders.begin() + i);
+            --i;
+        }
+    }
+
+    String s = m_name;
+    std::string name = m_name.str();
+
+    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + name, fs::directory_options::skip_permission_denied))
+    {
+        if (!entry.is_directory() || std::find(loaded_paths.begin(), loaded_paths.end(), fs::absolute(entry.path()).string()) != loaded_paths.end())
+            continue;
+
+        s.set_contents({ entry.path().filename().string() });
+        
+        m_folders.emplace_back(Folder(m_base_path + (name.empty() ? "" : PATH_SLASH + name), s, rend, false));
+    }
+}
+
+
+void gui::Folder::load_files(SDL_Renderer* rend)
+{
     m_files.clear();
 
-    String t = m_name;
-    std::string sname = m_name.str();
+    String s = m_name;
+    std::string name = m_name.str();
 
-    std::error_code ec;
-    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + sname, fs::directory_options::skip_permission_denied, ec))
+    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + name, fs::directory_options::skip_permission_denied))
     {
-        if (ec)
-            continue;
-
-        std::string file_path = entry.path().filename().string();
-        std::string ext = fs::path(file_path).extension().string();
-
-        if (fs::path(file_path).has_extension() && ext[ext.size() - 1] == '~')
-            continue;
-
-        t.set_contents({ file_path });
-        
-
         if (entry.is_directory())
-        {
-            m_folders.emplace_back(Folder(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend, false));
-        }
-        else
-        {
-            m_files.emplace_back(File(m_base_path + (sname.empty() ? "" : PATH_SLASH + sname), t, rend));
-        }
+            continue;
+
+        std::string file_name = entry.path().filename().string();
+        std::string extension = fs::path(file_name).extension().string();
+
+        if (fs::path(file_name).has_extension() && extension[extension.size() - 1] == '~')
+            continue;
+
+        s.set_contents({ file_name });
+        m_files.emplace_back(File(m_base_path + (name.empty() ? "" : PATH_SLASH + name), s, rend));
     }
 }
 
@@ -305,8 +330,7 @@ void gui::Folder::reload_if_outdated(SDL_Renderer* rend)
 
     if (count != m_folders.size() + m_files.size())
     {
-        collapse(rend);
-        collapse(rend);
+        load(rend);
     }
 
     for (auto& folder : m_folders)
@@ -314,6 +338,28 @@ void gui::Folder::reload_if_outdated(SDL_Renderer* rend)
         if (folder.loaded())
             folder.reload_if_outdated(rend);
     }
+}
+
+
+std::vector<std::string> gui::Folder::find_all_loaded_folders()
+{
+    std::vector<std::string> loaded;
+
+    for (auto& f : m_folders)
+    {
+        std::vector<std::string> tmp = f.find_all_loaded_folders();
+        loaded.insert(loaded.end(), tmp.begin(), tmp.end());
+    }
+
+    for (auto& f : m_folders)
+    {
+        if (f.loaded())
+        {
+            loaded.emplace_back(fs::absolute(f.path()).string());
+        }
+    }
+
+    return loaded;
 }
 
 

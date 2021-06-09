@@ -56,6 +56,8 @@ namespace gui
 
         /* Load all the contents directly beneath this folder. This is used to save memory. */
         void load(SDL_Renderer* rend);
+        void load_folders(SDL_Renderer* rend);
+        void load_files(SDL_Renderer* rend);
         /* Unload all the contents from the folder, normally called when the folder is closed. */
         void unload();
 
@@ -70,6 +72,8 @@ namespace gui
         void create_new_file(const std::string& name);
 
         void reload_if_outdated(SDL_Renderer* rend);
+
+        std::vector<std::string> find_all_loaded_folders();
 
 
         std::vector<File>& files() { return m_files; }
