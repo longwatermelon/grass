@@ -63,6 +63,7 @@ namespace gui
         // x and y measured in characters
         void set_cursor_pos_characters(int x, int y);
         
+        void start_highlight();
         void stop_highlight();
         // stop highlight if nothing is highlighted
         void conditional_stop_highlight();
@@ -90,6 +91,8 @@ namespace gui
         bool hidden() { return m_hidden; }
         SDL_Point min_bounds() { return m_min_bounds; }
         SDL_Point max_bounds() { return m_max_bounds; }
+
+        EntryMode mode() { return m_mode; }
 
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
 

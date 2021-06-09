@@ -109,10 +109,11 @@ void Grass::mainloop()
         load_file(m_exe_dir + "res/help.txt", text_entries[0]);
     }));
 
-    /* Kb event variables and other very simple variables here */
+    /* Kb event variables */
 
     bool mouse_down = false;
     bool ctrl_down = false;
+    bool shift_down = false;
 
     while (running)
     {
@@ -467,6 +468,10 @@ void Grass::mainloop()
                             tree.append_unsaved_file(current_open_fp, m_window);
                         }
                         break;
+                    case SDL_SCANCODE_LSHIFT:
+                    case SDL_SCANCODE_RSHIFT:
+                        shift_down = true;
+                        break;
                     }
                 }
 
@@ -486,6 +491,9 @@ void Grass::mainloop()
                     if (evt.key.keysym.sym == SDLK_DOWN)
                         movement.y = 1;
 
+                    if (m_selected_entry->mode() == gui::EntryMode::NORMAL && shift_down)
+                        m_selected_entry->start_highlight();
+
                     m_selected_entry->move_cursor_characters(movement.x, movement.y);
 
                     m_selected_entry->conditional_move_bounds_characters(
@@ -494,6 +502,9 @@ void Grass::mainloop()
                     );
 
                     m_selected_entry->conditional_jump_to_eol();
+
+                    if (!shift_down && m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                        m_selected_entry->stop_highlight();
                 }
             } break;
             case SDL_KEYUP:
@@ -503,6 +514,10 @@ void Grass::mainloop()
                 case SDL_SCANCODE_RCTRL:
                 case SDL_SCANCODE_LCTRL:
                     ctrl_down = false;
+                    break;
+                case SDL_SCANCODE_LSHIFT:
+                case SDL_SCANCODE_RSHIFT:
+                    shift_down = false;
                     break;
                 }
             } break;

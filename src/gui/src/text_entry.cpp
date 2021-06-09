@@ -424,8 +424,7 @@ void gui::TextEntry::mouse_down(int mx, int my)
         }
     }
 
-    m_highlight_start = m_cursor;
-    m_mode = EntryMode::HIGHLIGHT;
+    start_highlight();
 }
 
 
@@ -481,6 +480,13 @@ void gui::TextEntry::set_cursor_pos_characters(int x, int y)
 {
     SDL_Point char_pos = m_cursor.char_pos(m_rect);
     m_cursor.move_characters(x - char_pos.x, y - char_pos.y);
+}
+
+
+void gui::TextEntry::start_highlight()
+{
+    m_highlight_start = m_cursor;
+    m_mode = EntryMode::HIGHLIGHT;
 }
 
 
