@@ -15,6 +15,8 @@ namespace gui::common
         {
             if (ptr)
                 SDL_DestroyTexture(ptr);
+
+            ptr = 0;
         }
     };
 
@@ -22,19 +24,24 @@ namespace gui::common
     {
     public:
         Font() = default;
-        Font(const std::string& ttf_path, int pt_size);
+        Font(const std::string& ttf_path, int pt_size, bool automatically_delete_font = true);
         ~Font();
         
         // closes current font and loads new font
         void load_font(const std::string& ttf_path, int pt_size);
 
+        void cleanup();
+
         TTF_Font* font() { return m_font; }
         TTF_Font** font_ptr() { return &m_font; }
         SDL_Point char_dim() { return m_char_dim; }
+        void automatically_delete(bool b) { m_delete_font = b; }
 
     private:
-        TTF_Font* m_font;
-        SDL_Point m_char_dim;
+        TTF_Font* m_font{ nullptr };
+        SDL_Point m_char_dim{ 0, 0 };
+
+        bool m_delete_font{ true };
     };
 
     // nodiscard just to make sure i dont leak memory

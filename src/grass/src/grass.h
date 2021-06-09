@@ -23,4 +23,7 @@ private:
     gui::BasicTextEntry* m_selected_basic_entry{ nullptr };
 
     std::string m_exe_dir;
+
+    gui::common::Font m_font_textbox;
+    gui::common::Font m_font_tree;
 };

@@ -1,6 +1,7 @@
 #include "grass.h"
 #include <iostream>
 #include <filesystem>
+#include <SDL_image.h>
 
 namespace fs = std::filesystem;
 
@@ -17,6 +18,10 @@ int main(int argc, char** argv)
 
     Grass g(exe_dir);
     g.mainloop();
+
+    SDL_Quit();
+    TTF_Quit();
+    IMG_Quit();
 
     return 0;
 }

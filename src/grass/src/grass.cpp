@@ -33,6 +33,12 @@ Grass::Grass(const std::string& exe_dir)
 
     TTF_Init();
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
+
+    m_font_textbox.load_font("res/CascadiaCode.ttf", 16);
+    m_font_tree.load_font("res/CascadiaCode.ttf", 14);
+
+    m_font_textbox.automatically_delete(false);
+    m_font_tree.automatically_delete(false);
 }
 
 
@@ -40,10 +46,6 @@ Grass::~Grass()
 {
     SDL_DestroyRenderer(m_rend);
     SDL_DestroyWindow(m_window);
-
-    SDL_Quit();
-    TTF_Quit();
-    IMG_Quit();
 }
 
 
@@ -60,20 +62,17 @@ void Grass::mainloop()
     };
 
     /* Core ui elements that should not be touched */
-    gui::common::Font font_textbox(m_exe_dir + "res/CascadiaCode.ttf", 16);
-    gui::common::Font font_tree(m_exe_dir + "res/CascadiaCode.ttf", 14);
-
     std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
+    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", m_font_textbox.char_dim(), { 255, 255, 255 })));
 
     std::vector<std::unique_ptr<gui::Button>> buttons;
 
-    gui::Folder folder(fs::absolute(".").string(), gui::String(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree.font(), { 0, 60 }, "", m_font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, font_tree.char_dim().y },
+        { 0, main_text_dimensions.y, 200, m_font_tree.char_dim().y },
         m_rend,
         m_exe_dir
     );
@@ -101,16 +100,16 @@ void Grass::mainloop()
     gui::Menu* menu = 0;
 
     std::vector<gui::BasicTextEntry> basic_text_entries;
-    basic_text_entries.emplace_back(gui::BasicTextEntry({ 300, 20, 100, font_textbox.char_dim().y },
-        gui::Cursor({ 300, 20 }, { 255, 255, 255 }, font_textbox.char_dim()), 
-        std::make_unique<gui::Text>(gui::Text(m_rend, font_textbox, { 300, 20 }, "", { 255, 255, 255 })),
+    basic_text_entries.emplace_back(gui::BasicTextEntry({ 300, 20, 100, m_font_textbox.char_dim().y },
+        gui::Cursor({ 300, 20 }, { 255, 255, 255 }, m_font_textbox.char_dim()), 
+        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_textbox, { 300, 20 }, "", { 255, 255, 255 })),
         { 30, 30, 30 }
     ));
 
     m_selected_basic_entry = &basic_text_entries[0];
 
     // put the buttons here so they have access to all the previous variables
-    buttons.emplace_back(new gui::Button(m_rend, gui::String(font_tree.font(), { 0, 0 }, "Help", font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
+    buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
         if (editor_image)
             SDL_DestroyTexture(editor_image);
 
@@ -264,7 +263,7 @@ void Grass::mainloop()
                                 editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
 
                                 if (!editor_image)
-                                    editor_image = gui::common::render_text(m_rend, font_textbox.font(), SDL_GetError());
+                                    editor_image = gui::common::render_text(m_rend, m_font_textbox.font(), SDL_GetError());
 
                                 text_entries[0].text()->set_contents({ "" });
                                 reset_entry_to_default(text_entries[0]);
@@ -334,7 +333,7 @@ void Grass::mainloop()
                                 tree.update_display();
                                 tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                             }}
-                        }, font_tree, { 40, 40, 40 }, m_rend);
+                        }, m_font_tree, { 40, 40, 40 }, m_rend);
                     }
 
                     gui::File* file = tree.check_file_click(tree.folder(), mx, my);
@@ -358,7 +357,7 @@ void Grass::mainloop()
                                 tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                                 tree.reload_outdated_folders(m_rend, true);
                             }}
-                        }, font_tree, { 40, 40, 40 }, m_rend);
+                        }, m_font_tree, { 40, 40, 40 }, m_rend);
                     }
                 }
             } break;
@@ -446,9 +445,9 @@ void Grass::mainloop()
                         SDL_RenderFillRect(m_rend, &rect);
 
                         std::string waiting_text = "Waiting for open folder dialog to finish";
-                        SDL_Texture* text = gui::common::render_text(m_rend, font_textbox.font(), waiting_text.c_str());
-                        rect.x = wx / 2 - waiting_text.size() * font_textbox.char_dim().x / 2;
-                        rect.y = wy / 2 - font_textbox.char_dim().y / 2;
+                        SDL_Texture* text = gui::common::render_text(m_rend, m_font_textbox.font(), waiting_text.c_str());
+                        rect.x = wx / 2 - waiting_text.size() * m_font_textbox.char_dim().x / 2;
+                        rect.y = wy / 2 - m_font_textbox.char_dim().y / 2;
 
                         SDL_QueryTexture(text, nullptr, nullptr, &rect.w, &rect.h);
                         SDL_RenderCopy(m_rend, text, nullptr, &rect);
@@ -711,6 +710,9 @@ void Grass::mainloop()
         SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
         SDL_RenderPresent(m_rend);
     }
+
+    m_font_textbox.cleanup();
+    m_font_tree.cleanup();
     
     for (auto& path : tree.unsaved())
     {
