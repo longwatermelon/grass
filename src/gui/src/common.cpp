@@ -62,7 +62,8 @@ gui::common::Font::~Font()
 
 void gui::common::Font::load_font(const std::string& ttf_path, int pt_size)
 {
-    TTF_CloseFont(m_font);
+    if (m_font)
+        TTF_CloseFont(m_font);
 
     m_font = TTF_OpenFont(ttf_path.c_str(), pt_size);
     TTF_SizeText(m_font, " ", &m_char_dim.x, &m_char_dim.y);

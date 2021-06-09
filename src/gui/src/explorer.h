@@ -18,9 +18,9 @@ namespace gui
     class Explorer
     {
     public:
-        Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos);
+        Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos, const std::string& exe_dir, common::Font& font);
 
-        std::string get_path(const std::string& exe_dir);
+        std::string get_path();
 
         void cleanup(std::vector<Button*>& buttons);
         void cleanup_window();
@@ -43,5 +43,7 @@ namespace gui
         std::vector<SDL_Texture*> m_current_textures;
 
         SDL_Rect m_selected_item_highlight{ 0, 0, 0, 0 };
+
+        common::Font& m_font;
     };
 }

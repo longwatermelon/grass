@@ -422,8 +422,10 @@ void Grass::mainloop()
 
                         SDL_Point pos;
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
-                        gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos);
-                        std::string path = e.get_path(m_exe_dir);
+                        gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
+
+                        gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
+                        std::string path = e.get_path();
 
                         // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
                         // on a separate thread

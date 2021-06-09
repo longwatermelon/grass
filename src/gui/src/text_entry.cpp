@@ -143,12 +143,24 @@ void gui::TextEntry::insert_char(char c)
     else
     {
         m_cursor.move_characters(1, 0);
+        SDL_Point cursor_pos = m_cursor.char_pos(m_rect);
 
-        if (out_of_bounds())
-        {
-            move_bounds_characters(m_move_bounds_by, 0);
-            clear_cache();
-        }
+        //if (out_of_bounds_y())
+        //{
+        //    move_bounds_characters(0, cursor_pos.y - m_min_bounds.y);
+        //    /*move_bounds_characters(m_move_bounds_by, 0);
+        //    clear_cache();*/
+        //}
+
+        if (cursor_pos.y < m_min_bounds.y)
+            move_bounds_characters(0, cursor_pos.y - m_min_bounds.y);
+        if (cursor_pos.y >= m_max_bounds.y)
+            move_bounds_characters(0, cursor_pos.y - m_max_bounds.y + 1);
+
+        if (cursor_pos.x < m_min_bounds.x)
+            move_bounds_characters(cursor_pos.x - m_min_bounds.x, 0);
+        if (cursor_pos.x > m_max_bounds.x)
+            move_bounds_characters(cursor_pos.x - m_max_bounds.x + m_move_bounds_by, 0);
     }
 }
 
@@ -347,7 +359,7 @@ bool gui::TextEntry::out_of_bounds_y()
 {
     SDL_Point display_pos_pixels = m_cursor.display_pos(m_min_bounds);
 
-    int max_y = m_rect.y + (int)(m_rect.h / m_text.char_dim().y) * m_text.char_dim().y;
+    int max_y = m_rect.y + (int)(m_rect.h / m_text.char_dim().y) * m_text.char_dim().y - m_text.char_dim().y;
     if (display_pos_pixels.y < m_rect.y || display_pos_pixels.y > max_y)
         return true;
 

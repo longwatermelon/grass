@@ -21,6 +21,7 @@ namespace gui::common
     class Font
     {
     public:
+        Font() = default;
         Font(const std::string& ttf_path, int pt_size);
         ~Font();
         
