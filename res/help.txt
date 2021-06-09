@@ -1,0 +1,7 @@
+Shortcuts
+
+ctrl-s to save current file
+ctrl-d to discard changes from current file
+ctrl-o to change directory
+
+Right click a file or folder in the file tree for options

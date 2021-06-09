@@ -11,6 +11,7 @@
 #include <iostream>
 #include <filesystem>
 #include <thread>
+#include <memory>
 #include <SDL_image.h>
 
 namespace fs = std::filesystem;
@@ -64,7 +65,7 @@ void Grass::mainloop()
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
 
-    std::vector<gui::Button> buttons;
+    std::vector<std::unique_ptr<gui::Button>> buttons;
 
     gui::Folder folder(fs::absolute(".").string(), gui::String(font_tree.font(), { 0, 60 }, "", font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
     gui::Tree tree(
@@ -85,7 +86,6 @@ void Grass::mainloop()
         main_text_dimensions.h
     }, 0, 0, 0, { 40, 40, 40 }, { 100, 100, 100 });
 
-
     bool running = true;
     SDL_Event evt;
 
@@ -98,6 +98,16 @@ void Grass::mainloop()
     SDL_GetWindowSize(m_window, &prev_wx, &prev_wy);
 
     gui::Menu* menu = 0;
+
+    // put the buttons here so they have access to all the previous variables
+    buttons.emplace_back(new gui::Button(m_rend, gui::String(font_tree.font(), { 0, 0 }, "Help", font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
+        if (editor_image)
+            SDL_DestroyTexture(editor_image);
+
+        editor_image = 0;
+
+        load_file(m_exe_dir + "res/help.txt", text_entries[0]);
+    }));
 
     /* Kb event variables and other very simple variables here */
 
@@ -150,7 +160,7 @@ void Grass::mainloop()
 
                     for (auto& btn : buttons)
                     {
-                        if (btn.check_clicked(mx, my))
+                        if (btn->check_clicked(mx, my))
                         {
                             btn_clicked = true;
                             break;
@@ -329,7 +339,7 @@ void Grass::mainloop()
 
                 for (auto& btn : buttons)
                 {
-                    btn.set_down(false);
+                    btn->set_down(false);
                 }
 
                 scrollbar.mouse_up();
@@ -521,8 +531,8 @@ void Grass::mainloop()
 
         for (auto& btn : buttons)
         {
-            btn.check_hover(mx, my);
-            btn.render(m_rend);
+            btn->check_hover(mx, my);
+            btn->render(m_rend);
         }
 
         tree.reload_outdated_folders(m_rend, false);
