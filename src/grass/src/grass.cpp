@@ -479,6 +479,27 @@ void Grass::mainloop()
                     case SDL_SCANCODE_RSHIFT:
                         shift_down = true;
                         break;
+                    case SDL_SCANCODE_HOME:
+                        if (shift_down)
+                            m_selected_entry->start_highlight();
+                        else
+                            m_selected_entry->stop_highlight();
+
+                        m_selected_entry->move_cursor_characters(-m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x, 0);
+                        m_selected_entry->reset_bounds_x();
+                        break;
+                    case SDL_SCANCODE_END:
+                        if (shift_down)
+                            m_selected_entry->start_highlight();
+                        else
+                            m_selected_entry->stop_highlight();
+
+                        if (m_selected_entry->jump_to_eol())
+                        {
+                            m_selected_entry->move_bounds_characters(m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x - m_selected_entry->max_bounds().x, 0);
+                        }
+
+                        break;
                     }
                 }
 

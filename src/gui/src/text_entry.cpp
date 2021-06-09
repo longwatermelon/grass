@@ -327,6 +327,7 @@ void gui::TextEntry::reset_bounds_x()
 {
     m_min_bounds.x = 0;
     m_max_bounds.x = m_rect.w / m_text.char_dim().x;
+    clear_cache();
 }
 
 
@@ -334,6 +335,7 @@ void gui::TextEntry::reset_bounds_y()
 {
     m_min_bounds.y = 0;
     m_max_bounds.y = m_rect.h / m_text.char_dim().y;
+    clear_cache();
 }
 
 
