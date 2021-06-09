@@ -278,6 +278,14 @@ void Grass::mainloop()
                     {
                         menu = new gui::Menu({ mx, my }, 100, {
                             {"Delete file", [&]() {
+                                if (current_open_fp == file->path())
+                                {
+                                    reset_entry_to_default(text_entries[0]);
+                                    text_entries[0].text()->set_contents({ "" });
+                                    if (fs::exists(file->path() + '~'))
+                                        fs::remove(file->path() + '~');
+                                }
+
                                 file->delete_self();
                                 tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                             }}

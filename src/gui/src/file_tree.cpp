@@ -119,13 +119,10 @@ void gui::Folder::collapse(SDL_Renderer* rend)
 {
     if (!m_collapsed)
     {
-        m_collapsed = true;
-
         unload();
     }
     else
     {
-        m_collapsed = false;
         load(rend);
 
         for (auto& f : m_folders)
