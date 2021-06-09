@@ -20,7 +20,7 @@ namespace gui
     public:
         Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos);
 
-        std::string get_path();
+        std::string get_path(const std::string& exe_dir);
 
         void cleanup(std::vector<Button*>& buttons);
         void cleanup_window();

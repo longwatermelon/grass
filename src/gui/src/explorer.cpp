@@ -21,14 +21,14 @@ gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos
 }
 
 
-std::string gui::Explorer::get_path()
+std::string gui::Explorer::get_path(const std::string& exe_dir)
 {
     bool running = true;
     SDL_Event evt;
 
     bool return_path = false;
 
-    common::Font font_button("res/CascadiaCode.ttf", 14);
+    common::Font font_button(exe_dir + "res/CascadiaCode.ttf", 14);
 
     SDL_Point window_size;
     SDL_GetWindowSize(m_window, &window_size.x, &window_size.y);
@@ -119,12 +119,23 @@ std::string gui::Explorer::get_path()
                             }
                             else // double click was successful
                             {
-                                m_current_dir += (m_selected_item.empty() ? "" : "/" + m_selected_item);
+                                char last_char = m_current_dir[m_current_dir.size() - 1];
+
+                                m_current_dir += (m_selected_item.empty() ? "" : (last_char == '\\' || last_char == '/' ? "" : "/") + m_selected_item);
                                 m_selected_item_highlight = { 0, 0, 0, 0 };
                                 m_selected_item.clear();
                                 ready_for_first_click = true;
                                 first_clicked_item.clear();
                                 top_y = 0;
+
+                                for (auto& t : m_current_textures)
+                                {
+                                    if (t)
+                                    {
+                                        SDL_DestroyTexture(t);
+                                        t = 0;
+                                    }
+                                }
                             }
                         }
                     }

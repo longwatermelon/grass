@@ -5,7 +5,7 @@
 class Grass
 {
 public:
-    Grass();
+    Grass(const std::string& exe_dir);
     ~Grass();
 
 public:
@@ -19,4 +19,6 @@ private:
     SDL_Renderer* m_rend;
 
     gui::TextEntry* m_selected_entry{ nullptr };
+
+    std::string m_exe_dir;
 };

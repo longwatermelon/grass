@@ -16,7 +16,8 @@
 namespace fs = std::filesystem;
 
 
-Grass::Grass()
+Grass::Grass(const std::string& exe_dir)
+    : m_exe_dir(exe_dir + '/')
 {
     SDL_Init(SDL_INIT_EVERYTHING);
 
@@ -57,9 +58,8 @@ void Grass::mainloop()
     };
 
     /* Core ui elements that should not be touched */
-
-    gui::common::Font font_textbox("res/CascadiaCode.ttf", 16);
-    gui::common::Font font_tree("res/CascadiaCode.ttf", 14);
+    gui::common::Font font_textbox(m_exe_dir + "res/CascadiaCode.ttf", 16);
+    gui::common::Font font_tree(m_exe_dir + "res/CascadiaCode.ttf", 14);
 
     std::vector<gui::TextEntry> text_entries;
     text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 50, 50, 50 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, font_textbox.char_dim()), gui::String(font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", font_textbox.char_dim(), { 255, 255, 255 })));
@@ -72,7 +72,8 @@ void Grass::mainloop()
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
         { 0, main_text_dimensions.y, 200, font_tree.char_dim().y },
-        m_rend
+        m_rend,
+        m_exe_dir
     );
 
     tree.update_display();
@@ -390,7 +391,7 @@ void Grass::mainloop()
                         SDL_Point pos;
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
                         gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos);
-                        std::string path = e.get_path();
+                        std::string path = e.get_path(m_exe_dir);
 
                         // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
                         // on a separate thread

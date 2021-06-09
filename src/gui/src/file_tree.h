@@ -103,7 +103,7 @@ namespace gui
     class Tree
     {
     public:
-        Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend);
+        Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend, const std::string& exe_dir);
 
         void render(SDL_Renderer* rend);
 
