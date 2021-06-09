@@ -5,12 +5,6 @@
 #include <fstream>
 #include <SDL_image.h>
 
-#if defined(_WIN32)
-#  define PATH_SLASH '\\'
-#else
-#  define PATH_SLASH '/'
-#endif /* if defined(_WIN32) */
-
 #define unique(ptr) std::unique_ptr<SDL_Texture, common::TextureDeleter>(ptr)
 
 namespace fs = std::filesystem;
@@ -59,7 +53,7 @@ void gui::File::delete_self()
 
 std::string gui::File::path()
 {
-    return m_base_path + PATH_SLASH + m_name.str();
+    return m_base_path + '/' + m_name.str();
 }
 
 
@@ -173,14 +167,14 @@ void gui::Folder::load_folders(SDL_Renderer* rend)
     String s = m_name;
     std::string name = m_name.str();
 
-    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + name, fs::directory_options::skip_permission_denied))
+    for (auto& entry : fs::directory_iterator(m_base_path + '/' + name, fs::directory_options::skip_permission_denied))
     {
         if (!entry.is_directory() || std::find(loaded_paths.begin(), loaded_paths.end(), fs::absolute(entry.path()).string()) != loaded_paths.end())
             continue;
 
         s.set_contents({ entry.path().filename().string() });
         
-        m_folders.emplace_back(Folder(m_base_path + (name.empty() ? "" : PATH_SLASH + name), s, rend, false));
+        m_folders.emplace_back(Folder(m_base_path + (name.empty() ? "" : '/' + name), s, rend, false));
     }
 }
 
@@ -192,7 +186,7 @@ void gui::Folder::load_files(SDL_Renderer* rend)
     String s = m_name;
     std::string name = m_name.str();
 
-    for (auto& entry : fs::directory_iterator(m_base_path + PATH_SLASH + name, fs::directory_options::skip_permission_denied))
+    for (auto& entry : fs::directory_iterator(m_base_path + '/' + name, fs::directory_options::skip_permission_denied))
     {
         if (entry.is_directory())
             continue;
@@ -204,7 +198,7 @@ void gui::Folder::load_files(SDL_Renderer* rend)
             continue;
 
         s.set_contents({ file_name });
-        m_files.emplace_back(File(m_base_path + (name.empty() ? "" : PATH_SLASH + name), s, rend));
+        m_files.emplace_back(File(m_base_path + (name.empty() ? "" : '/' + name), s, rend));
     }
 }
 
@@ -224,6 +218,7 @@ void gui::Folder::change_directory(const std::string& fp, SDL_Renderer* rend)
     m_base_path = p.parent_path().string();
     m_name.set_contents({ p.filename().string() });
 
+    unload();
     load(rend);
 }
 
