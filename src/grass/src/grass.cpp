@@ -75,11 +75,6 @@ void Grass::mainloop()
         m_rend
     );
 
-    for (auto& f : tree.folder().folders())
-    {
-        f.collapse(m_rend);
-    }
-
     tree.update_display();
 
     gui::Scrollbar scrollbar({
@@ -249,6 +244,16 @@ void Grass::mainloop()
                         tree.collapse_folder(*folder, m_rend);
                         tree.update_display();
 
+                        tree.set_selected_highlight_rect({
+                            tree.rect().x,
+                            folder->rect().y,
+                            tree.rect().w,
+                            folder->name().char_dim().y
+                        });
+                    }
+
+                    if (!folder && !file)
+                    {
                         tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
                     }
 

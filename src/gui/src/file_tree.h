@@ -93,7 +93,6 @@ namespace gui
 
         std::unique_ptr<SDL_Texture, common::TextureDeleter> m_tex;
 
-        bool m_collapsed{ false };
         bool m_loaded{ false };
     };
 

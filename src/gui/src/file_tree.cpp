@@ -92,7 +92,7 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
             m_name.char_dim().y
         };
 
-        if (m_collapsed)
+        if (!m_loaded)
         {
             SDL_RenderCopy(rend, closed_tex, nullptr, &folder_rect);
             return;
@@ -117,18 +117,13 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
 
 void gui::Folder::collapse(SDL_Renderer* rend)
 {
-    if (!m_collapsed)
+    if (m_loaded)
     {
         unload();
     }
     else
     {
         load(rend);
-
-        for (auto& f : m_folders)
-        {
-            f.collapse(rend);
-        }
     }
 }
 
@@ -138,7 +133,7 @@ void gui::Folder::update_rects(SDL_Rect& rect)
     m_rect = rect;
     rect.y += m_name.char_dim().y;
 
-    if (m_collapsed)
+    if (!m_loaded)
         return;
 
     for (auto& folder : m_folders)
@@ -205,11 +200,6 @@ void gui::Folder::change_directory(const std::string& fp, SDL_Renderer* rend)
     m_name.set_contents({ p.filename().string() });
 
     load(rend);
-
-    for (auto& f : m_folders)
-    {
-        f.collapse(rend);
-    }
 }
 
 
