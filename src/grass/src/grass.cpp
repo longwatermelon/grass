@@ -180,7 +180,14 @@ void Grass::mainloop()
                         }
                     }
 
-                    if (!clicked)
+                    if (clicked)
+                    {
+                        m_selected_entry = 0;
+
+                        for (auto& e : text_entries)
+                            e.stop_highlight();
+                    }
+                    else
                     {
                         for (auto& e : text_entries)
                         {
@@ -193,17 +200,16 @@ void Grass::mainloop()
                         }
                     }
                     
-                    // no text entries were clicked
-                    if (!clicked)
+                    if (clicked)
                     {
-                        m_selected_entry = 0;
+                        for (auto& e : basic_text_entries)
+                        {
+                            e.set_cursor_visible(false);
+                        }
 
-                        for (auto& e : text_entries)
-                            e.stop_highlight();
+                        m_selected_basic_entry = 0;
                     }
-
-                    
-                    if (!clicked)
+                    else
                     {
                         for (auto& e : basic_text_entries)
                         {
@@ -214,20 +220,14 @@ void Grass::mainloop()
                                 m_selected_basic_entry->set_cursor_visible(true);
                             }
                         }
-
-                        if (!clicked)
-                        {
-                            for (auto& e : basic_text_entries)
-                            {
-                                e.set_cursor_visible(false);
-                            }
-
-                            m_selected_basic_entry = 0;
-                        }
                     }
                     
 
-                    if (!clicked)
+                    if (clicked)
+                    {
+                        tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    }
+                    else
                     {
                         gui::File* file = tree.check_file_click(tree.folder(), mx, my);
 
@@ -313,9 +313,7 @@ void Grass::mainloop()
                             break;
                         }
 
-                        if (!folder && !file)
-                            tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
-                        else
+                        if (folder || file)
                             clicked = true;
                     }
 
