@@ -5,6 +5,7 @@
 #include "scrollbar.h"
 #include "menu.h"
 #include "button.h"
+#include "explorer.h"
 #include <memory>
 
 enum class Mode
@@ -56,4 +57,6 @@ private:
     std::vector<std::unique_ptr<gui::Button>> m_buttons;
 
     Mode m_mode{ Mode::NORMAL };
+
+    gui::Explorer* m_explorer{ nullptr };
 };

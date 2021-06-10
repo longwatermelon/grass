@@ -11,7 +11,7 @@ namespace chrono = std::chrono;
 gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos, const std::string& exe_dir, common::Font& font)
     : m_current_dir(dir), m_mode(mode), m_font(font)
 {
-    m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::DIR ? "directory" : "file")).c_str(), pos.x, pos.y, 800, 400, SDL_WINDOW_SHOWN);
+    m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::DIR ? "directory" : "file")).c_str(), pos.x, pos.y, 800, 400, SDL_WINDOW_HIDDEN);
     m_rend = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     SDL_RenderClear(m_rend);
@@ -23,6 +23,8 @@ gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos
 
 std::string gui::Explorer::get_path()
 {
+    SDL_ShowWindow(m_window);
+
     bool running = true;
     SDL_Event evt;
 
@@ -206,6 +208,7 @@ std::string gui::Explorer::get_path()
         if (!running)
         {
             cleanup(buttons);
+            SDL_HideWindow(m_window);
 
             if (return_path)
                 return m_current_dir + (m_selected_item.empty() ? "" : '/' + m_selected_item);
@@ -233,6 +236,8 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons)
     }
 
     buttons.clear();
+    m_current_textures.clear();
+    m_current_names.clear();
 
     SDL_SetWindowGrab(m_window, SDL_FALSE);
 }
@@ -240,13 +245,8 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons)
 
 void gui::Explorer::cleanup_window()
 {
-    //SDL_HideWindow(m_window);
-
-    if (m_rend)
-        SDL_DestroyRenderer(m_rend);
-
-    if (m_window)
-        SDL_DestroyWindow(m_window);
+    SDL_DestroyRenderer(m_rend);
+    SDL_DestroyWindow(m_window);
 }
 
 

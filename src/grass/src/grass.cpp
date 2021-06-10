@@ -103,6 +103,13 @@ void Grass::mainloop()
 
     std::string renamed_fp;
 
+    gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
+
+    SDL_Point pos;
+    SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
+
+    m_explorer = new gui::Explorer(m_tree->folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
+
     // put the buttons here so they have access to all the previous variables
 
     m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
@@ -141,12 +148,14 @@ void Grass::mainloop()
 
         while (SDL_PollEvent(&evt))
         {
-            switch (evt.type)
+            if (evt.type == SDL_WINDOWEVENT && evt.window.event == SDL_WINDOWEVENT_CLOSE)
             {
-            case SDL_QUIT:
                 running = false;
                 break;
+            }
 
+            switch (evt.type)
+            {
             case SDL_MOUSEBUTTONDOWN:
                 handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image, renamed_fp);
                 break;
@@ -279,6 +288,9 @@ void Grass::mainloop()
     m_buttons.clear();
 
     delete m_tree;
+
+    m_explorer->cleanup_window();
+    delete m_explorer;
     
     for (auto& path : m_tree->unsaved())
     {
@@ -647,17 +659,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             // new window will take all input and releasing ctrl wont be detected in the main window
             ctrl_down = false;
 
-            SDL_Point pos;
-            SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
-            gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
-
-            gui::Explorer e(m_tree->folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
-            std::string path = e.get_path();
-
-            // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
-            // on a separate thread
-            std::thread thr_cleanup(&gui::Explorer::cleanup_window, &e);
-            thr_cleanup.detach();
+            std::string path = m_explorer->get_path();
 
             if (!path.empty())
             {
