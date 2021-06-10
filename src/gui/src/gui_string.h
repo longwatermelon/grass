@@ -45,14 +45,14 @@ namespace gui
         SDL_Color color() const { return m_color; }
 
     private:
-        SDL_Rect m_rect;
+        SDL_Rect m_rect{ 0, 0, 0, 0 };
 
         // character dimensions
-        SDL_Point m_char_dim;
-        std::vector<std::string> m_contents;
-        SDL_Color m_color;
+        SDL_Point m_char_dim{ 0, 0 };
+        std::vector<std::string> m_contents = std::vector<std::string>(0);
+        SDL_Color m_color{ 0, 0, 0 };
 
         // non owning, dont free
-        TTF_Font* m_font;
+        TTF_Font* m_font{ 0 };
     };
 }

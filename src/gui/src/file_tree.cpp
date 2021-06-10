@@ -382,6 +382,49 @@ std::vector<std::string> gui::Folder::find_all_loaded_folders()
 }
 
 
+gui::Folder* gui::Folder::folder_from_path(const std::string& full_path)
+{
+    if (path() == full_path)
+        return this;
+
+    for (auto& folder : m_folders)
+    {
+        if (folder.path() == full_path)
+            return &folder;
+        else
+        {
+            gui::Folder* f = folder.folder_from_path(full_path);
+            if (f)
+                return f;
+        }
+    }
+
+    return 0;
+}
+
+
+gui::File* gui::Folder::file_from_path(const std::string& file_path)
+{
+    for (auto& file : m_files)
+    {
+        if (file.path() == file_path)
+            return &file;
+    }
+
+    for (auto& folder : m_folders)
+    {
+        gui::File* file = folder.file_from_path(file_path);
+
+        if (file)
+        {
+            return file;
+        }
+    }
+
+    return 0;
+}
+
+
 gui::Tree::Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend, const std::string& exe_dir)
     : m_folder(std::move(folder)), m_default_rect(starting_rect), m_rect(rect)
 {
@@ -597,4 +640,16 @@ void gui::Tree::reload_outdated_folders(SDL_Renderer* rend, bool force_reload, b
         m_folder.reload_if_outdated(rend, unconditional_reload);
         update_display();
     }
+}
+
+
+gui::Folder* gui::Tree::folder_from_path(const std::string& full_path)
+{
+    return m_folder.folder_from_path(full_path);
+}
+
+
+gui::File* gui::Tree::file_from_path(const std::string& full_path)
+{
+    return m_folder.file_from_path(full_path);
 }

@@ -76,6 +76,9 @@ namespace gui
 
         std::vector<std::string> find_all_loaded_folders();
 
+        gui::Folder* folder_from_path(const std::string& full_path);
+        gui::File* file_from_path(const std::string& file_path);
+
 
         std::vector<File>& files() { return m_files; }
         std::vector<Folder>& folders() { return m_folders; }
@@ -131,6 +134,9 @@ namespace gui
 
         void reload_outdated_folders(SDL_Renderer* rend, bool force_reload, bool unconditional_reload = false);
 
+        gui::Folder* folder_from_path(const std::string& full_path);
+        gui::File* file_from_path(const std::string& full_path);
+
         void set_selected_highlight_rect(SDL_Rect rect) { m_selected_highlight_rect = rect; }
         Folder& folder() { return m_folder; }
         std::vector<std::string> unsaved() { return m_unsaved_files; }
@@ -147,7 +153,7 @@ namespace gui
 
         std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_file_textures;
 
-        std::vector<std::string> m_unsaved_files{ std::vector<std::string>(0) };
+        std::vector<std::string> m_unsaved_files = std::vector<std::string>(0);
 
         SDL_Rect m_selected_highlight_rect{ 0, 0, 0, 0 };
 
