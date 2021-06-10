@@ -21,6 +21,8 @@ public:
     void reset_entry_to_default(gui::TextEntry& entry);
 
     void handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu* menu, std::string& current_open_fp, SDL_Texture* editor_image);
+    void reset_all_clicked();
+
     void handle_mouse_up(bool& mouse_down);
 
     void handle_textinput(char c, std::string& current_open_fp);

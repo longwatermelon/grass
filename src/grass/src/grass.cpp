@@ -322,7 +322,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
     if (button == SDL_BUTTON_LEFT && !mouse_down)
     {
         mouse_down = true;
-        bool clicked = false;
+        bool clicked_something = false;
 
         if (menu)
         {
@@ -330,42 +330,66 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
             delete menu;
             menu = 0;
-            clicked = true;
+            clicked_something = true;
         }
 
-        if (!clicked)
+        if (!clicked_something)
         {
             for (auto& btn : m_buttons)
             {
                 if (btn->check_clicked(mx, my))
                 {
-                    clicked = true;
+                    clicked_something = true;
+                    break;
+                }
+            }
+        }
+            
+        bool clicked_entry = false;
+
+        if (!clicked_something)
+        {
+            for (auto& e : m_text_entries)
+            {
+                if (e.check_clicked(mx, my))
+                {
+                    clicked_entry = true;
+                    clicked_something = true;
+
+                    m_selected_entry = &e;
+                    m_selected_entry->mouse_down(mx, my);
+
                     break;
                 }
             }
         }
 
-        if (clicked)
+        if (!clicked_entry)
         {
             m_selected_entry = 0;
 
             for (auto& e : m_text_entries)
                 e.stop_highlight();
         }
-        else
+
+        bool clicked_basic_entry = false;
+
+        if (!clicked_something)
         {
-            for (auto& e : m_text_entries)
+            for (auto& e : m_basic_text_entries)
             {
                 if (e.check_clicked(mx, my))
                 {
-                    m_selected_entry = &e;
-                    clicked = true;
-                    m_selected_entry->mouse_down(mx, my);
+                    clicked_basic_entry = true;
+                    clicked_something = true;
+
+                    m_selected_basic_entry = &e;
+                    m_selected_basic_entry->set_cursor_visible(true);
                 }
             }
         }
 
-        if (clicked)
+        if (!clicked_basic_entry)
         {
             for (auto& e : m_basic_text_entries)
             {
@@ -374,111 +398,93 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
             m_selected_basic_entry = 0;
         }
-        else
+
+        gui::File* file = m_tree->check_file_click(m_tree->folder(), mx, my);
+
+        if (file && !clicked_something)
         {
-            for (auto& e : m_basic_text_entries)
+            if (!fs::exists(file->path()))
             {
-                if (e.check_clicked(mx, my))
-                {
-                    clicked = true;
-                    m_selected_basic_entry = &e;
-                    m_selected_basic_entry->set_cursor_visible(true);
-                }
+                SDL_ShowSimpleMessageBox(SDL_MessageBoxFlags::SDL_MESSAGEBOX_ERROR, "Error", std::string("'" + file->path() + "' doesn't exist").c_str(), m_window);
+                return;
             }
-        }
 
+            m_tree->set_selected_highlight_rect({
+                m_tree->rect().x,
+                file->rect().y,
+                m_tree->rect().w,
+                file->name().char_dim().y
+                });
 
-        if (clicked)
-        {
-            m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
-        }
-        else
-        {
-            gui::File* file = m_tree->check_file_click(m_tree->folder(), mx, my);
-
-            if (file)
+            if (m_tree->is_unsaved(current_open_fp))
             {
-                if (!fs::exists(file->path()))
-                {
-                    SDL_ShowSimpleMessageBox(SDL_MessageBoxFlags::SDL_MESSAGEBOX_ERROR, "Error", std::string("'" + file->path() + "' doesn't exist").c_str(), m_window);
-                    return;
-                }
+                std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
+                ofs << m_text_entries[0].text()->str();
+                ofs.close();
+            }
 
-                m_tree->set_selected_highlight_rect({
-                    m_tree->rect().x,
-                    file->rect().y,
-                    m_tree->rect().w,
-                    file->name().char_dim().y
-                    });
+            m_text_entries[0].stop_highlight();
 
-                if (m_tree->is_unsaved(current_open_fp))
-                {
-                    std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
-                    ofs << m_text_entries[0].text()->str();
-                    ofs.close();
-                }
+            current_open_fp = file->path();
+            std::string ext = fs::path(current_open_fp).extension().string();
 
-                m_text_entries[0].stop_highlight();
+            // try and cover all common image file extensions even if they are not supported
+            if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
+            {
+                editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
 
-                current_open_fp = file->path();
-                std::string ext = fs::path(current_open_fp).extension().string();
+                if (!editor_image)
+                    editor_image = gui::common::render_text(m_rend, m_font_textbox.font(), SDL_GetError());
 
-                // try and cover all common image file extensions even if they are not supported
-                if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
-                {
-                    editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+                m_text_entries[0].text()->set_contents({ "" });
+                reset_entry_to_default(m_text_entries[0]);
+                m_text_entries[0].hide();
+                m_scrollbar.hide();
+            }
+            else
+            {
+                if (editor_image)
+                    SDL_DestroyTexture(editor_image);
 
-                    if (!editor_image)
-                        editor_image = gui::common::render_text(m_rend, m_font_textbox.font(), SDL_GetError());
+                editor_image = nullptr;
 
-                    m_text_entries[0].text()->set_contents({ "" });
-                    reset_entry_to_default(m_text_entries[0]);
-                    m_text_entries[0].hide();
-                    m_scrollbar.hide();
-                }
+                m_text_entries[0].show();
+                m_scrollbar.show();
+
+                if (fs::exists(current_open_fp + "~"))
+                    load_file(current_open_fp + "~", m_text_entries[0]);
                 else
-                {
-                    if (editor_image)
-                        SDL_DestroyTexture(editor_image);
-
-                    editor_image = nullptr;
-
-                    m_text_entries[0].show();
-                    m_scrollbar.show();
-
-                    if (fs::exists(current_open_fp + "~"))
-                        load_file(current_open_fp + "~", m_text_entries[0]);
-                    else
-                        load_file(current_open_fp, m_text_entries[0]);
-                }
-
-                m_tree->update_display();
-
-                SDL_SetWindowTitle(m_window,
-                    (std::string("Grass | Editing ") + file->name().str().c_str() + (m_tree->is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
-                );
+                    load_file(current_open_fp, m_text_entries[0]);
             }
 
-            gui::Folder* folder = m_tree->check_folder_click(m_tree->folder(), mx, my);
+            m_tree->update_display();
 
-            if (folder)
-            {
-                m_tree->collapse_folder(*folder, m_rend);
-                m_tree->update_display();
-
-                m_tree->set_selected_highlight_rect({
-                    m_tree->rect().x,
-                    folder->rect().y,
-                    m_tree->rect().w,
-                    folder->name().char_dim().y
-                    });
-            }
-
-            if (folder || file)
-                clicked = true;
+            SDL_SetWindowTitle(m_window,
+                (std::string("Grass | Editing ") + file->name().str().c_str() + (m_tree->is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
+            );
         }
 
-        if (!clicked)
+        gui::Folder* folder = m_tree->check_folder_click(m_tree->folder(), mx, my);
+
+        if (folder && !clicked_something)
+        {
+            m_tree->collapse_folder(*folder, m_rend);
+            m_tree->update_display();
+
+            m_tree->set_selected_highlight_rect({
+                m_tree->rect().x,
+                folder->rect().y,
+                m_tree->rect().w,
+                folder->name().char_dim().y
+                });
+        }
+
+        if (!folder && !file)
+            m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+        else
+            clicked_something = true;
+
+        if (!clicked_something)
             m_scrollbar.check_clicked(mx, my);
     }
 
@@ -522,6 +528,12 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
     }
+}
+
+
+void Grass::reset_all_clicked()
+{
+    
 }
 
 
