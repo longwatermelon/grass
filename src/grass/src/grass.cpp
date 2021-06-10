@@ -86,7 +86,7 @@ void Grass::mainloop()
         main_text_dimensions.y,
         scrollbar_width,
         main_text_dimensions.h
-    }, 0, 0, 0, { 40, 40, 40 }, { 100, 100, 100 });
+        }, 0, 0, 0, { 40, 40, 40 }, { 100, 100, 100 });
 
     bool running = true;
     SDL_Event evt;
@@ -119,7 +119,7 @@ void Grass::mainloop()
         editor_image = 0;
 
         load_file(m_exe_dir + "res/help.txt", m_text_entries[0]);
-    }));
+        }));
 
     /* Kb event variables */
 
@@ -216,7 +216,6 @@ void Grass::mainloop()
             e.render(m_rend, render_mouse);
         }
 
-
         if (!m_scrollbar.hidden())
         {
             SDL_Point min_bound = m_text_entries[0].min_bounds();
@@ -248,7 +247,7 @@ void Grass::mainloop()
         {
             m_text_entries[0].resize_to(wx - scrollbar_width, wy);
             m_tree->resize_to(wy);
-            
+
             SDL_Rect entry_rect = m_text_entries[0].rect();
             m_scrollbar.move((entry_rect.x + entry_rect.w) - m_scrollbar.rect().x, 0);
             m_scrollbar.resize(wy);
@@ -291,7 +290,7 @@ void Grass::mainloop()
 
     m_explorer->cleanup_window();
     delete m_explorer;
-    
+
     for (auto& path : m_tree->unsaved())
     {
         if (fs::exists(path + "~"))
@@ -352,7 +351,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }
             }
         }
-            
+
         bool clicked_entry = false;
 
         if (!clicked_something)
@@ -536,22 +535,23 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
                 }},
-                {"Rename", [&, r = std::move(rect)]() {
+                {"Rename",[&, r = std::move(rect)]() {
                     m_mode = Mode::FILE_RENAME;
 
+                    int rect_w = m_text_entries[0].rect().x - (r->x + 20);
+                    int line_num_width = (int)std::to_string(m_text_entries[0].text()->contents().size()).size() * m_font_textbox.char_dim().x + m_font_textbox.char_dim().x;
+
                     m_basic_text_entries.emplace_back(gui::BasicTextEntry(
-                        { 
+                        {
                         r->x + 20,
-                        r->y, 
-                        m_text_entries[0].rect().x - (int)m_text_entries[0].text()->contents().size() * m_font_textbox.char_dim().x - (r->x + 20) - m_font_textbox.char_dim().x,
-                        m_font_tree.char_dim().y 
-                        }, 
+                        r->y,
+                        rect_w - line_num_width,
+                        m_font_tree.char_dim().y
+                        },
                         gui::Cursor({ r->x + 20, r->y }, { 255, 255, 255 }, m_font_tree.char_dim()),
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r->x + 20, r->y }, "", { 255, 255, 255 })),
                         { 45, 45, 45 })
                     );
-
-                    m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
 
                     delete r;
                 }}
@@ -783,6 +783,9 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
                 fs::rename(renamed_file, fs::absolute(new_name).string());
                 m_basic_text_entries.pop_back();
                 m_mode = Mode::NORMAL;
+                m_selected_basic_entry = 0;
+
+                m_tree->reload_outdated_folders(m_rend, true, true);
             }
 
             break;

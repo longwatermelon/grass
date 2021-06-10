@@ -340,14 +340,14 @@ void gui::Folder::create_new_file(const std::string& name)
 }
 
 
-void gui::Folder::reload_if_outdated(SDL_Renderer* rend)
+void gui::Folder::reload_if_outdated(SDL_Renderer* rend, bool unconditional)
 {
     size_t count = 0;
 
     for (auto& entry : fs::directory_iterator(path(), fs::directory_options::skip_permission_denied))
         ++count;
 
-    if (count != m_folders.size() + m_files.size())
+    if (count != m_folders.size() + m_files.size() || unconditional)
     {
         load(rend);
     }
@@ -588,13 +588,13 @@ void gui::Tree::reset_default_rect()
 }
 
 
-void gui::Tree::reload_outdated_folders(SDL_Renderer* rend, bool force_reload)
+void gui::Tree::reload_outdated_folders(SDL_Renderer* rend, bool force_reload, bool unconditional_reload)
 {
     if (force_reload || chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now() - m_last_filesystem_check).count() > 250)
     {
         m_last_filesystem_check = chrono::system_clock::now();
 
-        m_folder.reload_if_outdated(rend);
+        m_folder.reload_if_outdated(rend, unconditional_reload);
         update_display();
     }
 }
