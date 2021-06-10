@@ -521,6 +521,8 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
             menu = new gui::Menu({ mx, my }, 100, {
                 {"Delete file", [&, path = file->path()]() {
+                    gui::File* file = m_tree->file_from_path(path);
+
                     if (current_open_fp == path)
                     {
                         reset_entry_to_default(m_text_entries[0]);
@@ -532,7 +534,6 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                             fs::remove(file->path() + '~');
                     }
 
-                    gui::File* file = m_tree->file_from_path(path);
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
