@@ -508,6 +508,19 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     folder->load(m_rend);
                     m_tree->update_display();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                }},
+                {"New folder",[&, path = f->path()]() {
+                    gui::Folder* folder = m_tree->folder_from_path(path);
+                    folder->create_new_folder("New folder");
+                    folder->load(m_rend);
+                    m_tree->update_display();
+                    m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                }},
+                {"Delete folder",[&, path = f->path()]() {
+                    gui::Folder* folder = m_tree->folder_from_path(path);
+                    folder->remove_self();
+                    m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    m_tree->reload_outdated_folders(m_rend, true);
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }

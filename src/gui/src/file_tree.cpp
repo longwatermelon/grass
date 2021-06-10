@@ -351,6 +351,12 @@ void gui::Folder::create_new_file(const std::string& name)
 }
 
 
+void gui::Folder::create_new_folder(const std::string& name)
+{
+    fs::create_directory(m_base_path + '/' + m_name.str() + '/' + name);
+}
+
+
 void gui::Folder::reload_if_outdated(SDL_Renderer* rend, bool unconditional)
 {
     size_t count = 0;
@@ -433,6 +439,16 @@ gui::File* gui::Folder::file_from_path(const std::string& file_path)
     }
 
     return 0;
+}
+
+
+void gui::Folder::remove_self()
+{
+    std::error_code ec;
+    fs::remove_all(m_base_path + '/' + m_name.str(), ec);
+
+    if (ec)
+        std::cout << "error: " << ec.message() << "\n";
 }
 
 

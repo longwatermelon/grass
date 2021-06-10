@@ -71,6 +71,7 @@ namespace gui
         SDL_Rect find_lowest_rect();
 
         void create_new_file(const std::string& name);
+        void create_new_folder(const std::string& name);
 
         void reload_if_outdated(SDL_Renderer* rend, bool unconditional = false);
 
@@ -78,6 +79,8 @@ namespace gui
 
         gui::Folder* folder_from_path(const std::string& full_path);
         gui::File* file_from_path(const std::string& file_path);
+
+        void remove_self();
 
 
         std::vector<File>& files() { return m_files; }
