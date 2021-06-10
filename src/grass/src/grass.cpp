@@ -66,8 +66,7 @@ void Grass::mainloop()
     };
 
     /* Core ui elements that should not be touched */
-    std::vector<gui::TextEntry> text_entries;
-    text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", m_font_textbox.char_dim(), { 255, 255, 255 })));
+    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", m_font_textbox.char_dim(), { 255, 255, 255 })));
 
     std::vector<std::unique_ptr<gui::Button>> buttons;
 
@@ -119,7 +118,7 @@ void Grass::mainloop()
 
         editor_image = 0;
 
-        load_file(m_exe_dir + "res/help.txt", text_entries[0]);
+        load_file(m_exe_dir + "res/help.txt", m_text_entries[0]);
     }));
 
     /* Kb event variables */
@@ -187,12 +186,12 @@ void Grass::mainloop()
                     {
                         m_selected_entry = 0;
 
-                        for (auto& e : text_entries)
+                        for (auto& e : m_text_entries)
                             e.stop_highlight();
                     }
                     else
                     {
-                        for (auto& e : text_entries)
+                        for (auto& e : m_text_entries)
                         {
                             if (e.check_clicked(mx, my))
                             {
@@ -252,11 +251,11 @@ void Grass::mainloop()
                             if (tree.is_unsaved(current_open_fp))
                             {
                                 std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
-                                ofs << text_entries[0].text()->str();
+                                ofs << m_text_entries[0].text()->str();
                                 ofs.close();
                             }
 
-                            text_entries[0].stop_highlight();
+                            m_text_entries[0].stop_highlight();
 
                             current_open_fp = file->path();
                             std::string ext = fs::path(current_open_fp).extension().string();
@@ -269,9 +268,9 @@ void Grass::mainloop()
                                 if (!editor_image)
                                     editor_image = gui::common::render_text(m_rend, m_font_textbox.font(), SDL_GetError());
 
-                                text_entries[0].text()->set_contents({ "" });
-                                reset_entry_to_default(text_entries[0]);
-                                text_entries[0].hide();
+                                m_text_entries[0].text()->set_contents({ "" });
+                                reset_entry_to_default(m_text_entries[0]);
+                                m_text_entries[0].hide();
                                 scrollbar.hide();
                             }
                             else
@@ -281,13 +280,13 @@ void Grass::mainloop()
 
                                 editor_image = nullptr;
 
-                                text_entries[0].show();
+                                m_text_entries[0].show();
                                 scrollbar.show();
 
                                 if (fs::exists(current_open_fp + "~"))
-                                    load_file(current_open_fp + "~", text_entries[0]);
+                                    load_file(current_open_fp + "~", m_text_entries[0]);
                                 else
-                                    load_file(current_open_fp, text_entries[0]);
+                                    load_file(current_open_fp, m_text_entries[0]);
                             }
 
                             tree.update_display();
@@ -348,8 +347,8 @@ void Grass::mainloop()
                             {"Delete file", [&]() {
                                 if (current_open_fp == file->path())
                                 {
-                                    reset_entry_to_default(text_entries[0]);
-                                    text_entries[0].text()->set_contents({ "" });
+                                    reset_entry_to_default(m_text_entries[0]);
+                                    m_text_entries[0].text()->set_contents({ "" });
 
                                     tree.erase_unsaved_file(file->path(), m_window);
 
@@ -414,11 +413,11 @@ void Grass::mainloop()
                 case SDLK_s:
                     if (m_selected_entry)
                     {
-                        if (ctrl_down && m_selected_entry == &text_entries[0])
+                        if (ctrl_down && m_selected_entry == &m_text_entries[0])
                         {
                             std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
 
-                            for (auto& line : text_entries[0].text()->contents())
+                            for (auto& line : m_text_entries[0].text()->contents())
                             {
                                 ofs << line << "\n";
                             }
@@ -433,10 +432,10 @@ void Grass::mainloop()
                 case SDLK_d:
                     if (m_selected_entry)
                     {
-                        if (ctrl_down && m_selected_entry == &text_entries[0])
+                        if (ctrl_down && m_selected_entry == &m_text_entries[0])
                         {
                             tree.erase_unsaved_file(current_open_fp, m_window);
-                            load_file(current_open_fp, text_entries[0]);
+                            load_file(current_open_fp, m_text_entries[0]);
                         }
                     }
 
@@ -479,8 +478,8 @@ void Grass::mainloop()
                             tree.update_display();
                             tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
 
-                            text_entries[0].text()->set_contents({ "" });
-                            reset_entry_to_default(text_entries[0]);
+                            m_text_entries[0].text()->set_contents({ "" });
+                            reset_entry_to_default(m_text_entries[0]);
                             
                             if (editor_image)
                                 SDL_DestroyTexture(editor_image);
@@ -610,9 +609,9 @@ void Grass::mainloop()
                 {
                     tree.scroll(-evt.wheel.y, wy);
                 }
-                else if (gui::common::within_rect(text_entries[0].rect(), mx, my))
+                else if (gui::common::within_rect(m_text_entries[0].rect(), mx, my))
                 {
-                    text_entries[0].move_bounds_characters(0, -evt.wheel.y);
+                    m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
                 }
                 break;
             }
@@ -640,7 +639,7 @@ void Grass::mainloop()
         if (gui::common::within_rect(tree.rect(), mx, my))
             tree.highlight_element(m_rend, mx, my);
 
-        for (auto& e : text_entries)
+        for (auto& e : m_text_entries)
         {
             if (e.hidden())
                 continue;
@@ -655,18 +654,18 @@ void Grass::mainloop()
 
         if (!scrollbar.hidden())
         {
-            SDL_Point min_bound = text_entries[0].min_bounds();
-            SDL_Point max_bound = text_entries[0].max_bounds();
+            SDL_Point min_bound = m_text_entries[0].min_bounds();
+            SDL_Point max_bound = m_text_entries[0].max_bounds();
 
             if (!scrollbar.down())
             {
-                scrollbar.set_bounds(min_bound.y, max_bound.y, text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
+                scrollbar.set_bounds(min_bound.y, max_bound.y, m_text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
             }
             else
             {
                 scrollbar.move_with_cursor(my);
 
-                text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
+                m_text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
             }
 
             scrollbar.render(m_rend);
@@ -682,10 +681,10 @@ void Grass::mainloop()
 
         if (prev_wx != wx || prev_wy != wy)
         {
-            text_entries[0].resize_to(wx - scrollbar_width, wy);
+            m_text_entries[0].resize_to(wx - scrollbar_width, wy);
             tree.resize_to(wy);
             
-            SDL_Rect entry_rect = text_entries[0].rect();
+            SDL_Rect entry_rect = m_text_entries[0].rect();
             scrollbar.move((entry_rect.x + entry_rect.w) - scrollbar.rect().x, 0);
             scrollbar.resize(wy);
 
@@ -698,8 +697,8 @@ void Grass::mainloop()
             int img_w, img_h;
             SDL_QueryTexture(editor_image, nullptr, nullptr, &img_w, &img_h);
 
-            int img_x = (text_entries[0].rect().w / 2) - img_w / 2 + text_entries[0].rect().x;
-            int img_y = (text_entries[0].rect().h / 2) - img_h / 2 + text_entries[0].rect().y;
+            int img_x = (m_text_entries[0].rect().w / 2) - img_w / 2 + m_text_entries[0].rect().x;
+            int img_y = (m_text_entries[0].rect().h / 2) - img_h / 2 + m_text_entries[0].rect().y;
 
             SDL_Rect dstrect = {
                 img_x,
@@ -717,6 +716,8 @@ void Grass::mainloop()
 
     m_font_textbox.cleanup();
     m_font_tree.cleanup();
+
+    m_text_entries.clear();
     
     for (auto& path : tree.unsaved())
     {

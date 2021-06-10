@@ -26,4 +26,6 @@ private:
 
     gui::common::Font m_font_textbox;
     gui::common::Font m_font_tree;
+
+    std::vector<gui::TextEntry> m_text_entries;
 };
