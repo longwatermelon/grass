@@ -7,6 +7,7 @@ namespace gui
     class Scrollbar
     {
     public:
+        Scrollbar() = default;
         Scrollbar(SDL_Rect rect, int min_bar_bound, int max_bar_bound, int total_size, SDL_Color bg_color, SDL_Color bar_color);
 
         void render(SDL_Renderer* rend);

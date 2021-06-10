@@ -83,7 +83,7 @@ void Grass::mainloop()
 
     m_tree->update_display();
 
-    gui::Scrollbar scrollbar({
+    m_scrollbar = gui::Scrollbar({
         main_text_dimensions.x + main_text_dimensions.w,
         main_text_dimensions.y,
         scrollbar_width,
@@ -271,7 +271,7 @@ void Grass::mainloop()
                                 m_text_entries[0].text()->set_contents({ "" });
                                 reset_entry_to_default(m_text_entries[0]);
                                 m_text_entries[0].hide();
-                                scrollbar.hide();
+                                m_scrollbar.hide();
                             }
                             else
                             {
@@ -281,7 +281,7 @@ void Grass::mainloop()
                                 editor_image = nullptr;
 
                                 m_text_entries[0].show();
-                                scrollbar.show();
+                                m_scrollbar.show();
 
                                 if (fs::exists(current_open_fp + "~"))
                                     load_file(current_open_fp + "~", m_text_entries[0]);
@@ -320,7 +320,7 @@ void Grass::mainloop()
                     }
 
                     if (!clicked)
-                        scrollbar.check_clicked(mx, my);
+                        m_scrollbar.check_clicked(mx, my);
                 }
 
                 if (evt.button.button == SDL_BUTTON_RIGHT)
@@ -378,7 +378,7 @@ void Grass::mainloop()
                     btn->set_down(false);
                 }
 
-                scrollbar.mouse_up();
+                m_scrollbar.mouse_up();
 
                 break;
 
@@ -652,23 +652,23 @@ void Grass::mainloop()
         }
 
 
-        if (!scrollbar.hidden())
+        if (!m_scrollbar.hidden())
         {
             SDL_Point min_bound = m_text_entries[0].min_bounds();
             SDL_Point max_bound = m_text_entries[0].max_bounds();
 
-            if (!scrollbar.down())
+            if (!m_scrollbar.down())
             {
-                scrollbar.set_bounds(min_bound.y, max_bound.y, m_text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
+                m_scrollbar.set_bounds(min_bound.y, max_bound.y, m_text_entries[0].text()->contents().size() + (max_bound.y - min_bound.y));
             }
             else
             {
-                scrollbar.move_with_cursor(my);
+                m_scrollbar.move_with_cursor(my);
 
-                m_text_entries[0].move_bounds_characters(0, scrollbar.min_position() - min_bound.y);
+                m_text_entries[0].move_bounds_characters(0, m_scrollbar.min_position() - min_bound.y);
             }
 
-            scrollbar.render(m_rend);
+            m_scrollbar.render(m_rend);
         }
 
         for (auto& e : m_basic_text_entries)
@@ -685,8 +685,8 @@ void Grass::mainloop()
             m_tree->resize_to(wy);
             
             SDL_Rect entry_rect = m_text_entries[0].rect();
-            scrollbar.move((entry_rect.x + entry_rect.w) - scrollbar.rect().x, 0);
-            scrollbar.resize(wy);
+            m_scrollbar.move((entry_rect.x + entry_rect.w) - m_scrollbar.rect().x, 0);
+            m_scrollbar.resize(wy);
 
             prev_wx = wx;
             prev_wy = wy;
