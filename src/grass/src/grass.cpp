@@ -102,14 +102,13 @@ void Grass::mainloop()
 
     gui::Menu* menu = 0;
 
-    std::vector<gui::BasicTextEntry> basic_text_entries;
-    basic_text_entries.emplace_back(gui::BasicTextEntry({ 300, 20, 100, m_font_textbox.char_dim().y },
+    m_basic_text_entries.emplace_back(gui::BasicTextEntry({ 300, 20, 100, m_font_textbox.char_dim().y },
         gui::Cursor({ 300, 20 }, { 255, 255, 255 }, m_font_textbox.char_dim()), 
         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_textbox, { 300, 20 }, "", { 255, 255, 255 })),
         { 30, 30, 30 }
     ));
 
-    m_selected_basic_entry = &basic_text_entries[0];
+    m_selected_basic_entry = &m_basic_text_entries[0];
 
     // put the buttons here so they have access to all the previous variables
     buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
@@ -204,7 +203,7 @@ void Grass::mainloop()
                     
                     if (clicked)
                     {
-                        for (auto& e : basic_text_entries)
+                        for (auto& e : m_basic_text_entries)
                         {
                             e.set_cursor_visible(false);
                         }
@@ -213,7 +212,7 @@ void Grass::mainloop()
                     }
                     else
                     {
-                        for (auto& e : basic_text_entries)
+                        for (auto& e : m_basic_text_entries)
                         {
                             if (e.check_clicked(mx, my))
                             {
@@ -671,7 +670,7 @@ void Grass::mainloop()
             scrollbar.render(m_rend);
         }
 
-        for (auto& e : basic_text_entries)
+        for (auto& e : m_basic_text_entries)
         {
             e.render(m_rend);
         }
@@ -718,6 +717,7 @@ void Grass::mainloop()
     m_font_tree.cleanup();
 
     m_text_entries.clear();
+    m_basic_text_entries.clear();
     
     for (auto& path : tree.unsaved())
     {

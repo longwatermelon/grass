@@ -28,4 +28,5 @@ private:
     gui::common::Font m_font_tree;
 
     std::vector<gui::TextEntry> m_text_entries;
+    std::vector<gui::BasicTextEntry> m_basic_text_entries;
 };
