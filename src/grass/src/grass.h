@@ -3,6 +3,9 @@
 #include "basic_text_entry.h"
 #include "file_tree.h"
 #include "scrollbar.h"
+#include "menu.h"
+#include "button.h"
+#include <memory>
 
 
 class Grass
@@ -16,6 +19,8 @@ public:
 
     void load_file(const std::string& fp, gui::TextEntry& entry);
     void reset_entry_to_default(gui::TextEntry& entry);
+
+    void handle_mouse(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu* menu, std::string& current_open_fp, SDL_Texture* editor_image);
 
 private:
     SDL_Window* m_window;
@@ -35,4 +40,6 @@ private:
     gui::Tree* m_tree{ nullptr };
 
     gui::Scrollbar m_scrollbar;
+
+    std::vector<std::unique_ptr<gui::Button>> m_buttons;
 };
