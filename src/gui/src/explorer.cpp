@@ -240,10 +240,13 @@ void gui::Explorer::cleanup(std::vector<Button*>& buttons)
 
 void gui::Explorer::cleanup_window()
 {
-    SDL_HideWindow(m_window);
+    //SDL_HideWindow(m_window);
 
-    SDL_DestroyRenderer(m_rend);
-    SDL_DestroyWindow(m_window);
+    if (m_rend)
+        SDL_DestroyRenderer(m_rend);
+
+    if (m_window)
+        SDL_DestroyWindow(m_window);
 }
 
 

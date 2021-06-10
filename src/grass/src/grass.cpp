@@ -101,11 +101,7 @@ void Grass::mainloop()
 
     gui::Menu* menu = 0;
 
-    m_basic_text_entries.emplace_back(gui::BasicTextEntry({ 300, 20, 100, m_font_textbox.char_dim().y },
-        gui::Cursor({ 300, 20 }, { 255, 255, 255 }, m_font_textbox.char_dim()), 
-        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_textbox, { 300, 20 }, "", { 255, 255, 255 })),
-        { 30, 30, 30 }
-    ));
+    std::string renamed_fp;
 
     // put the buttons here so they have access to all the previous variables
 
@@ -152,7 +148,7 @@ void Grass::mainloop()
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image);
+                handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image, renamed_fp);
                 break;
 
             case SDL_MOUSEBUTTONUP:
@@ -164,7 +160,7 @@ void Grass::mainloop()
                 break;
 
             case SDL_KEYDOWN:
-                handle_keydown(evt, ctrl_down, shift_down, mouse_down, current_open_fp, editor_image, { wx, wy });
+                handle_keydown(evt, ctrl_down, shift_down, mouse_down, current_open_fp, editor_image, { wx, wy }, renamed_fp);
                 break;
 
             case SDL_KEYUP:
@@ -317,7 +313,7 @@ void Grass::reset_entry_to_default(gui::TextEntry& entry)
 }
 
 
-void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu* menu, std::string& current_open_fp, SDL_Texture* editor_image)
+void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, std::string& current_open_fp, SDL_Texture*& editor_image, std::string& renamed_file)
 {
     if (button == SDL_BUTTON_LEFT && !mouse_down)
     {
@@ -508,6 +504,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
         if (file)
         {
+            SDL_Rect* rect = new SDL_Rect(file->rect());
+            renamed_file = file->path();
+
             menu = new gui::Menu({ mx, my }, 100, {
                 {"Delete file", [&]() {
                     if (current_open_fp == file->path())
@@ -524,16 +523,29 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
+                }},
+                {"Rename", [&, r = std::move(rect)]() {
+                    m_mode = Mode::FILE_RENAME;
+
+                    m_basic_text_entries.emplace_back(gui::BasicTextEntry(
+                        { 
+                        r->x + 20,
+                        r->y, 
+                        m_text_entries[0].rect().x - (int)m_text_entries[0].text()->contents().size() * m_font_textbox.char_dim().x - (r->x + 20) - m_font_textbox.char_dim().x,
+                        m_font_tree.char_dim().y 
+                        }, 
+                        gui::Cursor({ r->x + 20, r->y }, { 255, 255, 255 }, m_font_tree.char_dim()),
+                        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r->x + 20, r->y }, "", { 255, 255, 255 })),
+                        { 45, 45, 45 })
+                    );
+
+                    m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
+
+                    delete r;
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
     }
-}
-
-
-void Grass::reset_all_clicked()
-{
-    
 }
 
 
@@ -573,7 +585,7 @@ void Grass::handle_textinput(char c, std::string& current_open_fp)
 }
 
 
-void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim)
+void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file)
 {
     switch (evt.key.keysym.scancode)
     {
@@ -761,6 +773,16 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
         {
         case SDL_SCANCODE_BACKSPACE:
             m_selected_basic_entry->remove_char();
+            break;
+        case SDL_SCANCODE_RETURN:
+            if (m_mode == Mode::FILE_RENAME)
+            {
+                std::string new_name = m_selected_basic_entry->text();
+                fs::rename(renamed_file, fs::absolute(new_name).string());
+                m_basic_text_entries.pop_back();
+                m_mode = Mode::NORMAL;
+            }
+
             break;
         }
     }

@@ -24,6 +24,7 @@ namespace gui
         bool check_clicked(int mx, int my);
 
         void set_cursor_visible(bool b) { m_render_cursor = b; }
+        std::string text() { return m_text->text(); }
 
     private:
         SDL_Rect m_rect;
