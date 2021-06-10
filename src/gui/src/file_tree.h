@@ -44,6 +44,7 @@ namespace gui
     class Folder
     {
     public:
+        Folder() = default;
         Folder(const std::string& base_path, const String& name, SDL_Renderer* rend, bool load_directory);
 
         void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files);
@@ -103,6 +104,7 @@ namespace gui
     class Tree
     {
     public:
+        Tree() = default;
         Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend, const std::string& exe_dir);
 
         void render(SDL_Renderer* rend);

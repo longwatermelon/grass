@@ -1,6 +1,7 @@
 #pragma once
 #include "text_entry.h"
 #include "basic_text_entry.h"
+#include "file_tree.h"
 
 
 class Grass
@@ -29,4 +30,6 @@ private:
 
     std::vector<gui::TextEntry> m_text_entries;
     std::vector<gui::BasicTextEntry> m_basic_text_entries;
+
+    gui::Tree* m_tree{ nullptr };
 };

@@ -71,7 +71,8 @@ void Grass::mainloop()
     std::vector<std::unique_ptr<gui::Button>> buttons;
 
     gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree.font(), { 0, 60 }, "", m_font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
-    gui::Tree tree(
+
+    m_tree = new gui::Tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
@@ -80,7 +81,7 @@ void Grass::mainloop()
         m_exe_dir
     );
 
-    tree.update_display();
+    m_tree->update_display();
 
     gui::Scrollbar scrollbar({
         main_text_dimensions.x + main_text_dimensions.w,
@@ -226,11 +227,11 @@ void Grass::mainloop()
 
                     if (clicked)
                     {
-                        tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                        m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     }
                     else
                     {
-                        gui::File* file = tree.check_file_click(tree.folder(), mx, my);
+                        gui::File* file = m_tree->check_file_click(m_tree->folder(), mx, my);
 
                         if (file)
                         {
@@ -240,14 +241,14 @@ void Grass::mainloop()
                                 break;
                             }
 
-                            tree.set_selected_highlight_rect({
-                                tree.rect().x,
+                            m_tree->set_selected_highlight_rect({
+                                m_tree->rect().x,
                                 file->rect().y,
-                                tree.rect().w,
+                                m_tree->rect().w,
                                 file->name().char_dim().y
                                 });
 
-                            if (tree.is_unsaved(current_open_fp))
+                            if (m_tree->is_unsaved(current_open_fp))
                             {
                                 std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
                                 ofs << m_text_entries[0].text()->str();
@@ -288,28 +289,28 @@ void Grass::mainloop()
                                     load_file(current_open_fp, m_text_entries[0]);
                             }
 
-                            tree.update_display();
+                            m_tree->update_display();
 
                             SDL_SetWindowTitle(m_window,
-                                (std::string("Grass | Editing ") + file->name().str().c_str() + (tree.is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
+                                (std::string("Grass | Editing ") + file->name().str().c_str() + (m_tree->is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
                             );
 
                             break;
                         }
 
-                        gui::Folder* folder = tree.check_folder_click(tree.folder(), mx, my);
+                        gui::Folder* folder = m_tree->check_folder_click(m_tree->folder(), mx, my);
 
                         if (folder)
                         {
-                            tree.collapse_folder(*folder, m_rend);
-                            tree.update_display();
+                            m_tree->collapse_folder(*folder, m_rend);
+                            m_tree->update_display();
 
-                            tree.set_selected_highlight_rect({
-                                tree.rect().x,
+                            m_tree->set_selected_highlight_rect({
+                                m_tree->rect().x,
                                 folder->rect().y,
-                                tree.rect().w,
+                                m_tree->rect().w,
                                 folder->name().char_dim().y
-                                });
+                            });
 
                             break;
                         }
@@ -324,7 +325,7 @@ void Grass::mainloop()
 
                 if (evt.button.button == SDL_BUTTON_RIGHT)
                 {
-                    gui::Folder* f = tree.check_folder_click(tree.folder(), mx, my);
+                    gui::Folder* f = m_tree->check_folder_click(m_tree->folder(), mx, my);
 
                     if (f)
                     {
@@ -332,13 +333,13 @@ void Grass::mainloop()
                             {"New file", [&]() {
                                 f->create_new_file("New file");
                                 f->load(m_rend);
-                                tree.update_display();
-                                tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                                m_tree->update_display();
+                                m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                             }}
                         }, m_font_tree, { 40, 40, 40 }, m_rend);
                     }
 
-                    gui::File* file = tree.check_file_click(tree.folder(), mx, my);
+                    gui::File* file = m_tree->check_file_click(m_tree->folder(), mx, my);
 
                     if (file)
                     {
@@ -349,15 +350,15 @@ void Grass::mainloop()
                                     reset_entry_to_default(m_text_entries[0]);
                                     m_text_entries[0].text()->set_contents({ "" });
 
-                                    tree.erase_unsaved_file(file->path(), m_window);
+                                    m_tree->erase_unsaved_file(file->path(), m_window);
 
                                     if (fs::exists(file->path() + '~'))
                                         fs::remove(file->path() + '~');
                                 }
 
                                 file->delete_self();
-                                tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
-                                tree.reload_outdated_folders(m_rend, true);
+                                m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                                m_tree->reload_outdated_folders(m_rend, true);
                             }}
                         }, m_font_tree, { 40, 40, 40 }, m_rend);
                     }
@@ -388,7 +389,7 @@ void Grass::mainloop()
                         m_selected_entry->erase_highlighted_section();
 
                     m_selected_entry->insert_char(evt.text.text[0]);
-                    tree.append_unsaved_file(current_open_fp, m_window);
+                    m_tree->append_unsaved_file(current_open_fp, m_window);
                 }
 
                 if (m_selected_basic_entry)
@@ -423,7 +424,7 @@ void Grass::mainloop()
 
                             ofs.close();
 
-                            tree.erase_unsaved_file(current_open_fp, m_window);
+                            m_tree->erase_unsaved_file(current_open_fp, m_window);
                         }
                     }
 
@@ -433,7 +434,7 @@ void Grass::mainloop()
                     {
                         if (ctrl_down && m_selected_entry == &m_text_entries[0])
                         {
-                            tree.erase_unsaved_file(current_open_fp, m_window);
+                            m_tree->erase_unsaved_file(current_open_fp, m_window);
                             load_file(current_open_fp, m_text_entries[0]);
                         }
                     }
@@ -463,7 +464,7 @@ void Grass::mainloop()
                         SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
                         gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
 
-                        gui::Explorer e(tree.folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
+                        gui::Explorer e(m_tree->folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
                         std::string path = e.get_path();
 
                         // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
@@ -473,9 +474,9 @@ void Grass::mainloop()
                         
                         if (!path.empty())
                         {
-                            tree.folder().change_directory(fs::absolute(path).string(), m_rend);
-                            tree.update_display();
-                            tree.set_selected_highlight_rect({ 0, 0, 0, 0 });
+                            m_tree->folder().change_directory(fs::absolute(path).string(), m_rend);
+                            m_tree->update_display();
+                            m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
 
                             m_text_entries[0].text()->set_contents({ "" });
                             reset_entry_to_default(m_text_entries[0]);
@@ -485,8 +486,8 @@ void Grass::mainloop()
 
                             editor_image = 0;
 
-                            tree.reset_default_rect();
-                            tree.update_display();
+                            m_tree->reset_default_rect();
+                            m_tree->update_display();
                         }
 
                         SDL_DestroyTexture(text);
@@ -504,14 +505,14 @@ void Grass::mainloop()
                             m_selected_entry->erase_highlighted_section();
 
                         m_selected_entry->insert_char('\n');
-                        tree.append_unsaved_file(current_open_fp, m_window);
+                        m_tree->append_unsaved_file(current_open_fp, m_window);
                         
                         break;
                     case SDL_SCANCODE_BACKSPACE:
                         if (!mouse_down)
                         {
                             m_selected_entry->remove_char();
-                            tree.append_unsaved_file(current_open_fp, m_window);
+                            m_tree->append_unsaved_file(current_open_fp, m_window);
                         }
                         break;
                     case SDL_SCANCODE_LSHIFT:
@@ -604,9 +605,9 @@ void Grass::mainloop()
                 }
             } break;
             case SDL_MOUSEWHEEL:
-                if (gui::common::within_rect(tree.rect(), mx, my))
+                if (gui::common::within_rect(m_tree->rect(), mx, my))
                 {
-                    tree.scroll(-evt.wheel.y, wy);
+                    m_tree->scroll(-evt.wheel.y, wy);
                 }
                 else if (gui::common::within_rect(m_text_entries[0].rect(), mx, my))
                 {
@@ -632,11 +633,11 @@ void Grass::mainloop()
             btn->render(m_rend);
         }
 
-        tree.reload_outdated_folders(m_rend, false);
-        tree.render(m_rend);
+        m_tree->reload_outdated_folders(m_rend, false);
+        m_tree->render(m_rend);
 
-        if (gui::common::within_rect(tree.rect(), mx, my))
-            tree.highlight_element(m_rend, mx, my);
+        if (gui::common::within_rect(m_tree->rect(), mx, my))
+            m_tree->highlight_element(m_rend, mx, my);
 
         for (auto& e : m_text_entries)
         {
@@ -681,7 +682,7 @@ void Grass::mainloop()
         if (prev_wx != wx || prev_wy != wy)
         {
             m_text_entries[0].resize_to(wx - scrollbar_width, wy);
-            tree.resize_to(wy);
+            m_tree->resize_to(wy);
             
             SDL_Rect entry_rect = m_text_entries[0].rect();
             scrollbar.move((entry_rect.x + entry_rect.w) - scrollbar.rect().x, 0);
@@ -718,8 +719,10 @@ void Grass::mainloop()
 
     m_text_entries.clear();
     m_basic_text_entries.clear();
+
+    delete m_tree;
     
-    for (auto& path : tree.unsaved())
+    for (auto& path : m_tree->unsaved())
     {
         if (fs::exists(path + "~"))
             fs::remove(path + "~");
