@@ -107,8 +107,6 @@ void Grass::mainloop()
         { 30, 30, 30 }
     ));
 
-    //m_selected_basic_entry = &m_basic_text_entries[0];
-
     // put the buttons here so they have access to all the previous variables
 
     m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
@@ -166,220 +164,15 @@ void Grass::mainloop()
                 break;
 
             case SDL_KEYDOWN:
-            {
-                switch (evt.key.keysym.scancode)
-                {
-                case SDL_SCANCODE_RCTRL:
-                case SDL_SCANCODE_LCTRL:
-                    ctrl_down = true;
-                    break;
-                }
+                handle_keydown(evt, ctrl_down, shift_down, mouse_down, current_open_fp, editor_image, { wx, wy });
+                break;
 
-                switch (evt.key.keysym.sym)
-                {
-                case SDLK_s:
-                    if (m_selected_entry)
-                    {
-                        if (ctrl_down && m_selected_entry == &m_text_entries[0])
-                        {
-                            std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
-
-                            for (auto& line : m_text_entries[0].text()->contents())
-                            {
-                                ofs << line << "\n";
-                            }
-
-                            ofs.close();
-
-                            m_tree->erase_unsaved_file(current_open_fp, m_window);
-                        }
-                    }
-
-                    break;
-                case SDLK_d:
-                    if (m_selected_entry)
-                    {
-                        if (ctrl_down && m_selected_entry == &m_text_entries[0])
-                        {
-                            m_tree->erase_unsaved_file(current_open_fp, m_window);
-                            load_file(current_open_fp, m_text_entries[0]);
-                        }
-                    }
-
-                    break;
-                case SDLK_o:
-                    if (ctrl_down)
-                    {
-                        SDL_Rect rect = { 0, 0, wx, wy };
-                        SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
-                        SDL_RenderFillRect(m_rend, &rect);
-
-                        std::string waiting_text = "Waiting for open folder dialog to finish";
-                        SDL_Texture* text = gui::common::render_text(m_rend, m_font_textbox.font(), waiting_text.c_str());
-                        rect.x = wx / 2 - waiting_text.size() * m_font_textbox.char_dim().x / 2;
-                        rect.y = wy / 2 - m_font_textbox.char_dim().y / 2;
-
-                        SDL_QueryTexture(text, nullptr, nullptr, &rect.w, &rect.h);
-                        SDL_RenderCopy(m_rend, text, nullptr, &rect);
-
-                        SDL_RenderPresent(m_rend);
-
-                        // new window will take all input and releasing ctrl wont be detected in the main window
-                        ctrl_down = false;
-
-                        SDL_Point pos;
-                        SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
-                        gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
-
-                        gui::Explorer e(m_tree->folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
-                        std::string path = e.get_path();
-
-                        // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
-                        // on a separate thread
-                        std::thread thr_cleanup(&gui::Explorer::cleanup_window, &e);
-                        thr_cleanup.detach();
-                        
-                        if (!path.empty())
-                        {
-                            m_tree->folder().change_directory(fs::absolute(path).string(), m_rend);
-                            m_tree->update_display();
-                            m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
-
-                            m_text_entries[0].text()->set_contents({ "" });
-                            reset_entry_to_default(m_text_entries[0]);
-                            
-                            if (editor_image)
-                                SDL_DestroyTexture(editor_image);
-
-                            editor_image = 0;
-
-                            m_tree->reset_default_rect();
-                            m_tree->update_display();
-                        }
-
-                        SDL_DestroyTexture(text);
-                    }
-
-                    break;
-                }
-
-                if (m_selected_entry)
-                {
-                    switch (evt.key.keysym.scancode)
-                    {
-                    case SDL_SCANCODE_RETURN:
-                        if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
-                            m_selected_entry->erase_highlighted_section();
-
-                        m_selected_entry->insert_char('\n');
-                        m_tree->append_unsaved_file(current_open_fp, m_window);
-                        
-                        break;
-                    case SDL_SCANCODE_BACKSPACE:
-                        if (!mouse_down)
-                        {
-                            m_selected_entry->remove_char();
-                            m_tree->append_unsaved_file(current_open_fp, m_window);
-                        }
-                        break;
-                    case SDL_SCANCODE_LSHIFT:
-                    case SDL_SCANCODE_RSHIFT:
-                        shift_down = true;
-                        break;
-                    case SDL_SCANCODE_HOME:
-                        if (shift_down)
-                            m_selected_entry->start_highlight();
-                        else
-                            m_selected_entry->stop_highlight();
-
-                        m_selected_entry->move_cursor_characters(-m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x, 0);
-                        m_selected_entry->reset_bounds_x();
-                        break;
-                    case SDL_SCANCODE_END:
-                        if (shift_down)
-                            m_selected_entry->start_highlight();
-                        else
-                            m_selected_entry->stop_highlight();
-
-                        if (m_selected_entry->jump_to_eol())
-                        {
-                            m_selected_entry->move_bounds_characters(m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x - m_selected_entry->max_bounds().x, 0);
-                        }
-
-                        break;
-                    }
-                }
-
-                if (m_selected_entry)
-                {
-                    SDL_Point movement{ 0, 0 };
-
-                    if (evt.key.keysym.sym == SDLK_RIGHT)
-                        movement.x = 1;
-
-                    if (evt.key.keysym.sym == SDLK_LEFT)
-                        movement.x = -1;
-
-                    if (evt.key.keysym.sym == SDLK_UP)
-                        movement.y = -1;
-
-                    if (evt.key.keysym.sym == SDLK_DOWN)
-                        movement.y = 1;
-
-                    bool moved = movement.x != 0 || movement.y != 0;
-
-                    if (moved)
-                    {
-                        if (m_selected_entry->mode() == gui::EntryMode::NORMAL && shift_down)
-                            m_selected_entry->start_highlight();
-
-                        m_selected_entry->move_cursor_characters(movement.x, movement.y);
-
-                        m_selected_entry->conditional_move_bounds_characters(
-                            movement.x * m_selected_entry->move_bounds_by(),
-                            movement.y * m_selected_entry->move_bounds_by()
-                        );
-
-                        m_selected_entry->conditional_jump_to_eol();
-
-                        if (!shift_down && m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
-                            m_selected_entry->stop_highlight();
-                    }
-                }
-
-                if (m_selected_basic_entry)
-                {
-                    switch (evt.key.keysym.scancode)
-                    {
-                    case SDL_SCANCODE_BACKSPACE:
-                        m_selected_basic_entry->remove_char();
-                        break;
-                    }
-                }
-            } break;
             case SDL_KEYUP:
-            {
-                switch (evt.key.keysym.scancode)
-                {
-                case SDL_SCANCODE_RCTRL:
-                case SDL_SCANCODE_LCTRL:
-                    ctrl_down = false;
-                    break;
-                case SDL_SCANCODE_LSHIFT:
-                case SDL_SCANCODE_RSHIFT:
-                    shift_down = false;
-                    break;
-                }
-            } break;
+                handle_keyup(evt, shift_down, ctrl_down);
+                break;
+
             case SDL_MOUSEWHEEL:
-                if (gui::common::within_rect(m_tree->rect(), mx, my))
-                {
-                    m_tree->scroll(-evt.wheel.y, wy);
-                }
-                else if (gui::common::within_rect(m_text_entries[0].rect(), mx, my))
-                {
-                    m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
-                }
+                handle_mousewheel(evt, mx, my, wy);
                 break;
             }
         }
@@ -764,5 +557,228 @@ void Grass::handle_textinput(char c, std::string& current_open_fp)
     if (m_selected_basic_entry)
     {
         m_selected_basic_entry->add_char(c);
+    }
+}
+
+
+void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim)
+{
+    switch (evt.key.keysym.scancode)
+    {
+    case SDL_SCANCODE_RCTRL:
+    case SDL_SCANCODE_LCTRL:
+        ctrl_down = true;
+        break;
+    }
+
+    switch (evt.key.keysym.sym)
+    {
+    case SDLK_s:
+        if (m_selected_entry)
+        {
+            if (ctrl_down && m_selected_entry == &m_text_entries[0])
+            {
+                std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
+
+                for (auto& line : m_text_entries[0].text()->contents())
+                {
+                    ofs << line << "\n";
+                }
+
+                ofs.close();
+
+                m_tree->erase_unsaved_file(current_open_fp, m_window);
+            }
+        }
+
+        break;
+    case SDLK_d:
+        if (m_selected_entry)
+        {
+            if (ctrl_down && m_selected_entry == &m_text_entries[0])
+            {
+                m_tree->erase_unsaved_file(current_open_fp, m_window);
+                load_file(current_open_fp, m_text_entries[0]);
+            }
+        }
+
+        break;
+    case SDLK_o:
+        if (ctrl_down)
+        {
+            SDL_Rect rect = { 0, 0, window_dim.x, window_dim.y };
+            SDL_SetRenderDrawColor(m_rend, 0, 0, 0, 255);
+            SDL_RenderFillRect(m_rend, &rect);
+
+            std::string waiting_text = "Waiting for open folder dialog to finish";
+            SDL_Texture* text = gui::common::render_text(m_rend, m_font_textbox.font(), waiting_text.c_str());
+            rect.x = window_dim.x / 2 - waiting_text.size() * m_font_textbox.char_dim().x / 2;
+            rect.y = window_dim.y / 2 - m_font_textbox.char_dim().y / 2;
+
+            SDL_QueryTexture(text, nullptr, nullptr, &rect.w, &rect.h);
+            SDL_RenderCopy(m_rend, text, nullptr, &rect);
+
+            SDL_RenderPresent(m_rend);
+
+            // new window will take all input and releasing ctrl wont be detected in the main window
+            ctrl_down = false;
+
+            SDL_Point pos;
+            SDL_GetWindowPosition(m_window, &pos.x, &pos.y);
+            gui::common::Font explorer_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
+
+            gui::Explorer e(m_tree->folder().path(), gui::ExplorerMode::DIR, pos, m_exe_dir, explorer_font);
+            std::string path = e.get_path();
+
+            // sdl_destroyrenderer takes too much time sometimes but it seems instantaneous if the window is hidden before cleanup and then it cleans up
+            // on a separate thread
+            std::thread thr_cleanup(&gui::Explorer::cleanup_window, &e);
+            thr_cleanup.detach();
+
+            if (!path.empty())
+            {
+                m_tree->folder().change_directory(fs::absolute(path).string(), m_rend);
+                m_tree->update_display();
+                m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+
+                m_text_entries[0].text()->set_contents({ "" });
+                reset_entry_to_default(m_text_entries[0]);
+
+                if (editor_image)
+                    SDL_DestroyTexture(editor_image);
+
+                editor_image = 0;
+
+                m_tree->reset_default_rect();
+                m_tree->update_display();
+            }
+
+            SDL_DestroyTexture(text);
+        }
+
+        break;
+    }
+
+    if (m_selected_entry)
+    {
+        switch (evt.key.keysym.scancode)
+        {
+        case SDL_SCANCODE_RETURN:
+            if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                m_selected_entry->erase_highlighted_section();
+
+            m_selected_entry->insert_char('\n');
+            m_tree->append_unsaved_file(current_open_fp, m_window);
+
+            break;
+        case SDL_SCANCODE_BACKSPACE:
+            if (!mouse_down)
+            {
+                m_selected_entry->remove_char();
+                m_tree->append_unsaved_file(current_open_fp, m_window);
+            }
+            break;
+        case SDL_SCANCODE_LSHIFT:
+        case SDL_SCANCODE_RSHIFT:
+            shift_down = true;
+            break;
+        case SDL_SCANCODE_HOME:
+            if (shift_down)
+                m_selected_entry->start_highlight();
+            else
+                m_selected_entry->stop_highlight();
+
+            m_selected_entry->move_cursor_characters(-m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x, 0);
+            m_selected_entry->reset_bounds_x();
+            break;
+        case SDL_SCANCODE_END:
+            if (shift_down)
+                m_selected_entry->start_highlight();
+            else
+                m_selected_entry->stop_highlight();
+
+            if (m_selected_entry->jump_to_eol())
+            {
+                m_selected_entry->move_bounds_characters(m_selected_entry->cursor().char_pos(m_selected_entry->rect()).x - m_selected_entry->max_bounds().x, 0);
+            }
+
+            break;
+        }
+    }
+
+    if (m_selected_entry)
+    {
+        SDL_Point movement{ 0, 0 };
+
+        if (evt.key.keysym.sym == SDLK_RIGHT)
+            movement.x = 1;
+
+        if (evt.key.keysym.sym == SDLK_LEFT)
+            movement.x = -1;
+
+        if (evt.key.keysym.sym == SDLK_UP)
+            movement.y = -1;
+
+        if (evt.key.keysym.sym == SDLK_DOWN)
+            movement.y = 1;
+
+        bool moved = movement.x != 0 || movement.y != 0;
+
+        if (moved)
+        {
+            if (m_selected_entry->mode() == gui::EntryMode::NORMAL && shift_down)
+                m_selected_entry->start_highlight();
+
+            m_selected_entry->move_cursor_characters(movement.x, movement.y);
+
+            m_selected_entry->conditional_move_bounds_characters(
+                movement.x * m_selected_entry->move_bounds_by(),
+                movement.y * m_selected_entry->move_bounds_by()
+            );
+
+            m_selected_entry->conditional_jump_to_eol();
+
+            if (!shift_down && m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+                m_selected_entry->stop_highlight();
+        }
+    }
+
+    if (m_selected_basic_entry)
+    {
+        switch (evt.key.keysym.scancode)
+        {
+        case SDL_SCANCODE_BACKSPACE:
+            m_selected_basic_entry->remove_char();
+            break;
+        }
+    }
+}
+
+
+void Grass::handle_keyup(SDL_Event& evt, bool& shift_down, bool& ctrl_down)
+{
+    switch (evt.key.keysym.scancode)
+    {
+    case SDL_SCANCODE_RCTRL:
+    case SDL_SCANCODE_LCTRL:
+        ctrl_down = false;
+        break;
+    case SDL_SCANCODE_LSHIFT:
+    case SDL_SCANCODE_RSHIFT:
+        shift_down = false;
+        break;
+    }
+}
+
+
+void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy)
+{
+    if (gui::common::within_rect(m_tree->rect(), mx, my))
+    {
+        m_tree->scroll(-evt.wheel.y, wy);
+    }
+    else if (gui::common::within_rect(m_text_entries[0].rect(), mx, my))
+    {
+        m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
     }
 }
