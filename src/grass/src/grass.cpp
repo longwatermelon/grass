@@ -154,42 +154,17 @@ void Grass::mainloop()
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                handle_mouse(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image);
+                handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image);
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                mouse_down = false;
-
-                if (m_selected_entry)
-                {
-                    m_selected_entry->mouse_up();
-                }
-
-                for (auto& btn : m_buttons)
-                {
-                    btn->set_down(false);
-                }
-
-                m_scrollbar.mouse_up();
-
+                handle_mouse_up(mouse_down);
                 break;
 
             case SDL_TEXTINPUT:
-                if (m_selected_entry)
-                {
-                    if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
-                        m_selected_entry->erase_highlighted_section();
-
-                    m_selected_entry->insert_char(evt.text.text[0]);
-                    m_tree->append_unsaved_file(current_open_fp, m_window);
-                }
-
-                if (m_selected_basic_entry)
-                {
-                    m_selected_basic_entry->add_char(evt.text.text[0]);
-                }
-
+                handle_textinput(evt.text.text[0], current_open_fp);
                 break;
+
             case SDL_KEYDOWN:
             {
                 switch (evt.key.keysym.scancode)
@@ -549,7 +524,7 @@ void Grass::reset_entry_to_default(gui::TextEntry& entry)
 }
 
 
-void Grass::handle_mouse(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu* menu, std::string& current_open_fp, SDL_Texture* editor_image)
+void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu* menu, std::string& current_open_fp, SDL_Texture* editor_image)
 {
     if (button == SDL_BUTTON_LEFT && !mouse_down)
     {
@@ -753,5 +728,41 @@ void Grass::handle_mouse(Uint8 button, bool& mouse_down, int mx, int my, gui::Me
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
+    }
+}
+
+
+void Grass::handle_mouse_up(bool& mouse_down)
+{
+    mouse_down = false;
+
+    if (m_selected_entry)
+    {
+        m_selected_entry->mouse_up();
+    }
+
+    for (auto& btn : m_buttons)
+    {
+        btn->set_down(false);
+    }
+
+    m_scrollbar.mouse_up();
+}
+
+
+void Grass::handle_textinput(char c, std::string& current_open_fp)
+{
+    if (m_selected_entry)
+    {
+        if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+            m_selected_entry->erase_highlighted_section();
+
+        m_selected_entry->insert_char(c);
+        m_tree->append_unsaved_file(current_open_fp, m_window);
+    }
+
+    if (m_selected_basic_entry)
+    {
+        m_selected_basic_entry->add_char(c);
     }
 }
