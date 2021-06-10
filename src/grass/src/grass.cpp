@@ -110,6 +110,7 @@ void Grass::mainloop()
     //m_selected_basic_entry = &m_basic_text_entries[0];
 
     // put the buttons here so they have access to all the previous variables
+
     m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
         if (editor_image)
             SDL_DestroyTexture(editor_image);
