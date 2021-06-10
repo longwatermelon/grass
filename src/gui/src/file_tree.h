@@ -18,7 +18,7 @@ namespace gui
         File() = default;
         File(const std::string& base_path, const String& name, SDL_Renderer* rend);
 
-        void render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files);
+        void render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files, SDL_Rect tree_rect);
 
         void update_rect(SDL_Rect& r) { m_rect = r; r.y += m_name.char_dim().y; }
 
@@ -47,7 +47,7 @@ namespace gui
         Folder() = default;
         Folder(const std::string& base_path, const String& name, SDL_Renderer* rend, bool load_directory);
 
-        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files);
+        void render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files, SDL_Rect tree_rect);
 
         /* If already collapsed, folder will expand. */
         void collapse(SDL_Renderer* rend);

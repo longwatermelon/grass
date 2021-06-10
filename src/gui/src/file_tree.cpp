@@ -18,12 +18,15 @@ gui::File::File(const std::string& base_path, const String& name, SDL_Renderer* 
 }
 
 
-void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files)
+void gui::File::render(SDL_Renderer* rend, int offset, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files, SDL_Rect tree_rect)
 {
+    m_rect.x = offset;
+    m_rect.w = (tree_rect.x + tree_rect.w) - m_rect.x;
+
     if (m_rect.y >= top_y)
     {
         SDL_Rect text_rect = {
-            m_rect.x + offset,
+            offset,
             m_rect.y
         };
 
@@ -68,7 +71,7 @@ gui::Folder::Folder(const std::string& base_path, const String& name, SDL_Render
 }
 
 
-void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files)
+void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files, SDL_Rect tree_rect)
 {
     if (m_rect.y >= top_y)
     {
@@ -100,12 +103,12 @@ void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex
 
     for (auto& folder : m_folders)
     {
-        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y, file_textures, unsaved_files);
+        folder.render(rend, offset + 10, closed_tex, opened_tex, top_y, file_textures, unsaved_files, tree_rect);
     }
 
     for (auto& file : m_files)
     {
-        file.render(rend, offset + 10, top_y, file_textures, unsaved_files);
+        file.render(rend, offset + 10, top_y, file_textures, unsaved_files, tree_rect);
     }
 }
 
@@ -451,12 +454,12 @@ void gui::Tree::render(SDL_Renderer* rend)
 
     for (auto& folder : m_folder.folders())
     {
-        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_rect.y, m_file_textures, m_unsaved_files);
+        folder.render(rend, offset, m_closed_folder_texture.get(), m_opened_folder_texture.get(), m_rect.y, m_file_textures, m_unsaved_files, m_rect);
     }
 
     for (auto& file : m_folder.files())
     {
-        file.render(rend, offset, m_rect.y, m_file_textures, m_unsaved_files);
+        file.render(rend, offset, m_rect.y, m_file_textures, m_unsaved_files, m_rect);
     }
 
     if (m_selected_highlight_rect.y >= m_rect.y)
