@@ -286,16 +286,16 @@ void Grass::mainloop()
 
     m_buttons.clear();
 
-    delete m_tree;
-
-    m_explorer->cleanup_window();
-    delete m_explorer;
-
     for (auto& path : m_tree->unsaved())
     {
         if (fs::exists(path + "~"))
             fs::remove(path + "~");
     }
+
+    delete m_tree;
+
+    m_explorer->cleanup_window();
+    delete m_explorer;    
 }
 
 
@@ -538,6 +538,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     m_tree->reload_outdated_folders(m_rend, true);
                 }},
                 {"Rename",[&, r = std::move(rect)]() {
+                    std::cout << r->x << "\n";
                     m_mode = Mode::FILE_RENAME;
 
                     int rect_w = m_text_entries[0].rect().x - (r->x + 20);
