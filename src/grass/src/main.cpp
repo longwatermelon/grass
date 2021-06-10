@@ -19,9 +19,5 @@ int main(int argc, char** argv)
     Grass g(exe_dir);
     g.mainloop();
 
-    SDL_Quit();
-    TTF_Quit();
-    IMG_Quit();
-
     return 0;
 }

@@ -46,6 +46,10 @@ Grass::~Grass()
 {
     SDL_DestroyRenderer(m_rend);
     SDL_DestroyWindow(m_window);
+
+    SDL_Quit();
+    IMG_Quit();
+    TTF_Quit();
 }
 
 
