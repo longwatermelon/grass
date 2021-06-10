@@ -8,7 +8,7 @@ gui::Menu::Menu(SDL_Point pos, int menu_width, const std::vector<MenuElement>& o
 
     for (int i = 0; i < options.size(); ++i)
     {
-        m_options.emplace_back(new Text(rend, font, { pos.x, pos.y + font.char_dim().y * i }, options[i].text, { 255, 255, 255 }));
+        m_options.emplace_back(new Text(rend, font, { pos.x, pos.y + font.char_dim().y * i }, options[i].text, { 230, 255, 255 }));
         m_functions.emplace_back(options[i].function);
     }
 

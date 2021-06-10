@@ -148,6 +148,14 @@ void gui::Folder::load(SDL_Renderer* rend)
     m_loaded = true;
     load_folders(rend);
     load_files(rend);
+
+    for (auto& f : m_folders)
+    {
+        if (f.loaded())
+        {
+            f.load(rend);
+        }
+    }
 }
 
 

@@ -783,7 +783,8 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             if (m_mode == Mode::FILE_RENAME)
             {
                 std::string new_name = m_selected_basic_entry->text();
-                fs::rename(renamed_file, fs::absolute(new_name).string());
+                fs::rename(renamed_file, fs::path(renamed_file).parent_path().string() + '/' + new_name);
+                renamed_file.clear();
                 m_basic_text_entries.pop_back();
                 m_mode = Mode::NORMAL;
                 m_selected_basic_entry = 0;
