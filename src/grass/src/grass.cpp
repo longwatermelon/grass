@@ -312,6 +312,16 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
 
     entry.text()->set_contents(lines);
     reset_entry_to_default(entry);
+
+    SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());
+}
+
+
+void Grass::close_current_file()
+{
+    reset_entry_to_default(m_text_entries[0]);
+    m_text_entries[0].text()->set_contents({ "" });
+    SDL_SetWindowTitle(m_window, "Grass");
 }
 
 
@@ -535,6 +545,12 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     folder->remove_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
+
+                    if (!fs::exists(current_open_fp))
+                    {
+                        current_open_fp.clear();
+                        close_current_file();
+                    }
                 }},
                 {"Rename", [&, r = rect]() {
                     m_mode = Mode::FILE_RENAME;
@@ -556,6 +572,12 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
                     m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
                     m_selected_basic_entry->set_cursor_visible(true);
+
+                    if (!fs::exists(current_open_fp))
+                    {
+                        current_open_fp.clear();
+                        close_current_file();
+                    }
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
@@ -585,6 +607,12 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
+
+                    if (!fs::exists(current_open_fp))
+                    {
+                        current_open_fp.clear();
+                        close_current_file();
+                    }
                 }},
                 {"Rename",[&, r = rect]() {
                     m_mode = Mode::FILE_RENAME;
@@ -844,6 +872,12 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             {
                 std::string new_name = m_selected_basic_entry->text();
                 fs::rename(renamed_file, fs::path(renamed_file).parent_path().string() + '/' + new_name);
+
+                if (!fs::exists(current_open_fp))
+                {
+                    load_file(fs::path(renamed_file).parent_path().string() + '/' + new_name, m_text_entries[0]);
+                }
+
                 renamed_file.clear();
                 m_basic_text_entries.pop_back();
                 m_mode = Mode::NORMAL;

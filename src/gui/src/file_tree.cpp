@@ -230,6 +230,10 @@ void gui::Folder::load_files(SDL_Renderer* rend)
             continue;
 
         std::string file_name = entry.path().filename().string();
+
+        if (file_name[file_name.size() - 1] == '~')
+            continue;
+
         std::string extension = fs::path(file_name).extension().string();
 
         if (fs::path(file_name).has_extension() && extension[extension.size() - 1] == '~')
