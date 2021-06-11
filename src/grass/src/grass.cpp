@@ -327,6 +327,13 @@ void Grass::reset_entry_to_default(gui::TextEntry& entry)
 
 void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, std::string& current_open_fp, SDL_Texture*& editor_image, std::string& renamed_file)
 {
+    if (m_mode == Mode::FILE_RENAME && !m_selected_basic_entry->check_clicked(mx, my))
+    {
+        m_selected_basic_entry = 0;
+        m_basic_text_entries.pop_back();
+        m_mode = Mode::NORMAL;
+    }
+
     if (button == SDL_BUTTON_LEFT && !mouse_down)
     {
         mouse_down = true;
@@ -397,7 +404,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
             }
         }
 
-        if (!clicked_basic_entry)
+        if (!clicked_basic_entry && m_mode == Mode::NORMAL)
         {
             for (auto& e : m_basic_text_entries)
             {
@@ -546,6 +553,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
                         { 40, 40, 40 }
                     ));
+
+                    m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
+                    m_selected_basic_entry->set_cursor_visible(true);
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
@@ -593,6 +603,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
                         { 40, 40, 40 })
                     );
+
+                    m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
+                    m_selected_basic_entry->set_cursor_visible(true);
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }

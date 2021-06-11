@@ -5,5 +5,3 @@ ctrl-d to discard changes from current file
 ctrl-o to change directory
 
 Right click a file or folder in the file tree for options
-
-Press escape to cancel a file rename
