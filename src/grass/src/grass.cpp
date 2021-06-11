@@ -201,7 +201,8 @@ void Grass::mainloop()
         m_tree->reload_outdated_folders(m_rend, false);
         m_tree->render(m_rend);
 
-        if (gui::common::within_rect(m_tree->rect(), mx, my))
+        // menu should be on the topmost layer so nothing else should be being highlighted when the menu is up
+        if (gui::common::within_rect(m_tree->rect(), mx, my) && !menu)
             m_tree->highlight_element(m_rend, mx, my);
 
         for (auto& e : m_text_entries)
@@ -501,7 +502,10 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
         if (f)
         {
-            menu = new gui::Menu({ mx, my }, 100, {
+            SDL_Rect rect = f->rect();
+            renamed_file = f->path();
+
+            menu = new gui::Menu({ mx, my }, 150, {
                 {"New file", [&, path = f->path()]() {
                     gui::Folder* folder = m_tree->folder_from_path(path);
                     folder->create_new_file("New file");
@@ -518,9 +522,30 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }},
                 {"Delete folder",[&, path = f->path()]() {
                     gui::Folder* folder = m_tree->folder_from_path(path);
+                    if (folder->loaded())
+                        folder->collapse(m_rend);
+
                     folder->remove_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
+                }},
+                {"Rename", [&, r = rect]() {
+                    m_mode = Mode::FILE_RENAME;
+
+                    int rect_w = m_text_entries[0].rect().x - r.x;
+                    int line_num_width = (int)std::to_string(m_text_entries[0].text()->contents().size()).size() * m_font_textbox.char_dim().x + m_font_textbox.char_dim().x;
+
+                    m_basic_text_entries.emplace_back(gui::BasicTextEntry(
+                        {
+                            r.x,
+                            r.y,
+                            rect_w - line_num_width,
+                            m_font_tree.char_dim().y 
+                        },
+                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim()),
+                        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
+                        { 45, 45, 45 }
+                    ));
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
@@ -532,7 +557,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
             SDL_Rect* rect = new SDL_Rect(file->rect());
             renamed_file = file->path();
 
-            menu = new gui::Menu({ mx, my }, 100, {
+            menu = new gui::Menu({ mx, my }, 150, {
                 {"Delete file", [&, path = file->path()]() {
                     gui::File* file = m_tree->file_from_path(path);
 

@@ -73,10 +73,13 @@ gui::Folder::Folder(const std::string& base_path, const String& name, SDL_Render
 
 void gui::Folder::render(SDL_Renderer* rend, int offset, SDL_Texture* closed_tex, SDL_Texture* opened_tex, int top_y, std::map<std::string, std::unique_ptr<SDL_Texture, common::TextureDeleter>>& file_textures, std::vector<std::string>& unsaved_files, SDL_Rect tree_rect)
 {
+    m_rect.x = offset;
+    m_rect.w = (tree_rect.x + tree_rect.w) - m_rect.x;
+
     if (m_rect.y >= top_y)
     {
         SDL_Rect text_rect = {
-            m_rect.x + offset,
+            offset,
             m_rect.y
         };
 
