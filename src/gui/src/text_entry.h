@@ -76,8 +76,10 @@ namespace gui
         
         void erase_highlighted_section();
 
-
         void resize_to(int w, int h);
+
+        // for smart tabs
+        size_t get_tab_position();
 
 
         void hide() { m_hidden = true; }

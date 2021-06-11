@@ -770,13 +770,19 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
         switch (evt.key.keysym.scancode)
         {
         case SDL_SCANCODE_RETURN:
+        {
             if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
                 m_selected_entry->erase_highlighted_section();
 
-            m_selected_entry->insert_char('\n');
-            m_tree->append_unsaved_file(current_open_fp, m_window);
+            size_t tab_pos = m_selected_entry->get_tab_position();
 
-            break;
+            m_selected_entry->insert_char('\n');
+
+            for (size_t i = 0; i < tab_pos; ++i)
+                m_selected_entry->insert_char(' ');
+
+            m_tree->append_unsaved_file(current_open_fp, m_window);
+        } break;
         case SDL_SCANCODE_BACKSPACE:
             if (!mouse_down)
             {

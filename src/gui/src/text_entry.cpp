@@ -737,3 +737,17 @@ void gui::TextEntry::resize_to(int w, int h)
     conditional_jump_to_eol();
     update_cache();
 }
+
+
+size_t gui::TextEntry::get_tab_position()
+{
+    std::string line = m_text.get_line(m_cursor.char_pos(m_rect).y);
+
+    for (int i = 0; i < line.size(); ++i)
+    {
+        if (line[i] != ' ')
+            return i;
+    }
+
+    return line.size();
+}
