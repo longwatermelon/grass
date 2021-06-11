@@ -544,7 +544,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         },
                         gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim()),
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
-                        { 45, 45, 45 }
+                        { 40, 40, 40 }
                     ));
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
@@ -554,7 +554,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
         if (file)
         {
-            SDL_Rect* rect = new SDL_Rect(file->rect());
+            SDL_Rect rect = file->rect();
             renamed_file = file->path();
 
             menu = new gui::Menu({ mx, my }, 150, {
@@ -576,25 +576,23 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
                 }},
-                {"Rename",[&, r = std::move(rect)]() {
+                {"Rename",[&, r = rect]() {
                     m_mode = Mode::FILE_RENAME;
 
-                    int rect_w = m_text_entries[0].rect().x - r->x;
+                    int rect_w = m_text_entries[0].rect().x - r.x;
                     int line_num_width = (int)std::to_string(m_text_entries[0].text()->contents().size()).size() * m_font_textbox.char_dim().x + m_font_textbox.char_dim().x;
 
                     m_basic_text_entries.emplace_back(gui::BasicTextEntry(
                         {
-                        r->x,
-                        r->y,
+                        r.x,
+                        r.y,
                         rect_w - line_num_width,
                         m_font_tree.char_dim().y
                         },
-                        gui::Cursor({ r->x, r->y }, { 255, 255, 255 }, m_font_tree.char_dim()),
-                        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r->x, r->y }, "", { 255, 255, 255 })),
-                        { 45, 45, 45 })
+                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim()),
+                        std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
+                        { 40, 40, 40 })
                     );
-
-                    delete r;
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
@@ -770,6 +768,17 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             }
 
             break;
+        case SDL_SCANCODE_TAB:
+            if (m_selected_entry->mode() == gui::EntryMode::HIGHLIGHT)
+            {
+                m_selected_entry->erase_highlighted_section();
+                m_selected_entry->stop_highlight();
+            }
+
+            for (int i = 0; i < 4; ++i)
+                m_selected_entry->insert_char(' ');
+
+            break;
         }
     }
 
@@ -828,6 +837,13 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
                 m_selected_basic_entry = 0;
 
                 m_tree->reload_outdated_folders(m_rend, true, true);
+            }
+            break;
+        case SDL_SCANCODE_ESCAPE:
+            if (m_mode == Mode::FILE_RENAME)
+            {
+                m_basic_text_entries.pop_back();
+                m_selected_basic_entry = 0;
             }
 
             break;
