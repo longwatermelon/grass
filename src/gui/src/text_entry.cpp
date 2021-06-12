@@ -762,6 +762,7 @@ void gui::TextEntry::resize_text(int size)
 
     if (size > 5 && size < 30)
         f.change_pt_size(size);
+
     resize_to(m_rect.x + m_rect.w, m_rect.y + m_rect.h);
     update_cache();
 }

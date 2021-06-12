@@ -36,6 +36,9 @@ SDL_Point gui::Cursor::display_pos(SDL_Point min_bounds)
 
 SDL_Point gui::Cursor::char_pos(SDL_Rect rect)
 {
+    if (m_char_dim->x == 0 || m_char_dim->y == 0)
+        return { 0, 0 };
+
     return { (m_pos.x - rect.x) / m_char_dim->x, (m_pos.y - rect.y) / m_char_dim->y };
 }
 
@@ -43,6 +46,10 @@ SDL_Point gui::Cursor::char_pos(SDL_Rect rect)
 SDL_Point gui::Cursor::display_char_pos(SDL_Rect rect, SDL_Point min_bounds)
 {
     SDL_Point display = display_pos(min_bounds);
+
+    if (m_char_dim->x == 0 || m_char_dim->y == 0)
+        return { 0, 0 };
+
     return { (display.x - rect.x) / m_char_dim->x, (display.y - rect.y) / m_char_dim->y };
 }
 
