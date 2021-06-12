@@ -296,7 +296,13 @@ void Grass::mainloop()
     delete m_tree;
 
     m_explorer->cleanup_window();
-    delete m_explorer;    
+    delete m_explorer;
+
+    if (editor_image)
+        SDL_DestroyTexture(editor_image);
+
+    if (menu)
+        delete menu;
 }
 
 
