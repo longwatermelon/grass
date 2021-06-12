@@ -314,39 +314,21 @@ gui::Folder* gui::Folder::find_last_folder_with_files()
 
 SDL_Rect gui::Folder::find_lowest_rect()
 {
-    Folder* f = find_lowest_folder();
+    Folder* f = 0;
 
-    if (!f)
+    if (!m_folders.empty())
+        f = &m_folders[m_folders.size() - 1];
+
+    if (m_files.empty())
     {
-        if (m_files.empty())
-            return m_rect;
+        if (f)
+            return f->find_lowest_rect();
         else
-        {
-            File* file = find_lowest_file();
-
-            return file->rect();
-        }
+            return m_rect;
     }
-    
-    File* file = find_lowest_file();
-
-    if (file)
-        return file->rect();
     else
     {
-        Folder* first_folder = find_last_folder_with_files();
-        Folder* last_folder = find_lowest_folder();
-
-        if (first_folder == last_folder)
-            return last_folder->rect();
-
-        if (first_folder)
-            file = first_folder->find_lowest_file();
-
-        if (file)
-            return file->rect();
-        else
-            return f->rect();
+        return find_lowest_file()->rect();
     }
 }
 

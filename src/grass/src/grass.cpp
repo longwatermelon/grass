@@ -698,7 +698,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
     case SDLK_s:
         if (m_selected_entry)
         {
-            if (ctrl_down && m_selected_entry == &m_text_entries[0])
+            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !current_open_fp.empty())
             {
                 std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
 
@@ -717,7 +717,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
     case SDLK_d:
         if (m_selected_entry)
         {
-            if (ctrl_down && m_selected_entry == &m_text_entries[0])
+            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !current_open_fp.empty())
             {
                 m_tree->erase_unsaved_file(current_open_fp, m_window);
                 load_file(current_open_fp, m_text_entries[0]);
