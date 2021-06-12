@@ -44,6 +44,8 @@ namespace gui
         TTF_Font* font() { return m_font->font(); }
         SDL_Color color() const { return m_color; }
 
+        common::Font& font_ref() { return *m_font; }
+
     private:
         SDL_Rect m_rect{ 0, 0, 0, 0 };
 

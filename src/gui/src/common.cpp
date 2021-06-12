@@ -45,7 +45,7 @@ bool gui::common::within_rect(SDL_Rect rect, int x, int y)
 
 
 gui::common::Font::Font(const std::string& ttf_path, int pt_size, bool automatically_delete_font)
-    : m_delete_font(automatically_delete_font)
+    : m_delete_font(automatically_delete_font), m_ttf_path(ttf_path), m_pt_size(pt_size)
 {
     m_font = TTF_OpenFont(ttf_path.c_str(), pt_size);
     TTF_SizeText(m_font, " ", &m_char_dim.x, &m_char_dim.y);
@@ -66,12 +66,22 @@ gui::common::Font::~Font()
 
 void gui::common::Font::load_font(const std::string& ttf_path, int pt_size)
 {
+    m_ttf_path = ttf_path;
+    m_pt_size = pt_size;
+
     if (m_font)
         TTF_CloseFont(m_font);
 
     m_font = TTF_OpenFont(ttf_path.c_str(), pt_size);
     TTF_SizeText(m_font, " ", &m_char_dim.x, &m_char_dim.y);
 }
+
+
+void gui::common::Font::change_pt_size(int size)
+{
+    load_font(m_ttf_path, size);
+}
+
 
 void gui::common::Font::cleanup()
 {

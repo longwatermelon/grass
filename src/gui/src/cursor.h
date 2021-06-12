@@ -8,7 +8,7 @@ namespace gui
     {
     public:
         Cursor() = default;
-        Cursor(SDL_Point pos, SDL_Color color, SDL_Point char_dim);
+        Cursor(SDL_Point pos, SDL_Color color, SDL_Point& char_dim);
 
         void render(SDL_Renderer* rend, SDL_Point min_bounds);
 
@@ -33,6 +33,6 @@ namespace gui
         SDL_Point m_pos;
         SDL_Color m_color;
 
-        SDL_Point m_char_dim;
+        SDL_Point* m_char_dim;
     };
 }

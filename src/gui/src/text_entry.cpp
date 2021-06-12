@@ -16,12 +16,12 @@ gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& curso
 }
 
 
-void gui::TextEntry::render(SDL_Renderer* rend, bool show_cursor)
+void gui::TextEntry::render(SDL_Renderer* rend)
 {
     SDL_SetRenderDrawColor(rend, m_bg_color.r, m_bg_color.g, m_bg_color.b, 255);
     SDL_RenderFillRect(rend, &m_rect);
 
-    if (show_cursor && m_cursor.display_pos(m_min_bounds).y >= m_rect.y)
+    if (m_show_cursor && m_cursor.display_pos(m_min_bounds).y >= m_rect.y)
         m_cursor.render(rend, m_min_bounds);
 
     if (m_cursor.display_char_pos(m_rect, m_min_bounds).y >= 0)
@@ -750,4 +750,18 @@ size_t gui::TextEntry::get_tab_position()
     }
 
     return line.size();
+}
+
+
+void gui::TextEntry::resize_text(int size)
+{
+    m_show_cursor = false;
+    m_cursor.move_pixels(m_rect.x - m_cursor.pos().x, m_rect.y - m_cursor.pos().y);
+
+    common::Font& f = m_text.font_ref();
+
+    if (size > 5 && size < 30)
+        f.change_pt_size(size);
+    resize_to(m_rect.x + m_rect.w, m_rect.y + m_rect.h);
+    update_cache();
 }

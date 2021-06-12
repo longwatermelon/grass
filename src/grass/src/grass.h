@@ -34,7 +34,7 @@ public:
     void handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file);
     void handle_keyup(SDL_Event& evt, bool& shift_down, bool& ctrl_down);
 
-    void handle_mousewheel(SDL_Event& evt, int mx, int my, int wy);
+    void handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_down);
 
 private:
     SDL_Window* m_window;

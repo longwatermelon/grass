@@ -18,7 +18,7 @@ namespace gui
     public:
         TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const String& text);
 
-        void render(SDL_Renderer* rend, bool show_cursor = false);
+        void render(SDL_Renderer* rend);
 
         void render_line_numbers(SDL_Renderer* rend);
 
@@ -81,6 +81,8 @@ namespace gui
         // for smart tabs
         size_t get_tab_position();
 
+        void resize_text(int size);
+
 
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
@@ -97,6 +99,7 @@ namespace gui
         EntryMode mode() { return m_mode; }
 
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
+        void set_cursor_shown(bool b) { m_show_cursor = b; }
 
     private:
         SDL_Rect m_rect;
@@ -120,5 +123,7 @@ namespace gui
 
         // line numbers
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_ln_textures;
+
+        bool m_show_cursor{ false };
     };
 }

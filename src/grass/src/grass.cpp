@@ -66,7 +66,7 @@ void Grass::mainloop()
     };
 
     /* Core ui elements that should not be touched */
-    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", { 255, 255, 255 })));
+    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim_ref()), gui::String(m_font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", { 255, 255, 255 })));
 
     gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree, { 0, 60 }, "", { 255, 255, 255 }), m_rend, true);
 
@@ -177,7 +177,7 @@ void Grass::mainloop()
                 break;
 
             case SDL_MOUSEWHEEL:
-                handle_mousewheel(evt, mx, my, wy);
+                handle_mousewheel(evt, mx, my, wy, ctrl_down);
                 break;
             }
         }
@@ -210,11 +210,7 @@ void Grass::mainloop()
             if (e.hidden())
                 continue;
 
-            bool render_mouse = false;
-            if (m_selected_entry == &e)
-                render_mouse = true;
-
-            e.render(m_rend, render_mouse);
+            e.render(m_rend);
         }
 
         if (!m_scrollbar.hidden())
@@ -389,6 +385,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
                     m_selected_entry = &e;
                     m_selected_entry->mouse_down(mx, my);
+                    m_selected_entry->set_cursor_shown(true);
 
                     break;
                 }
@@ -400,7 +397,10 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
             m_selected_entry = 0;
 
             for (auto& e : m_text_entries)
+            {
                 e.stop_highlight();
+                e.set_cursor_shown(false);
+            }
         }
 
         bool clicked_basic_entry = false;
@@ -927,7 +927,7 @@ void Grass::handle_keyup(SDL_Event& evt, bool& shift_down, bool& ctrl_down)
 }
 
 
-void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy)
+void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_down)
 {
     if (gui::common::within_rect(m_tree->rect(), mx, my))
     {
@@ -935,6 +935,9 @@ void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy)
     }
     else if (gui::common::within_rect(m_text_entries[0].rect(), mx, my))
     {
-        m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
+        if (ctrl_down)
+            m_text_entries[0].resize_text(m_font_textbox.pt_size() + evt.wheel.y * 2);
+        else
+            m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
     }
 }
