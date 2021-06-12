@@ -40,6 +40,7 @@ namespace gui
         void insert_line(int i) { m_contents.insert(m_contents.begin() + i, ""); }
 
         SDL_Point char_dim() const { return m_font->char_dim(); }
+        SDL_Point& char_dim_ref() { return m_font->char_dim_ref(); }
 
         TTF_Font* font() { return m_font->font(); }
         SDL_Color color() const { return m_color; }

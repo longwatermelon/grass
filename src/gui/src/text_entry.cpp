@@ -5,7 +5,7 @@
 gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& cursor, const String& text)
     : m_rect(rect), m_cursor(cursor), m_bg_color(bg_color), m_text(text)
 {
-    m_highlight_start = Cursor({ -1, -1 }, { 255, 255, 255 }, m_text.char_dim());
+    m_highlight_start = Cursor({ -1, -1 }, { 255, 255, 255 }, m_text.char_dim_ref());
 
     m_min_bounds = { 0, 0 };
     m_max_bounds = { m_rect.w / m_text.char_dim().x, m_rect.h / m_text.char_dim().y };
@@ -72,7 +72,7 @@ void gui::TextEntry::render_line_numbers(SDL_Renderer* rend)
     SDL_SetRenderDrawColor(rend, BG_COLOR, 255);
 
     SDL_Rect rect = {
-        m_rect.x - m_text.char_dim().x - std::to_string(limit).size() * m_text.char_dim().x,
+        m_rect.x - m_text.char_dim().x - (int)std::to_string(limit).size() * m_text.char_dim().x,
         m_rect.y,
         m_rect.x - rect.x,
         m_rect.h

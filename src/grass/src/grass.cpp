@@ -571,7 +571,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                             rect_w - line_num_width,
                             m_font_tree.char_dim().y 
                         },
-                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim()),
+                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim_ref()),
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
                         { 40, 40, 40 }
                     ));
@@ -633,7 +633,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         rect_w - line_num_width,
                         m_font_tree.char_dim().y
                         },
-                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim()),
+                        gui::Cursor({ r.x, r.y }, { 255, 255, 255 }, m_font_tree.char_dim_ref()),
                         std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { r.x, r.y }, "", { 255, 255, 255 })),
                         { 40, 40, 40 })
                     );
