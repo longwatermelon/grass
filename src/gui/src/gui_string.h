@@ -1,4 +1,5 @@
 #pragma once
+#include "common.h"
 #include <string>
 #include <vector>
 #include <SDL.h>
@@ -11,8 +12,7 @@ namespace gui
     {
     public:
         String() = default;
-
-        String(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col);
+        String(common::Font& font, SDL_Point pos, const std::string& contents, SDL_Color col);
 
         /* Inserts a character at m_contents[y][x]. */
         void insert(int x, int y, char c);
@@ -39,20 +39,17 @@ namespace gui
         void set_line(int i, const std::string& text) { m_contents[i] = text; }
         void insert_line(int i) { m_contents.insert(m_contents.begin() + i, ""); }
 
-        SDL_Point char_dim() const { return m_char_dim; }
+        SDL_Point char_dim() const { return m_font->char_dim(); }
 
-        TTF_Font* font() { return m_font; }
+        TTF_Font* font() { return m_font->font(); }
         SDL_Color color() const { return m_color; }
 
     private:
         SDL_Rect m_rect{ 0, 0, 0, 0 };
 
-        // character dimensions
-        SDL_Point m_char_dim{ 0, 0 };
         std::vector<std::string> m_contents = std::vector<std::string>(0);
         SDL_Color m_color{ 0, 0, 0 };
 
-        // non owning, dont free
-        TTF_Font* m_font{ 0 };
+        common::Font* m_font;
     };
 }

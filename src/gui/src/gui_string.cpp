@@ -3,10 +3,10 @@
 #include <sstream>
 
 
-gui::String::String(TTF_Font* font, SDL_Point pos, const std::string& contents, SDL_Point char_dimensions, SDL_Color col)
-    : m_font(font), m_char_dim(char_dimensions), m_color(col)
+gui::String::String(common::Font& font, SDL_Point pos, const std::string& contents, SDL_Color col)
+    : m_font(&font), m_color(col)
 {
-    m_rect = { pos.x, pos.y, char_dimensions.x * (int)contents.size(), char_dimensions.y };
+    m_rect = { pos.x, pos.y, m_font->char_dim().x * (int)contents.size(), m_font->char_dim().y };
 
     std::string line;
     std::stringstream ss(contents);

@@ -66,9 +66,9 @@ void Grass::mainloop()
     };
 
     /* Core ui elements that should not be touched */
-    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox.font(), { main_text_dimensions.x, main_text_dimensions.y }, "", m_font_textbox.char_dim(), { 255, 255, 255 })));
+    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim()), gui::String(m_font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", { 255, 255, 255 })));
 
-    gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree.font(), { 0, 60 }, "", m_font_tree.char_dim(), { 255, 255, 255 }), m_rend, true);
+    gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree, { 0, 60 }, "", { 255, 255, 255 }), m_rend, true);
 
     m_tree = new gui::Tree(
         { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
@@ -112,7 +112,7 @@ void Grass::mainloop()
 
     // put the buttons here so they have access to all the previous variables
 
-    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree.font(), { 0, 0 }, "Help", m_font_tree.char_dim(), { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
+    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { 0, 0 }, "Help", { 255, 255, 255 }), { 0, 0, 60, 20 }, { 70, 70, 70 }, [&]() {
         if (editor_image)
             SDL_DestroyTexture(editor_image);
 

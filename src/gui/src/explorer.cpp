@@ -1,6 +1,7 @@
 #include "explorer.h"
 #include "button.h"
 #include "text.h"
+#include "common.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
@@ -52,18 +53,18 @@ std::string gui::Explorer::get_path()
     SDL_Point button_pos = { window_size.x - 100, window_size.y - 25 };
 
     std::vector<Button*> buttons;
-    buttons.emplace_back(new Button(m_rend, String(m_font.font(), button_pos, "Select", m_font.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, String(m_font, button_pos, "Select", { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
         return_path = true;
     }));
 
     button_pos.x -= 100;
-    buttons.emplace_back(new Button(m_rend, String(m_font.font(), button_pos, "Cancel", m_font.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, String(m_font, button_pos, "Cancel", { 255, 255, 255 }), { button_pos.x, button_pos.y, 95, 20 }, { 100, 100, 100 }, [&]() {
         running = false;
     }));
 
     button_pos.x -= 200;
-    buttons.emplace_back(new Button(m_rend, String(m_font.font(), button_pos, "Move up a dir", m_font.char_dim(), { 255, 255, 255 }), { button_pos.x, button_pos.y, 195, 20 }, { 100, 100, 100 }, [&]() {
+    buttons.emplace_back(new Button(m_rend, String(m_font, button_pos, "Move up a dir", { 255, 255, 255 }), { button_pos.x, button_pos.y, 195, 20 }, { 100, 100, 100 }, [&]() {
         m_current_dir = fs::absolute(fs::path(m_current_dir)).parent_path().string();
         m_selected_item.clear();
         m_selected_item_highlight = { 0, 0, 0, 0 };
