@@ -34,8 +34,8 @@ Grass::Grass(const std::string& exe_dir)
     TTF_Init();
     IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG);
 
-    m_font_textbox.load_font("res/CascadiaCode.ttf", 16);
-    m_font_tree.load_font("res/CascadiaCode.ttf", 14);
+    m_font_textbox.load_font(m_exe_dir + "res/CascadiaCode.ttf", 16);
+    m_font_tree.load_font(m_exe_dir + "res/CascadiaCode.ttf", 14);
 
     m_font_textbox.automatically_delete(false);
     m_font_tree.automatically_delete(false);
