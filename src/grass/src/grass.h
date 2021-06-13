@@ -69,4 +69,14 @@ private:
 
     std::vector<std::unique_ptr<gui::Tab>> m_file_tabs;
     gui::Tab* m_selected_tab{ nullptr };
+
+    /* constants */
+    const int m_scrollbar_width = 20;
+
+    const SDL_Rect m_main_text_dimensions = {
+        340,
+        40,
+        1000 - 340 - m_scrollbar_width,
+        800 - 40
+    };
 };

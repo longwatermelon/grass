@@ -56,26 +56,16 @@ Grass::~Grass()
 
 void Grass::mainloop()
 {
-    /* constants */
-    constexpr int scrollbar_width = 20;
-
-    constexpr SDL_Rect main_text_dimensions = {
-        340,
-        40,
-        1000 - 340 - scrollbar_width,
-        800 - 40
-    };
-
     /* Core ui elements that should not be touched */
-    m_text_entries.emplace_back(gui::TextEntry(main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ main_text_dimensions.x, main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim_ref()), gui::String(m_font_textbox, { main_text_dimensions.x, main_text_dimensions.y }, "", { 255, 255, 255 })));
+    m_text_entries.emplace_back(gui::TextEntry(m_main_text_dimensions, { 30, 30, 30 }, gui::Cursor({ m_main_text_dimensions.x, m_main_text_dimensions.y }, { 255, 255, 255 }, m_font_textbox.char_dim_ref()), gui::String(m_font_textbox, { m_main_text_dimensions.x, m_main_text_dimensions.y }, "", { 255, 255, 255 })));
 
     gui::Folder folder(fs::absolute(".").string(), gui::String(m_font_tree, { 0, 60 }, "", { 255, 255, 255 }), m_rend, true);
 
     m_tree = new gui::Tree(
-        { 0, main_text_dimensions.y, main_text_dimensions.x, 800 - main_text_dimensions.y },
+        { 0, m_main_text_dimensions.y, m_main_text_dimensions.x, 800 - m_main_text_dimensions.y },
         folder,
         // when changing font size make sure to also change the 20 below to the y value of the char dimensions specified above
-        { 0, main_text_dimensions.y, 200, m_font_tree.char_dim().y },
+        { 0, m_main_text_dimensions.y, 200, m_font_tree.char_dim().y },
         m_rend,
         m_exe_dir
     );
@@ -83,10 +73,10 @@ void Grass::mainloop()
     m_tree->update_display();
 
     m_scrollbar = gui::Scrollbar({
-        main_text_dimensions.x + main_text_dimensions.w,
-        main_text_dimensions.y,
-        scrollbar_width,
-        main_text_dimensions.h
+        m_main_text_dimensions.x + m_main_text_dimensions.w,
+        m_main_text_dimensions.y,
+        m_scrollbar_width,
+        m_main_text_dimensions.h
         }, 0, 0, 0, { 40, 40, 40 }, { 100, 100, 100 });
 
     bool running = true;
@@ -253,7 +243,7 @@ void Grass::mainloop()
 
         if (prev_wx != wx || prev_wy != wy)
         {
-            m_text_entries[0].resize_to(wx - scrollbar_width, wy);
+            m_text_entries[0].resize_to(wx - m_scrollbar_width, wy);
             m_tree->resize_to(wy);
 
             SDL_Rect entry_rect = m_text_entries[0].rect();
