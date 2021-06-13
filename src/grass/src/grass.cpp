@@ -344,9 +344,10 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
 
         m_file_tabs.emplace_back(
             new gui::Tab(
-                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len }, fs::path(fp).filename().string(), { 255, 255, 255 })),
+                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len, 20 }, fs::path(fp).filename().string(), { 255, 255, 255 })),
                 { 60, 60, 60 },
-                fs::absolute(fs::path(fp)).string()
+                fs::absolute(fs::path(fp)).string(),
+                20
             )
         );
     } 

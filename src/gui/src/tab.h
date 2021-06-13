@@ -10,7 +10,7 @@ namespace gui
     class Tab
     {
     public:
-        Tab(std::unique_ptr<Text> text, SDL_Color color, const std::string& full_path);
+        Tab(std::unique_ptr<Text> text, SDL_Color color, const std::string& full_path, int rect_h);
 
         void render(SDL_Renderer* rend);
 
@@ -27,6 +27,7 @@ namespace gui
         std::string path() { return m_full_path; }
 
     private:
+        SDL_Rect m_rect;
         std::unique_ptr<Text> m_text;
         std::string m_full_path;
 

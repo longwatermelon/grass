@@ -1,8 +1,11 @@
 #include "tab.h"
 
 
-gui::Tab::Tab(std::unique_ptr<Text> text, SDL_Color color, const std::string& full_path)
-    : m_text(std::move(text)), m_full_path(full_path) {}
+gui::Tab::Tab(std::unique_ptr<Text> text, SDL_Color color, const std::string& full_path, int rect_h)
+    : m_text(std::move(text)), m_full_path(full_path), m_rect(text->rect())
+{
+    m_rect.h = rect_h;
+}
 
 
 void gui::Tab::render(SDL_Renderer* rend)
@@ -24,8 +27,8 @@ void gui::Tab::render(SDL_Renderer* rend)
     }
 
     SDL_SetRenderDrawColor(rend, bg_color.r, bg_color.g, bg_color.b, 255);
-    SDL_Rect rect = m_text->rect();
-    SDL_RenderFillRect(rend, &rect);
+    // SDL_Rect rect = m_text->rect();
+    SDL_RenderFillRect(rend, &m_rect);
 
     m_text->render(); 
 }
@@ -39,17 +42,18 @@ int gui::Tab::text_pixel_length()
 
 bool gui::Tab::check_clicked(int mx, int my)
 {
-    return common::within_rect(m_text->rect(), mx, my);
+    return common::within_rect(m_rect, mx, my);
 }
 
 
 void gui::Tab::hover_highlight(int mx, int my)
 {
-    m_hover = common::within_rect(m_text->rect(), mx, my);
+    m_hover = common::within_rect(m_rect, mx, my);
 }
 
 
 void gui::Tab::move(int x)
 {
     m_text->move(x, 0);
+    m_rect.x += x;
 }
