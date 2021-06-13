@@ -27,6 +27,8 @@ add_library(gui
     src/menu.cpp
     src/basic_text_entry.h
     src/basic_text_entry.cpp
+    src/tab.h
+    src/tab.cpp
 )
 
 target_link_libraries(gui PUBLIC

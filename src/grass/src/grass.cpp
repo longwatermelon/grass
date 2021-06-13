@@ -7,6 +7,7 @@
 #include "scrollbar.h"
 #include "menu.h"
 #include "basic_text_entry.h"
+#include "tab.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -237,6 +238,11 @@ void Grass::mainloop()
             e.render(m_rend);
         }
 
+        for (auto& t : m_file_tabs)
+        {
+            t.render(m_rend);
+        }
+
         if (menu)
             menu->render(m_rend, mx, my);
 
@@ -299,6 +305,8 @@ void Grass::mainloop()
 
     if (menu)
         delete menu;
+
+    m_file_tabs.clear();
 }
 
 
@@ -315,7 +323,28 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
     entry.text()->set_contents(lines);
     reset_entry_to_default(entry);
 
-    SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());
+    SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());    
+ 
+    if (!tab_exists(fs::absolute(fp).string()))
+    {
+        gui::Tab* tab = 0;
+        int offset = 0;
+        int text_len = 0;
+        if (m_file_tabs.size() > 0) 
+        {
+            tab = &m_file_tabs[m_file_tabs.size() - 1];
+            offset = tab->text()->rect().x - m_text_entries[0].rect().x + 10;
+            text_len = tab->text_pixel_length();
+        }
+
+        m_file_tabs.emplace_back(
+            gui::Tab(
+                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len }, fs::path(fp).filename().string(), { 255, 255, 255 })),
+                { 60, 60, 60 },
+                fs::absolute(fs::path(fp)).string()
+            )
+        );
+    } 
 }
 
 
@@ -429,6 +458,20 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
             m_selected_basic_entry = 0;
         }
+        
+        if (!clicked_something)
+        {
+            for (auto& tab : m_file_tabs)
+            {
+                if (tab.check_clicked(mx, my))
+                {
+                    clicked_something = true;
+                    load_file(tab.path(), m_text_entries[0]); 
+                    break;
+                }
+            }
+        }
+        
 
         gui::File* file = m_tree->check_file_click(m_tree->folder(), mx, my);
 
@@ -940,4 +983,18 @@ void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_
         else
             m_text_entries[0].move_bounds_characters(0, -evt.wheel.y);
     }
+}
+
+
+bool Grass::tab_exists(const std::string& fp)
+{ 
+    for (auto& t : m_file_tabs)
+    {
+        if (fs::equivalent(t.path(), fp))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

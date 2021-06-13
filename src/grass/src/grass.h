@@ -6,6 +6,7 @@
 #include "menu.h"
 #include "button.h"
 #include "explorer.h"
+#include "tab.h"
 #include <memory>
 
 enum class Mode
@@ -36,6 +37,9 @@ public:
 
     void handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_down);
 
+
+    bool tab_exists(const std::string& fp);
+
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_rend;
@@ -60,4 +64,6 @@ private:
     Mode m_mode{ Mode::NORMAL };
 
     gui::Explorer* m_explorer{ nullptr };
+
+    std::vector<gui::Tab> m_file_tabs;
 };
