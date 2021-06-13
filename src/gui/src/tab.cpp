@@ -10,7 +10,7 @@ gui::Tab::Tab(std::unique_ptr<Text> text, SDL_Color color, const std::string& fu
 
 void gui::Tab::render(SDL_Renderer* rend)
 {
-    SDL_Color bg_color = { 0, 0, 0 };
+    SDL_Color bg_color = { 30, 30, 30 };
 
     if (m_hover)
     {

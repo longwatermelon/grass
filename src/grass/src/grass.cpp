@@ -350,6 +350,11 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
                 20
             )
         );
+
+        if (m_selected_tab)
+            m_selected_tab->set_clicked(false);
+
+        m_selected_tab = tab_from_path(fs::absolute(fs::path(fp)).string());
     } 
 }
 
@@ -504,7 +509,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 file->rect().y,
                 m_tree->rect().w,
                 file->name().char_dim().y
-                });
+            });
 
             if (m_tree->is_unsaved(current_open_fp))
             {
@@ -516,6 +521,11 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
             m_text_entries[0].stop_highlight();
 
             current_open_fp = file->path();
+
+            if (m_selected_tab)
+               m_selected_tab->set_clicked(false); 
+
+            m_selected_tab = tab_from_path(current_open_fp);
             std::string ext = fs::path(current_open_fp).extension().string();
 
             // try and cover all common image file extensions even if they are not supported
@@ -721,13 +731,14 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                                 if (m_file_tabs[i].get() == m_selected_tab)
                                 {
                                     m_selected_tab = 0;
+                                    current_open_fp.clear();
+                                    close_current_file();
                                 }
 
                                 distance = m_file_tabs[i]->text_pixel_length();
                                 m_file_tabs.erase(m_file_tabs.begin() + i); 
                                 found_target_removed = true;
                                 --i;
-                                m_selected_tab = 0;
                             }
                         }
                         else
@@ -1039,16 +1050,8 @@ void Grass::handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_
 
 
 bool Grass::tab_exists(const std::string& fp)
-{ 
-    for (auto& t : m_file_tabs)
-    {
-        if (fs::equivalent(t->path(), fp))
-        {
-            return true;
-        }
-    }
-
-    return false;
+{
+    return tab_from_path(fp); 
 }
 
 
@@ -1059,6 +1062,20 @@ gui::Tab* Grass::get_clicked_tab(int mx, int my)
         if (tab->check_clicked(mx, my))
         {
             return tab.get();
+        }
+    }
+
+    return 0;
+}
+
+
+gui::Tab* Grass::tab_from_path(const std::string& path)
+{
+    for (auto& t : m_file_tabs)
+    {
+        if (fs::equivalent(t->path(), path))
+        {
+            return t.get();
         }
     }
 
