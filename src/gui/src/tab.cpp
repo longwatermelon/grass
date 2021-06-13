@@ -47,3 +47,9 @@ void gui::Tab::hover_highlight(int mx, int my)
 {
     m_hover = common::within_rect(m_text->rect(), mx, my);
 }
+
+
+void gui::Tab::move(int x)
+{
+    m_text->move(x, 0);
+}

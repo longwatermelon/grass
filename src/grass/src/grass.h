@@ -39,6 +39,7 @@ public:
 
 
     bool tab_exists(const std::string& fp);
+    gui::Tab* get_clicked_tab(int mx, int my);
 
 private:
     SDL_Window* m_window;

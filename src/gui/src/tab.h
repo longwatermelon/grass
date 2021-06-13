@@ -14,10 +14,11 @@ namespace gui
 
         void render(SDL_Renderer* rend);
 
+        void move(int x);
+
         int text_pixel_length();
 
         bool check_clicked(int mx, int my);
-
         void hover_highlight(int mx, int my);
 
         void set_clicked(bool b) { m_clicked = b; }

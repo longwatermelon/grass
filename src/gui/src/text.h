@@ -16,6 +16,8 @@ namespace gui
 
         void set_text(const std::string& text);
 
+        void move(int x, int y);
+
         SDL_Rect rect() { return m_rect; }
         std::string text() { return m_text; }
         std::string& text_ref() { return m_text; }

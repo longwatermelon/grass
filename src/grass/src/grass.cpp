@@ -700,6 +700,36 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
+
+        gui::Tab* clicked_tab = get_clicked_tab(mx, my);
+
+        if (clicked_tab)
+        {
+            menu = new gui::Menu({ mx, my }, 150, {
+                {"Remove from list", [&, path = clicked_tab->path()] () {
+                    bool found_target_removed = false;
+                    int distance = 0;
+                    
+                    for (int i = 0; i < m_file_tabs.size(); ++i)
+                    {
+                        if (!found_target_removed)
+                        {
+                            if (fs::equivalent(m_file_tabs[i].path(), path))
+                            {
+                                distance = m_file_tabs[i].text_pixel_length();
+                                m_file_tabs.erase(m_file_tabs.begin() + i); 
+                                found_target_removed = true;
+                                --i;
+                            }
+                        }
+                        else
+                        {
+                            m_file_tabs[i].move(-distance - 10);
+                        }
+                    }
+                }}
+            }, m_font_tree, { 40, 40, 40 }, m_rend);            
+        }
     }
 }
 
@@ -1011,4 +1041,18 @@ bool Grass::tab_exists(const std::string& fp)
     }
 
     return false;
+}
+
+
+gui::Tab* Grass::get_clicked_tab(int mx, int my)
+{
+    for (auto& tab : m_file_tabs)
+    {
+        if (tab.check_clicked(mx, my))
+        {
+            return &tab;
+        }
+    }
+
+    return 0;
 }

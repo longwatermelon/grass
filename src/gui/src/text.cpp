@@ -30,3 +30,10 @@ void gui::Text::set_text(const std::string& text)
 
     TTF_SizeText(m_font.font(), text.c_str(), &m_rect.w, &m_rect.h);
 }
+
+
+void gui::Text::move(int x, int y)
+{
+    m_rect.x += x;
+    m_rect.y += y;
+}
