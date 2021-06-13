@@ -328,13 +328,13 @@ void Grass::load_file(const std::string& fp)
         if (m_file_tabs.size() > 0) 
         {
             tab = m_file_tabs[m_file_tabs.size() - 1].get();
-            offset = tab->text()->rect().x - m_text_entries[0].rect().x + 10;
+            offset = tab->text()->rect().x - m_text_entries[0].rect().x + m_tab_gap;
             text_len = tab->text_pixel_length();
         }
 
         m_file_tabs.emplace_back(
             new gui::Tab(
-                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len, 20 }, fs::path(fp).filename().string(), { 255, 255, 255 })),
+                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len, m_tab_y }, fs::path(fp).filename().string(), { 255, 255, 255 })),
                 { 60, 60, 60 },
                 fs::absolute(fs::path(fp)).string(),
                 20
@@ -736,7 +736,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         }
                         else
                         {
-                            m_file_tabs[i]->move(-distance - 10);
+                            m_file_tabs[i]->move(-distance - m_tab_gap);
                         }
                     }
                 }}

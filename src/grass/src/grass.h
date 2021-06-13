@@ -79,4 +79,7 @@ private:
         1000 - 340 - m_scrollbar_width,
         800 - 40
     };
+
+    const int m_tab_gap = 10;
+    const int m_tab_y = 20;
 };
