@@ -18,6 +18,10 @@ namespace gui
 
         bool check_clicked(int mx, int my);
 
+        void hover_highlight(int mx, int my);
+
+        void set_clicked(bool b) { m_clicked = b; }
+
         Text* text() { return m_text.get(); }
         std::string path() { return m_full_path; }
 
@@ -26,5 +30,8 @@ namespace gui
         std::string m_full_path;
 
         SDL_Color m_bg_color;
+
+        bool m_hover{ false };
+        bool m_clicked{ false };
     };
 }

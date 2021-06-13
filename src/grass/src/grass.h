@@ -66,4 +66,5 @@ private:
     gui::Explorer* m_explorer{ nullptr };
 
     std::vector<gui::Tab> m_file_tabs;
+    gui::Tab* m_selected_tab{ nullptr };
 };

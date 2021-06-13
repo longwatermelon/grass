@@ -240,6 +240,11 @@ void Grass::mainloop()
 
         for (auto& t : m_file_tabs)
         {
+            t.hover_highlight(mx, my);
+
+            if (m_selected_tab)
+                m_selected_tab->set_clicked(true);
+
             t.render(m_rend);
         }
 
@@ -467,9 +472,18 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 {
                     clicked_something = true;
                     load_file(tab.path(), m_text_entries[0]); 
-                    break;
+                    m_selected_tab = &tab;
+                }
+                else
+                {
+                    tab.set_clicked(false);
                 }
             }
+        }
+
+        if (m_selected_tab)
+        {
+            m_selected_tab->set_clicked(true);
         }
         
 
