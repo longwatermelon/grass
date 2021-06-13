@@ -119,7 +119,7 @@ void Grass::mainloop()
 
         editor_image = 0;
 
-        load_file(m_exe_dir + "res/help.txt", m_text_entries[0]);
+        load_file(m_exe_dir + "res/help.txt");
         }));
 
     /* Kb event variables */
@@ -315,7 +315,7 @@ void Grass::mainloop()
 }
 
 
-void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
+void Grass::load_file(const std::string& fp)
 {
     std::ifstream ifs(fp);
 
@@ -325,8 +325,8 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
 
     ifs.close();
 
-    entry.text()->set_contents(lines);
-    reset_entry_to_default(entry);
+    m_text_entries[0].text()->set_contents(lines);
+    reset_entry_to_default(m_text_entries[0]);
 
     SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());    
  
@@ -359,11 +359,19 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
 }
 
 
-void Grass::close_current_file()
+void Grass::close_current_file(std::string& current_open_fp)
 {
     reset_entry_to_default(m_text_entries[0]);
     m_text_entries[0].text()->set_contents({ "" });
     SDL_SetWindowTitle(m_window, "Grass");
+    
+    if (tab_from_path(current_open_fp) == m_selected_tab)
+    {
+        m_selected_tab->set_clicked(false);
+        m_selected_tab = 0;
+    }
+
+    current_open_fp.clear();
 }
 
 
@@ -477,7 +485,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 if (tab->check_clicked(mx, my))
                 {
                     clicked_something = true;
-                    load_file(tab->path(), m_text_entries[0]); 
+                    load_file(tab->path()); 
                     m_selected_tab = tab.get();
                     current_open_fp = tab->path();
                 }
@@ -552,9 +560,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 m_scrollbar.show();
 
                 if (fs::exists(current_open_fp + "~"))
-                    load_file(current_open_fp + "~", m_text_entries[0]);
+                    load_file(current_open_fp + "~");
                 else
-                    load_file(current_open_fp, m_text_entries[0]);
+                    load_file(current_open_fp);
             }
 
             m_tree->update_display();
@@ -623,8 +631,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
                     if (!fs::exists(current_open_fp))
                     {
-                        current_open_fp.clear();
-                        close_current_file();
+                        close_current_file(current_open_fp);
                     }
                 }},
                 {"Rename", [&, r = rect]() {
@@ -650,8 +657,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
                     if (!fs::exists(current_open_fp))
                     {
-                        current_open_fp.clear();
-                        close_current_file();
+                        close_current_file(current_open_fp);
                     }
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
@@ -685,8 +691,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
 
                     if (!fs::exists(current_open_fp))
                     {
-                        current_open_fp.clear();
-                        close_current_file();
+                        close_current_file(current_open_fp);
                     }
                 }},
                 {"Rename",[&, r = rect]() {
@@ -730,9 +735,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                             {
                                 if (m_file_tabs[i].get() == m_selected_tab)
                                 {
-                                    m_selected_tab = 0;
-                                    current_open_fp.clear();
-                                    close_current_file();
+                                    close_current_file(current_open_fp);
                                 }
 
                                 distance = m_file_tabs[i]->text_pixel_length();
@@ -826,7 +829,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             if (ctrl_down && m_selected_entry == &m_text_entries[0] && !current_open_fp.empty())
             {
                 m_tree->erase_unsaved_file(current_open_fp, m_window);
-                load_file(current_open_fp, m_text_entries[0]);
+                load_file(current_open_fp);
             }
         }
 
@@ -993,7 +996,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
 
                 if (!fs::exists(current_open_fp))
                 {
-                    load_file(fs::path(renamed_file).parent_path().string() + '/' + new_name, m_text_entries[0]);
+                    load_file(fs::path(renamed_file).parent_path().string() + '/' + new_name);
                 }
 
                 renamed_file.clear();

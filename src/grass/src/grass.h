@@ -24,8 +24,8 @@ public:
 public:
     void mainloop();
 
-    void load_file(const std::string& fp, gui::TextEntry& entry);
-    void close_current_file();
+    void load_file(const std::string& fp);
+    void close_current_file(std::string& fp);
     void reset_entry_to_default(gui::TextEntry& entry);
 
     void handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, std::string& current_open_fp, SDL_Texture*& editor_image, std::string& renamed_file);
