@@ -240,12 +240,12 @@ void Grass::mainloop()
 
         for (auto& t : m_file_tabs)
         {
-            t.hover_highlight(mx, my);
+            t->hover_highlight(mx, my);
 
             if (m_selected_tab)
                 m_selected_tab->set_clicked(true);
 
-            t.render(m_rend);
+            t->render(m_rend);
         }
 
         if (menu)
@@ -337,13 +337,13 @@ void Grass::load_file(const std::string& fp, gui::TextEntry& entry)
         int text_len = 0;
         if (m_file_tabs.size() > 0) 
         {
-            tab = &m_file_tabs[m_file_tabs.size() - 1];
+            tab = m_file_tabs[m_file_tabs.size() - 1].get();
             offset = tab->text()->rect().x - m_text_entries[0].rect().x + 10;
             text_len = tab->text_pixel_length();
         }
 
         m_file_tabs.emplace_back(
-            gui::Tab(
+            new gui::Tab(
                 std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len }, fs::path(fp).filename().string(), { 255, 255, 255 })),
                 { 60, 60, 60 },
                 fs::absolute(fs::path(fp)).string()
@@ -468,15 +468,15 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
         {
             for (auto& tab : m_file_tabs)
             {
-                if (tab.check_clicked(mx, my))
+                if (tab->check_clicked(mx, my))
                 {
                     clicked_something = true;
-                    load_file(tab.path(), m_text_entries[0]); 
-                    m_selected_tab = &tab;
+                    load_file(tab->path(), m_text_entries[0]); 
+                    m_selected_tab = tab.get();
                 }
                 else
                 {
-                    tab.set_clicked(false);
+                    tab->set_clicked(false);
                 }
             }
         }
@@ -714,17 +714,23 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     {
                         if (!found_target_removed)
                         {
-                            if (fs::equivalent(m_file_tabs[i].path(), path))
+                            if (fs::equivalent(m_file_tabs[i]->path(), path))
                             {
-                                distance = m_file_tabs[i].text_pixel_length();
+                                if (m_file_tabs[i].get() == m_selected_tab)
+                                {
+                                    m_selected_tab = 0;
+                                }
+
+                                distance = m_file_tabs[i]->text_pixel_length();
                                 m_file_tabs.erase(m_file_tabs.begin() + i); 
                                 found_target_removed = true;
                                 --i;
+                                m_selected_tab = 0;
                             }
                         }
                         else
                         {
-                            m_file_tabs[i].move(-distance - 10);
+                            m_file_tabs[i]->move(-distance - 10);
                         }
                     }
                 }}
@@ -1034,7 +1040,7 @@ bool Grass::tab_exists(const std::string& fp)
 { 
     for (auto& t : m_file_tabs)
     {
-        if (fs::equivalent(t.path(), fp))
+        if (fs::equivalent(t->path(), fp))
         {
             return true;
         }
@@ -1048,9 +1054,9 @@ gui::Tab* Grass::get_clicked_tab(int mx, int my)
 {
     for (auto& tab : m_file_tabs)
     {
-        if (tab.check_clicked(mx, my))
+        if (tab->check_clicked(mx, my))
         {
-            return &tab;
+            return tab.get();
         }
     }
 
