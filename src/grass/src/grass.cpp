@@ -473,6 +473,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     clicked_something = true;
                     load_file(tab->path(), m_text_entries[0]); 
                     m_selected_tab = tab.get();
+                    current_open_fp = tab->path();
                 }
                 else
                 {
