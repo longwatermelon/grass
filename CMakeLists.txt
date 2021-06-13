@@ -9,6 +9,10 @@ add_subdirectory(src/gui)
 
 set_property(TARGET grass PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
+if (UNIX)
+    target_compile_options(grass PRIVATE -g)
+endif()
+
 install(TARGETS grass DESTINATION bin)
 
 include(InstallRequiredSystemLibraries)
