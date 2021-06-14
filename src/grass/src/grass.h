@@ -44,6 +44,7 @@ public:
     gui::Tab* get_first_visible_tab();
     gui::Tab* get_first_invisible_tab();
     gui::Tab* get_last_visible_tab();
+    void remove_tab(const std::string& fp, std::string& current_open_fp);
 
 private:
     SDL_Window* m_window;

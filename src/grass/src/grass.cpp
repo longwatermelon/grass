@@ -413,7 +413,7 @@ void Grass::close_current_file(std::string& current_open_fp)
     m_text_entries[0].text()->set_contents({ "" });
     SDL_SetWindowTitle(m_window, "Grass");
     
-    if (tab_from_path(current_open_fp) == m_selected_tab)
+    if (m_selected_tab && tab_from_path(current_open_fp) == m_selected_tab)
     {
         m_selected_tab->set_clicked(false);
         m_selected_tab = 0;
@@ -729,6 +729,15 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                             fs::remove(file->path() + '~');
                     }
 
+                    for (int i = 0; i < m_file_tabs.size(); ++i)
+                    {
+                        if (fs::equivalent(m_file_tabs[i]->path(), file->path()))
+                        {
+                            m_file_tabs.erase(m_file_tabs.begin() + i);
+                            break;
+                        }
+                    } 
+
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
@@ -795,47 +804,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
         {
             menu = new gui::Menu({ mx, my }, 150, {
                 {"Remove from list", [&, path = clicked_tab->path()] () {
-                    bool found_target_removed = false;
-                    int distance = 0;
-                    
-                    for (int i = 0; i < m_file_tabs.size(); ++i)
-                    {
-                        if (!found_target_removed)
-                        {
-                            if (fs::equivalent(m_file_tabs[i]->path(), path))
-                            {
-                                if (m_file_tabs[i].get() == m_selected_tab)
-                                {
-                                    close_current_file(current_open_fp);
-                                }
-
-                                distance = m_file_tabs[i]->text_pixel_length();
-                                m_file_tabs.erase(m_file_tabs.begin() + i); 
-                                found_target_removed = true;
-                                --i;
-                            }
-                        }
-                        else
-                        {
-                            m_file_tabs[i]->move(-distance - m_tab_gap);
-                        }
-                    }
-
-                    if (!get_first_visible_tab())
-                    {
-                        gui::Tab* first_invisible = get_first_invisible_tab();
-                        if (first_invisible)
-                        {
-                            for (int i = 0; i < m_file_tabs.size(); ++i)
-                            {
-                                m_file_tabs[i]->move(first_invisible->text_pixel_length() + m_tab_gap);
-                            }
-                        }
-                        else
-                        {
-                            std::cout << "no first invis\n";
-                        }
-                    }
+                    remove_tab(path, current_open_fp); 
                 }}
             }, m_font_tree, { 40, 40, 40 }, m_rend);            
         }
@@ -1079,7 +1048,9 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             if (m_mode == Mode::FILE_RENAME)
             {
                 std::string new_name = m_selected_basic_entry->text();
-                fs::rename(renamed_file, fs::path(renamed_file).parent_path().string() + '/' + new_name);
+                std::string full_new_path = fs::path(renamed_file).parent_path().string() + '/' + new_name;
+                fs::rename(renamed_file, full_new_path);
+                current_open_fp = full_new_path;
 
                 if (!fs::exists(current_open_fp))
                 {
@@ -1211,4 +1182,46 @@ gui::Tab* Grass::get_last_visible_tab()
     }
 
     return m_file_tabs[m_file_tabs.size() - 1].get();
+}
+
+
+void Grass::remove_tab(const std::string& fp, std::string& current_open_fp)
+{
+    bool found_target_removed = false;
+    int distance = 0;
+    
+    for (int i = 0; i < m_file_tabs.size(); ++i)
+    {
+        if (!found_target_removed)
+        {
+            if (fs::equivalent(m_file_tabs[i]->path(), fp))
+            {
+                if (m_file_tabs[i].get() == m_selected_tab)
+                {
+                    close_current_file(current_open_fp);
+                }
+
+                distance = m_file_tabs[i]->text_pixel_length();
+                m_file_tabs.erase(m_file_tabs.begin() + i); 
+                found_target_removed = true;
+                --i;
+            }
+        }
+        else
+        {
+            m_file_tabs[i]->move(-distance - m_tab_gap);
+        }
+    }
+
+    if (!get_first_visible_tab())
+    {
+        gui::Tab* first_invisible = get_first_invisible_tab();
+        if (first_invisible)
+        {
+            for (int i = 0; i < m_file_tabs.size(); ++i)
+            {
+                m_file_tabs[i]->move(first_invisible->text_pixel_length() + m_tab_gap);
+            }
+        }
+    }
 }
