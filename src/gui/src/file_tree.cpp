@@ -242,6 +242,28 @@ void gui::Folder::load_files(SDL_Renderer* rend)
         s.set_contents({ file_name });
         m_files.emplace_back(File(m_base_path + (name.empty() ? "" : '/' + name), s, rend));
     }
+
+    std::set<std::string> sorted;
+    for (auto& f : m_files)
+    {
+        sorted.insert(f.name().str());
+    }
+
+    std::vector<File> tmp;
+
+    for (auto& str : sorted)
+    {
+        for (auto& f : m_files)
+        {
+            if (f.name().str() == str)
+            {
+                tmp.emplace_back(std::move(f));
+                break;
+            }
+        }
+    }
+
+    m_files = std::move(tmp);
 }
 
 
