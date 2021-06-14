@@ -728,15 +728,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                         if (fs::exists(file->path() + '~'))
                             fs::remove(file->path() + '~');
                     }
-
-                    for (int i = 0; i < m_file_tabs.size(); ++i)
-                    {
-                        if (fs::equivalent(m_file_tabs[i]->path(), file->path()))
-                        {
-                            m_file_tabs.erase(m_file_tabs.begin() + i);
-                            break;
-                        }
-                    } 
+                    
+                    if (tab_exists(file->path()))
+                        remove_tab(file->path(), current_open_fp); 
 
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
