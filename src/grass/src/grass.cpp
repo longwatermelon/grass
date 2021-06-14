@@ -762,6 +762,33 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
         }
 
+        if (!file && !f)
+        {
+            if (gui::common::within_rect(m_tree->rect(), mx, my))
+            {
+                if (menu)
+                {
+                    delete menu;
+                    menu = 0;
+                }
+
+                menu = new gui::Menu({ mx, my }, 150, {
+                    {"New file", [&]() {
+                        m_tree->folder().create_new_file("New file");
+                        m_tree->folder().load(m_rend);
+                        m_tree->update_display();
+                        m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    }},
+                    {"New folder", [&]() {
+                        m_tree->folder().create_new_folder("New folder");
+                        m_tree->folder().load(m_rend);
+                        m_tree->update_display();
+                        m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
+                    }}
+                    }, m_font_tree, { 40, 40, 40 }, m_rend);
+            }
+        }
+
         gui::Tab* clicked_tab = get_clicked_tab(mx, my);
 
         if (clicked_tab)
