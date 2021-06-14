@@ -393,6 +393,16 @@ void Grass::load_file(const std::string& fp)
             m_selected_tab->set_clicked(false);
 
         m_selected_tab = tab_from_path(fs::absolute(fs::path(fp)).string());
+
+        while (m_selected_tab->rect().x > get_last_visible_tab()->rect().x)
+        {
+            gui::Tab* first = get_first_visible_tab();
+
+            for (auto& t : m_file_tabs)
+            {
+                t->move(-(first->text_pixel_length() + m_tab_gap));
+            } 
+        }
     } 
 }
 
@@ -604,10 +614,6 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
             }
 
             m_tree->update_display();
-
-            SDL_SetWindowTitle(m_window,
-                (std::string("Grass | Editing ") + file->name().str().c_str() + (m_tree->is_unsaved(file->path()) ? " - UNSAVED" : "")).c_str()
-            );
         }
 
         gui::Folder* folder = m_tree->check_folder_click(m_tree->folder(), mx, my);
@@ -1177,5 +1183,5 @@ gui::Tab* Grass::get_last_visible_tab()
             return m_file_tabs[i].get();
     }
 
-    return 0;
+    return m_file_tabs[m_file_tabs.size() - 1].get();
 }
