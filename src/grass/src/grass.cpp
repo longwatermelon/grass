@@ -112,6 +112,43 @@ void Grass::mainloop()
         load_file(m_exe_dir + "res/help.txt");
         }));
 
+    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x + 20, 0 }, ">", { 255, 255, 255 }), { m_text_entries[0].rect().x + 20, 0, 20, 20 }, { 70, 70, 70 }, [&]() {
+        gui::Tab* first_visible = get_first_visible_tab();
+        int index = 0;
+
+        for (int i = 0; i < m_file_tabs.size(); ++i)
+        {
+            if (first_visible == m_file_tabs[i].get())
+            {
+                index = i;
+                break;
+            }
+        }
+            
+        if (first_visible && index != m_file_tabs.size() - 1)
+        {
+            for (auto& t : m_file_tabs)
+            {
+                t->move(-(first_visible->text_pixel_length()) - m_tab_gap);
+            }
+        }
+    }));
+
+    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x, 0 }, "<", { 255, 255, 255 }), { m_text_entries[0].rect().x, 0, 20, 20 }, { 70, 70, 70 }, [&]() {
+        if (m_file_tabs.size() > 1)
+        {
+            gui::Tab* first_invisible = get_first_invisible_tab();
+
+            if (first_invisible)
+            {
+                for (auto& t : m_file_tabs)
+                {
+                    t->move(first_invisible->text_pixel_length() + m_tab_gap);
+                }
+            }
+        }
+    }));
+
     /* Kb event variables */
 
     bool mouse_down = false;
@@ -230,6 +267,9 @@ void Grass::mainloop()
 
         for (auto& t : m_file_tabs)
         {
+            if (t->rect().x < m_text_entries[0].rect().x)
+                continue;
+
             t->hover_highlight(mx, my);
 
             if (m_selected_tab)
@@ -739,6 +779,22 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                             m_file_tabs[i]->move(-distance - m_tab_gap);
                         }
                     }
+
+                    if (!get_first_visible_tab())
+                    {
+                        gui::Tab* first_invisible = get_first_invisible_tab();
+                        if (first_invisible)
+                        {
+                            for (int i = 0; i < m_file_tabs.size(); ++i)
+                            {
+                                m_file_tabs[i]->move(first_invisible->text_pixel_length() + m_tab_gap);
+                            }
+                        }
+                        else
+                        {
+                            std::cout << "no first invis\n";
+                        }
+                    }
                 }}
             }, m_font_tree, { 40, 40, 40 }, m_rend);            
         }
@@ -1073,4 +1129,33 @@ gui::Tab* Grass::tab_from_path(const std::string& path)
     }
 
     return 0;
+}
+
+
+gui::Tab* Grass::get_first_visible_tab()
+{
+    for (auto& t : m_file_tabs)
+    {
+        if (t->rect().x >= m_text_entries[0].rect().x)
+           return t.get();
+    }
+
+    return 0;
+}
+
+
+gui::Tab* Grass::get_first_invisible_tab()
+{
+    for (int i = 0; i < m_file_tabs.size(); ++i)
+    {
+        if (m_file_tabs[i]->rect().x >= m_text_entries[0].rect().x)
+        {
+            if (i - 1 >= 0)
+                return m_file_tabs[i - 1].get();
+            else
+                return 0;
+        }
+    }
+    
+    return m_file_tabs[m_file_tabs.size() - 1].get();
 }

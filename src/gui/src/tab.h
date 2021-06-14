@@ -25,6 +25,7 @@ namespace gui
 
         Text* text() { return m_text.get(); }
         std::string path() { return m_full_path; }
+        SDL_Rect rect() { return m_rect; }
 
     private:
         SDL_Rect m_rect;

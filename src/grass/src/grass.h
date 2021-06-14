@@ -41,6 +41,8 @@ public:
     bool tab_exists(const std::string& fp);
     gui::Tab* get_clicked_tab(int mx, int my);
     gui::Tab* tab_from_path(const std::string& path);
+    gui::Tab* get_first_visible_tab();
+    gui::Tab* get_first_invisible_tab();
 
 private:
     SDL_Window* m_window;
