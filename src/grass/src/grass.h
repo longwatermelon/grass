@@ -43,6 +43,7 @@ public:
     gui::Tab* tab_from_path(const std::string& path);
     gui::Tab* get_first_visible_tab();
     gui::Tab* get_first_invisible_tab();
+    gui::Tab* get_last_visible_tab();
 
 private:
     SDL_Window* m_window;
@@ -84,4 +85,5 @@ private:
 
     const int m_tab_gap = 10;
     const int m_tab_y = 20;
+    const int m_tab_start = m_main_text_dimensions.x + 20;
 };

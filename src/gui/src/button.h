@@ -27,7 +27,10 @@ namespace gui
         */
         void check_hover(int mx, int my);
 
+        void move_to(int x, int y);
+
         void set_down(bool b) { m_down = b; }
+        SDL_Rect rect() { return m_rect; }
 
     private:
         String m_text;

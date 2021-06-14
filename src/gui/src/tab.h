@@ -22,6 +22,7 @@ namespace gui
         void hover_highlight(int mx, int my);
 
         void set_clicked(bool b) { m_clicked = b; }
+        void set_hover(bool b) { m_hover = b; }
 
         Text* text() { return m_text.get(); }
         std::string path() { return m_full_path; }

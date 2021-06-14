@@ -112,7 +112,7 @@ void Grass::mainloop()
         load_file(m_exe_dir + "res/help.txt");
         }));
 
-    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x + 20, 0 }, ">", { 255, 255, 255 }), { m_text_entries[0].rect().x + 20, 0, 20, 20 }, { 70, 70, 70 }, [&]() {
+    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x + m_text_entries[0].rect().w, m_tab_y }, ">", { 255, 255, 255 }), { m_text_entries[0].rect().x + m_text_entries[0].rect().w, m_tab_y, 20, 20 }, { 70, 70, 70 }, [&]() {
         gui::Tab* first_visible = get_first_visible_tab();
         int index = 0;
 
@@ -134,7 +134,7 @@ void Grass::mainloop()
         }
     }));
 
-    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x, 0 }, "<", { 255, 255, 255 }), { m_text_entries[0].rect().x, 0, 20, 20 }, { 70, 70, 70 }, [&]() {
+    m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x, m_tab_y }, "<", { 255, 255, 255 }), { m_text_entries[0].rect().x, m_tab_y, 20, 20 }, { 70, 70, 70 }, [&]() {
         if (m_file_tabs.size() > 1)
         {
             gui::Tab* first_invisible = get_first_invisible_tab();
@@ -220,11 +220,7 @@ void Grass::mainloop()
             }
         }
 
-        for (auto& btn : m_buttons)
-        {
-            btn->check_hover(mx, my);
-            btn->render(m_rend);
-        }
+        
 
         m_tree->reload_outdated_folders(m_rend, false);
         m_tree->render(m_rend);
@@ -267,15 +263,24 @@ void Grass::mainloop()
 
         for (auto& t : m_file_tabs)
         {
-            if (t->rect().x < m_text_entries[0].rect().x)
+            if (t->rect().x < m_tab_start)
                 continue;
-
-            t->hover_highlight(mx, my);
+            
+            if (mx < m_text_entries[0].rect().x + m_text_entries[0].rect().w)
+                t->hover_highlight(mx, my);
+            else
+                t->set_hover(false);
 
             if (m_selected_tab)
                 m_selected_tab->set_clicked(true);
 
             t->render(m_rend);
+        }
+
+        for (auto& btn : m_buttons)
+        {
+            btn->check_hover(mx, my);
+            btn->render(m_rend);
         }
 
         if (menu)
@@ -285,6 +290,9 @@ void Grass::mainloop()
         {
             m_text_entries[0].resize_to(wx - m_scrollbar_width, wy);
             m_tree->resize_to(wy);
+            
+            // move the button on the right to fit the screen width
+            m_buttons[1]->move_to(m_text_entries[0].rect().x + m_text_entries[0].rect().w, m_buttons[2]->rect().y);
 
             SDL_Rect entry_rect = m_text_entries[0].rect();
             m_scrollbar.move((entry_rect.x + entry_rect.w) - m_scrollbar.rect().x, 0);
@@ -368,13 +376,13 @@ void Grass::load_file(const std::string& fp)
         if (m_file_tabs.size() > 0) 
         {
             tab = m_file_tabs[m_file_tabs.size() - 1].get();
-            offset = tab->text()->rect().x - m_text_entries[0].rect().x + m_tab_gap;
+            offset = tab->text()->rect().x - m_tab_start + m_tab_gap;
             text_len = tab->text_pixel_length();
         }
 
         m_file_tabs.emplace_back(
             new gui::Tab(
-                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_text_entries[0].rect().x + offset  + text_len, m_tab_y }, fs::path(fp).filename().string(), { 255, 255, 255 })),
+                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_tab_start + offset  + text_len, m_tab_y }, fs::path(fp).filename().string(), { 255, 255, 255 })),
                 { 60, 60, 60 },
                 fs::absolute(fs::path(fp)).string(),
                 20
@@ -1136,7 +1144,7 @@ gui::Tab* Grass::get_first_visible_tab()
 {
     for (auto& t : m_file_tabs)
     {
-        if (t->rect().x >= m_text_entries[0].rect().x)
+        if (t->rect().x >= m_tab_start)
            return t.get();
     }
 
@@ -1148,7 +1156,7 @@ gui::Tab* Grass::get_first_invisible_tab()
 {
     for (int i = 0; i < m_file_tabs.size(); ++i)
     {
-        if (m_file_tabs[i]->rect().x >= m_text_entries[0].rect().x)
+        if (m_file_tabs[i]->rect().x >= m_tab_start)
         {
             if (i - 1 >= 0)
                 return m_file_tabs[i - 1].get();
@@ -1158,4 +1166,16 @@ gui::Tab* Grass::get_first_invisible_tab()
     }
     
     return m_file_tabs[m_file_tabs.size() - 1].get();
+}
+
+
+gui::Tab* Grass::get_last_visible_tab()
+{
+    for (int i = m_file_tabs.size() - 1; i > 0; --i)
+    {
+        if (m_file_tabs[i]->rect().x <= m_text_entries[0].rect().x + m_text_entries[0].rect().w)
+            return m_file_tabs[i].get();
+    }
+
+    return 0;
 }

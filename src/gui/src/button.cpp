@@ -64,3 +64,10 @@ void gui::Button::check_hover(int mx, int my)
 {
     m_hover = common::within_rect(m_rect, mx, my);
 }
+
+
+void gui::Button::move_to(int x, int y)
+{
+    m_rect.x = x;
+    m_rect.y = y; 
+}
