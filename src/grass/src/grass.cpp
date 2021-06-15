@@ -666,6 +666,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 }},
                 {"Delete folder",[&, path = f->path()]() {
                     gui::Folder* folder = m_tree->folder_from_path(path);
+
                     if (folder->loaded())
                         folder->collapse(m_rend);
 
@@ -1041,14 +1042,36 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
         case SDL_SCANCODE_RETURN:
             if (m_mode == Mode::FILE_RENAME)
             {
+                if (tab_exists(renamed_file))
+                {
+                    remove_tab(renamed_file, current_open_fp);
+                }
+                
+                bool renamed_is_selected = fs::equivalent(current_open_fp, renamed_file);
+
                 std::string new_name = m_selected_basic_entry->text();
                 std::string full_new_path = fs::path(renamed_file).parent_path().string() + '/' + new_name;
                 fs::rename(renamed_file, full_new_path);
-                current_open_fp = full_new_path;
-
-                if (!fs::exists(current_open_fp))
+               
+                if (renamed_is_selected)
                 {
-                    load_file(fs::path(renamed_file).parent_path().string() + '/' + new_name);
+                    current_open_fp = full_new_path;
+                    load_file(current_open_fp); 
+                }
+                else
+                {
+                    gui::Tab* tab = m_file_tabs[m_file_tabs.size() - 1].get();
+                    int offset = tab->text()->rect().x - m_tab_start + m_tab_gap;
+                    int text_len = tab->text_pixel_length();
+
+                    m_file_tabs.emplace_back(
+                        new gui::Tab(
+                            std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_tab_start + offset  + text_len, m_tab_y }, fs::path(new_name).filename().string(), { 255, 255, 255 })),
+                            { 60, 60, 60 },
+                            fs::absolute(fs::path(full_new_path)).string(),
+                            20
+                        )
+                    );
                 }
 
                 renamed_file.clear();
