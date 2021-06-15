@@ -1235,14 +1235,27 @@ void Grass::append_tab(const std::string& full_path)
 void Grass::select_tab(const std::string& full_path)
 {
     m_selected_tab = tab_from_path(full_path);
-
-    while (m_selected_tab->rect().x > get_last_visible_tab()->rect().x)
+    
+    if (m_selected_tab)
     {
-        gui::Tab* first = get_first_visible_tab();
-
-        for (auto& t : m_file_tabs)
+        while (m_selected_tab->rect().x > get_last_visible_tab()->rect().x)
         {
-            t->move(-(first->text_pixel_length() + m_tab_gap));
+            gui::Tab* first = get_first_visible_tab();
+
+            for (auto& t : m_file_tabs)
+            {
+                t->move(-(first->text_pixel_length() + m_tab_gap));
+            } 
+        }
+
+        if (m_selected_tab->rect().x < get_first_visible_tab()->rect().x)
+        {
+            int diff = m_tab_start - m_selected_tab->rect().x;
+
+            for (auto& t : m_file_tabs)
+            {
+                t->move(diff);
+            }
         } 
     }
 }
