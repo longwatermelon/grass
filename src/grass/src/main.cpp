@@ -4,6 +4,10 @@
 #ifdef _WIN32
 #define NOMINMAX
 #include <Windows.h>
+#else
+#include <unistd.h>
+#include <libgen.h>
+#include <linux/limits.h>
 #endif
 #include <SDL_image.h>
 
@@ -19,7 +23,10 @@ int main(int argc, char** argv)
     GetModuleFileName(nullptr, path, FILENAME_MAX);
     exe_dir = fs::path(path).parent_path().string();
 #else
-    // add unix stuff here
+    std::string exe_dir;
+    char result[PATH_MAX];
+    ssize_t count = readlink("/proc/self/exe", result, PATH_MAX);
+    exe_dir = dirname(result);
 #endif // ifdef _WIN32
 #else
     std::string exe_dir = fs::current_path().string();
