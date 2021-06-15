@@ -1113,7 +1113,7 @@ gui::Tab* Grass::tab_from_path(const std::string& path)
 {
     for (auto& t : m_file_tabs)
     {
-        if (fs::equivalent(t->path(), path))
+        if (fs::path(t->path()).lexically_normal() == fs::path(path).lexically_normal())
         {
             return t.get();
         }
@@ -1173,7 +1173,7 @@ void Grass::remove_tab(const std::string& fp, std::string& current_open_fp)
     {
         if (!found_target_removed)
         {
-            if (fs::equivalent(m_file_tabs[i]->path(), fp))
+            if (fs::path(m_file_tabs[i]->path()).lexically_normal() == fs::path(fp).lexically_normal())
             {
                 if (m_file_tabs[i].get() == m_selected_tab)
                 {
