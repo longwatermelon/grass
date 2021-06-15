@@ -367,43 +367,13 @@ void Grass::load_file(const std::string& fp)
     reset_entry_to_default(m_text_entries[0]);
 
     SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());    
- 
-    if (!tab_exists(fs::absolute(fp).string()))
-    {
-        gui::Tab* tab = 0;
-        int offset = 0;
-        int text_len = 0;
-        if (m_file_tabs.size() > 0) 
-        {
-            tab = m_file_tabs[m_file_tabs.size() - 1].get();
-            offset = tab->text()->rect().x - m_tab_start + m_tab_gap;
-            text_len = tab->text_pixel_length();
-        }
+    
+    std::string path = fp;
+    if (path[path.size() - 1] == '~')
+        path.pop_back();
 
-        m_file_tabs.emplace_back(
-            new gui::Tab(
-                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_tab_start + offset  + text_len, m_tab_y }, fs::path(fp).filename().string(), { 255, 255, 255 })),
-                { 60, 60, 60 },
-                fs::absolute(fs::path(fp)).string(),
-                20
-            )
-        );
-
-        if (m_selected_tab)
-            m_selected_tab->set_clicked(false);
-
-        m_selected_tab = tab_from_path(fs::absolute(fs::path(fp)).string());
-
-        while (m_selected_tab->rect().x > get_last_visible_tab()->rect().x)
-        {
-            gui::Tab* first = get_first_visible_tab();
-
-            for (auto& t : m_file_tabs)
-            {
-                t->move(-(first->text_pixel_length() + m_tab_gap));
-            } 
-        }
-    } 
+    append_tab(path);
+    select_tab(path);
 }
 
 
@@ -611,6 +581,8 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     load_file(current_open_fp + "~");
                 else
                     load_file(current_open_fp);
+
+                m_selected_tab = tab_from_path(current_open_fp);
             }
 
             m_tree->update_display();
@@ -1052,7 +1024,8 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
                 std::string new_name = m_selected_basic_entry->text();
                 std::string full_new_path = fs::path(renamed_file).parent_path().string() + '/' + new_name;
                 fs::rename(renamed_file, full_new_path);
-               
+                
+                std::cout << renamed_is_selected << "\n"; 
                 if (renamed_is_selected)
                 {
                     current_open_fp = full_new_path;
@@ -1060,18 +1033,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
                 }
                 else
                 {
-                    gui::Tab* tab = m_file_tabs[m_file_tabs.size() - 1].get();
-                    int offset = tab->text()->rect().x - m_tab_start + m_tab_gap;
-                    int text_len = tab->text_pixel_length();
-
-                    m_file_tabs.emplace_back(
-                        new gui::Tab(
-                            std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_tab_start + offset  + text_len, m_tab_y }, fs::path(new_name).filename().string(), { 255, 255, 255 })),
-                            { 60, 60, 60 },
-                            fs::absolute(fs::path(full_new_path)).string(),
-                            20
-                        )
-                    );
+                    append_tab(full_new_path); 
                 }
 
                 renamed_file.clear();
@@ -1240,5 +1202,47 @@ void Grass::remove_tab(const std::string& fp, std::string& current_open_fp)
                 m_file_tabs[i]->move(first_invisible->text_pixel_length() + m_tab_gap);
             }
         }
+    }
+}
+
+
+void Grass::append_tab(const std::string& full_path)
+{
+    if (!tab_exists(fs::absolute(full_path).string()))
+    {
+        gui::Tab* tab = 0;
+        int offset = 0;
+        int text_len = 0;
+        if (m_file_tabs.size() > 0) 
+        {
+            tab = m_file_tabs[m_file_tabs.size() - 1].get();
+            offset = tab->text()->rect().x - m_tab_start + m_tab_gap;
+            text_len = tab->text_pixel_length();
+        }
+
+        m_file_tabs.emplace_back(
+            new gui::Tab(
+                std::make_unique<gui::Text>(gui::Text(m_rend, m_font_tree, { m_tab_start + offset  + text_len, m_tab_y }, fs::path(full_path).filename().string(), { 255, 255, 255 })),
+                { 60, 60, 60 },
+                fs::absolute(fs::path(full_path)).string(),
+                20
+            )
+        );
+    }
+}
+
+
+void Grass::select_tab(const std::string& full_path)
+{
+    m_selected_tab = tab_from_path(full_path);
+
+    while (m_selected_tab->rect().x > get_last_visible_tab()->rect().x)
+    {
+        gui::Tab* first = get_first_visible_tab();
+
+        for (auto& t : m_file_tabs)
+        {
+            t->move(-(first->text_pixel_length() + m_tab_gap));
+        } 
     }
 }
