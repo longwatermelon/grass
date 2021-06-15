@@ -10,7 +10,7 @@ namespace chrono = std::chrono;
 
 
 gui::Explorer::Explorer(const std::string& dir, ExplorerMode mode, SDL_Point pos, const std::string& exe_dir, common::Font& font)
-    : m_current_dir(dir), m_mode(mode), m_font(font)
+    : m_current_dir(fs::path(dir).lexically_normal().string()), m_mode(mode), m_font(font)
 {
     m_window = SDL_CreateWindow((std::string("Select ") + (mode == ExplorerMode::DIR ? "directory" : "file")).c_str(), pos.x, pos.y, 800, 400, SDL_WINDOW_HIDDEN);
     m_rend = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
