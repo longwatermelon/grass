@@ -28,11 +28,11 @@ public:
     void close_current_file(std::string& fp);
     void reset_entry_to_default(gui::TextEntry& entry);
 
-    void handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, std::string& current_open_fp, SDL_Texture*& editor_image, std::string& renamed_file);
+    void handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, SDL_Texture*& editor_image, std::string& renamed_file);
     void handle_mouse_up(bool& mouse_down);
 
-    void handle_textinput(char c, std::string& current_open_fp);
-    void handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file);
+    void handle_textinput(char c);
+    void handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file);
     void handle_keyup(SDL_Event& evt, bool& shift_down, bool& ctrl_down);
 
     void handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_down);
@@ -44,7 +44,7 @@ public:
     gui::Tab* get_first_visible_tab();
     gui::Tab* get_first_invisible_tab();
     gui::Tab* get_last_visible_tab();
-    void remove_tab(const std::string& fp, std::string& current_open_fp);
+    void remove_tab(const std::string& fp);
     void append_tab(const std::string& full_path);
     void select_tab(const std::string& full_path);
 
@@ -75,6 +75,8 @@ private:
 
     std::vector<std::unique_ptr<gui::Tab>> m_file_tabs;
     gui::Tab* m_selected_tab{ nullptr };
+
+    std::string m_current_open_fp;
 
     /* constants */
     const int m_scrollbar_width = 20;

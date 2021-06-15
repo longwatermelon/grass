@@ -84,7 +84,7 @@ void Grass::mainloop()
 
     /* Extra misc variables that should be added to */
 
-    std::string current_open_fp;
+    std::string m_current_open_fp;
     SDL_Texture* editor_image = nullptr;
 
     int prev_wx, prev_wy;
@@ -185,7 +185,7 @@ void Grass::mainloop()
             switch (evt.type)
             {
             case SDL_MOUSEBUTTONDOWN:
-                handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, current_open_fp, editor_image, renamed_fp);
+                handle_mouse_down(evt.button.button, mouse_down, mx, my, menu, editor_image, renamed_fp);
                 break;
 
             case SDL_MOUSEBUTTONUP:
@@ -193,11 +193,11 @@ void Grass::mainloop()
                 break;
 
             case SDL_TEXTINPUT:
-                handle_textinput(evt.text.text[0], current_open_fp);
+                handle_textinput(evt.text.text[0]);
                 break;
 
             case SDL_KEYDOWN:
-                handle_keydown(evt, ctrl_down, shift_down, mouse_down, current_open_fp, editor_image, { wx, wy }, renamed_fp);
+                handle_keydown(evt, ctrl_down, shift_down, mouse_down, editor_image, { wx, wy }, renamed_fp);
                 break;
 
             case SDL_KEYUP:
@@ -371,25 +371,33 @@ void Grass::load_file(const std::string& fp)
     std::string path = fp;
     if (path[path.size() - 1] == '~')
         path.pop_back();
-
-    append_tab(path);
-    select_tab(path);
+    
+    if (!fs::exists(path))
+    {
+        SDL_ShowSimpleMessageBox(SDL_MessageBoxFlags::SDL_MESSAGEBOX_ERROR, "Error", ("'" + fs::path(path).lexically_normal().string() + "' doesn't exist").c_str(), m_window);
+        remove_tab(path);
+        return;
+    }
+    else
+    {
+        append_tab(path);
+        select_tab(path);
+    }
 }
 
-
-void Grass::close_current_file(std::string& current_open_fp)
+void Grass::close_current_file(std::string& m_current_open_fp)
 {
     reset_entry_to_default(m_text_entries[0]);
     m_text_entries[0].text()->set_contents({ "" });
     SDL_SetWindowTitle(m_window, "Grass");
     
-    if (m_selected_tab && tab_from_path(current_open_fp) == m_selected_tab)
+    if (m_selected_tab && tab_from_path(m_current_open_fp) == m_selected_tab)
     {
         m_selected_tab->set_clicked(false);
         m_selected_tab = 0;
     }
 
-    current_open_fp.clear();
+    m_current_open_fp.clear();
 }
 
 
@@ -403,7 +411,7 @@ void Grass::reset_entry_to_default(gui::TextEntry& entry)
 }
 
 
-void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, std::string& current_open_fp, SDL_Texture*& editor_image, std::string& renamed_file)
+void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gui::Menu*& menu, SDL_Texture*& editor_image, std::string& renamed_file)
 {
     if (m_mode == Mode::FILE_RENAME && !m_selected_basic_entry->check_clicked(mx, my))
     {
@@ -505,7 +513,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     clicked_something = true;
                     load_file(tab->path()); 
                     m_selected_tab = tab.get();
-                    current_open_fp = tab->path();
+                    m_current_open_fp = tab->path();
                 }
                 else
                 {
@@ -537,27 +545,27 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 file->name().char_dim().y
             });
 
-            if (m_tree->is_unsaved(current_open_fp))
+            if (m_tree->is_unsaved(m_current_open_fp))
             {
-                std::ofstream ofs(current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
+                std::ofstream ofs(m_current_open_fp + "~", std::ofstream::out | std::ofstream::trunc);
                 ofs << m_text_entries[0].text()->str();
                 ofs.close();
             }
 
             m_text_entries[0].stop_highlight();
 
-            current_open_fp = file->path();
+            m_current_open_fp = file->path();
 
             if (m_selected_tab)
                m_selected_tab->set_clicked(false); 
 
-            m_selected_tab = tab_from_path(current_open_fp);
-            std::string ext = fs::path(current_open_fp).extension().string();
+            m_selected_tab = tab_from_path(m_current_open_fp);
+            std::string ext = fs::path(m_current_open_fp).extension().string();
 
             // try and cover all common image file extensions even if they are not supported
             if (ext == ".png" || ext == ".jpg" || ext == ".bmp" || ext == ".jpeg" || ext == ".webp")
             {
-                editor_image = IMG_LoadTexture(m_rend, current_open_fp.c_str());
+                editor_image = IMG_LoadTexture(m_rend, m_current_open_fp.c_str());
 
                 if (!editor_image)
                     editor_image = gui::common::render_text(m_rend, m_font_textbox.font(), SDL_GetError());
@@ -577,12 +585,12 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 m_text_entries[0].show();
                 m_scrollbar.show();
 
-                if (fs::exists(current_open_fp + "~"))
-                    load_file(current_open_fp + "~");
+                if (fs::exists(m_current_open_fp + "~"))
+                    load_file(m_current_open_fp + "~");
                 else
-                    load_file(current_open_fp);
+                    load_file(m_current_open_fp);
 
-                m_selected_tab = tab_from_path(current_open_fp);
+                m_selected_tab = tab_from_path(m_current_open_fp);
             }
 
             m_tree->update_display();
@@ -646,9 +654,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
 
-                    if (!fs::exists(current_open_fp))
+                    if (!fs::exists(m_current_open_fp))
                     {
-                        close_current_file(current_open_fp);
+                        close_current_file(m_current_open_fp);
                     }
                 }},
                 {"Rename", [&, r = rect]() {
@@ -672,9 +680,9 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     m_selected_basic_entry = &m_basic_text_entries[m_basic_text_entries.size() - 1];
                     m_selected_basic_entry->set_cursor_visible(true);
 
-                    if (!fs::exists(current_open_fp))
+                    if (!fs::exists(m_current_open_fp))
                     {
-                        close_current_file(current_open_fp);
+                        close_current_file(m_current_open_fp);
                     }
                 }}
                 }, m_font_tree, { 40, 40, 40 }, m_rend);
@@ -691,7 +699,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 {"Delete file", [&, path = file->path()]() {
                     gui::File* file = m_tree->file_from_path(path);
 
-                    if (current_open_fp == path)
+                    if (m_current_open_fp == path)
                     {
                         reset_entry_to_default(m_text_entries[0]);
                         m_text_entries[0].text()->set_contents({ "" });
@@ -703,15 +711,15 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     }
                     
                     if (tab_exists(file->path()))
-                        remove_tab(file->path(), current_open_fp); 
+                        remove_tab(file->path()); 
 
                     file->delete_self();
                     m_tree->set_selected_highlight_rect({ 0, 0, 0, 0 });
                     m_tree->reload_outdated_folders(m_rend, true);
 
-                    if (!fs::exists(current_open_fp))
+                    if (!fs::exists(m_current_open_fp))
                     {
-                        close_current_file(current_open_fp);
+                        close_current_file(m_current_open_fp);
                     }
                 }},
                 {"Rename",[&, r = rect]() {
@@ -771,7 +779,7 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
         {
             menu = new gui::Menu({ mx, my }, 150, {
                 {"Remove from list", [&, path = clicked_tab->path()] () {
-                    remove_tab(path, current_open_fp); 
+                    remove_tab(path); 
                 }}
             }, m_font_tree, { 40, 40, 40 }, m_rend);            
         }
@@ -797,7 +805,7 @@ void Grass::handle_mouse_up(bool& mouse_down)
 }
 
 
-void Grass::handle_textinput(char c, std::string& current_open_fp)
+void Grass::handle_textinput(char c)
 {
     if (m_selected_entry)
     {
@@ -805,7 +813,7 @@ void Grass::handle_textinput(char c, std::string& current_open_fp)
             m_selected_entry->erase_highlighted_section();
 
         m_selected_entry->insert_char(c);
-        m_tree->append_unsaved_file(current_open_fp, m_window);
+        m_tree->append_unsaved_file(m_current_open_fp, m_window);
     }
 
     if (m_selected_basic_entry)
@@ -815,7 +823,7 @@ void Grass::handle_textinput(char c, std::string& current_open_fp)
 }
 
 
-void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, std::string& current_open_fp, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file)
+void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bool& mouse_down, SDL_Texture* editor_image, SDL_Point window_dim, std::string& renamed_file)
 {
     switch (evt.key.keysym.scancode)
     {
@@ -830,9 +838,9 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
     case SDLK_s:
         if (m_selected_entry)
         {
-            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !current_open_fp.empty())
+            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !m_current_open_fp.empty())
             {
-                std::ofstream ofs(current_open_fp, std::ofstream::out | std::ofstream::trunc);
+                std::ofstream ofs(m_current_open_fp, std::ofstream::out | std::ofstream::trunc);
 
                 for (auto& line : m_text_entries[0].text()->contents())
                 {
@@ -841,7 +849,7 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
 
                 ofs.close();
 
-                m_tree->erase_unsaved_file(current_open_fp, m_window);
+                m_tree->erase_unsaved_file(m_current_open_fp, m_window);
             }
         }
 
@@ -849,10 +857,10 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
     case SDLK_d:
         if (m_selected_entry)
         {
-            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !current_open_fp.empty())
+            if (ctrl_down && m_selected_entry == &m_text_entries[0] && !m_current_open_fp.empty())
             {
-                m_tree->erase_unsaved_file(current_open_fp, m_window);
-                load_file(current_open_fp);
+                m_tree->erase_unsaved_file(m_current_open_fp, m_window);
+                load_file(m_current_open_fp);
             }
         }
 
@@ -919,13 +927,13 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             for (size_t i = 0; i < tab_pos; ++i)
                 m_selected_entry->insert_char(' ');
 
-            m_tree->append_unsaved_file(current_open_fp, m_window);
+            m_tree->append_unsaved_file(m_current_open_fp, m_window);
         } break;
         case SDL_SCANCODE_BACKSPACE:
             if (!mouse_down)
             {
                 m_selected_entry->remove_char();
-                m_tree->append_unsaved_file(current_open_fp, m_window);
+                m_tree->append_unsaved_file(m_current_open_fp, m_window);
             }
             break;
         case SDL_SCANCODE_LSHIFT:
@@ -1016,20 +1024,19 @@ void Grass::handle_keydown(SDL_Event& evt, bool& ctrl_down, bool& shift_down, bo
             {
                 if (tab_exists(renamed_file))
                 {
-                    remove_tab(renamed_file, current_open_fp);
+                    remove_tab(renamed_file);
                 }
                 
-                bool renamed_is_selected = fs::equivalent(current_open_fp, renamed_file);
+                bool renamed_is_selected = fs::equivalent(m_current_open_fp, renamed_file);
 
                 std::string new_name = m_selected_basic_entry->text();
                 std::string full_new_path = fs::path(renamed_file).parent_path().string() + '/' + new_name;
                 fs::rename(renamed_file, full_new_path);
                 
-                std::cout << renamed_is_selected << "\n"; 
                 if (renamed_is_selected)
                 {
-                    current_open_fp = full_new_path;
-                    load_file(current_open_fp); 
+                    m_current_open_fp = full_new_path;
+                    load_file(m_current_open_fp); 
                 }
                 else
                 {
@@ -1164,7 +1171,7 @@ gui::Tab* Grass::get_last_visible_tab()
 }
 
 
-void Grass::remove_tab(const std::string& fp, std::string& current_open_fp)
+void Grass::remove_tab(const std::string& fp)
 {
     bool found_target_removed = false;
     int distance = 0;
@@ -1177,7 +1184,7 @@ void Grass::remove_tab(const std::string& fp, std::string& current_open_fp)
             {
                 if (m_file_tabs[i].get() == m_selected_tab)
                 {
-                    close_current_file(current_open_fp);
+                    close_current_file(m_current_open_fp);
                 }
 
                 distance = m_file_tabs[i]->text_pixel_length();
