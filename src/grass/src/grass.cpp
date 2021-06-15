@@ -511,9 +511,14 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                 if (tab->check_clicked(mx, my))
                 {
                     clicked_something = true;
-                    load_file(tab->path()); 
-                    m_selected_tab = tab.get();
-                    m_current_open_fp = tab->path();
+                    std::string path = tab->path();
+                    load_file(path);
+
+                    if (fs::exists(path))
+                    {
+                        m_selected_tab = tab.get();
+                        m_current_open_fp = tab->path();
+                    }
                 }
                 else
                 {
