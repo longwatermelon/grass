@@ -506,8 +506,10 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
         
         if (!clicked_something)
         {
-            for (auto& tab : m_file_tabs)
+            for (int i = 0; i < m_file_tabs.size(); ++i)
             {
+                auto& tab = m_file_tabs[i];
+
                 if (tab->check_clicked(mx, my))
                 {
                     clicked_something = true;
@@ -518,6 +520,10 @@ void Grass::handle_mouse_down(Uint8 button, bool& mouse_down, int mx, int my, gu
                     {
                         m_selected_tab = tab.get();
                         m_current_open_fp = tab->path();
+                    }
+                    else
+                    {
+                        --i;
                     }
                 }
                 else
