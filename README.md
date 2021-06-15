@@ -1,6 +1,8 @@
 # grass
 Grass text editor
 
+Officially supports windows and debian linux
+
 # Building
 ```
 mkdir build
