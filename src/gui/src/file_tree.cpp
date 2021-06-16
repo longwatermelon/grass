@@ -466,11 +466,11 @@ void gui::Folder::remove_self()
 gui::Tree::Tree(SDL_Rect rect, Folder& folder, SDL_Rect starting_rect, SDL_Renderer* rend, const std::string& exe_dir)
     : m_folder(std::move(folder)), m_default_rect(starting_rect), m_rect(rect)
 {
-    m_closed_folder_texture = unique(IMG_LoadTexture(rend, (exe_dir + "res/folder_closed.png").c_str()));
-    m_opened_folder_texture = unique(IMG_LoadTexture(rend, (exe_dir + "res/folder_open.png").c_str()));
+    m_closed_folder_texture = unique(IMG_LoadTexture(rend, (exe_dir + "res/images/folder_closed.png").c_str()));
+    m_opened_folder_texture = unique(IMG_LoadTexture(rend, (exe_dir + "res/images/folder_open.png").c_str()));
 
-    m_file_textures["na"] = unique(IMG_LoadTexture(rend, (exe_dir + "res/file_na.png").c_str()));
-    m_file_textures["na_unsaved"] = unique(IMG_LoadTexture(rend, (exe_dir + "res/file_na_unsaved.png").c_str()));
+    m_file_textures["na"] = unique(IMG_LoadTexture(rend, (exe_dir + "res/images/file_na.png").c_str()));
+    m_file_textures["na_unsaved"] = unique(IMG_LoadTexture(rend, (exe_dir + "res/images/file_na_unsaved.png").c_str()));
 }
 
 
