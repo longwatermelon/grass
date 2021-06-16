@@ -43,8 +43,9 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         
         if (m_cached_textures[i].empty())
         {
-            highlight_text(m_min_bounds.y + i, 4, 7, { 255, 255, 0 });
+            //highlight_text(m_min_bounds.y + i, 4, 7, { 255, 255, 0 });
 //            highlight_text(m_min_bounds.y + i, 7, visible.size() - 7, { 0, 0, 255 });
+            highlight_all_occurrences(m_min_bounds.y + i, "if", { 255, 255, 0 });
             render_unrendered_text(visible, m_min_bounds.y + i);
         } 
         
@@ -809,12 +810,26 @@ void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
             continue;
         
         int start = i - 1;
+        start = std::max(start, 0);
 
         while (i < visible.size() && !occupied(i))
         {
             ++i;
         }
 
-        highlight_text(y, std::max(start, 0), i - start, { 255, 255, 255 });
+        highlight_text(y, start, i - start, { 255, 255, 255 });
+    }
+}
+
+
+void gui::TextEntry::highlight_all_occurrences(int y, const std::string& text, SDL_Color color)
+{
+    std::string line = m_text.get_line(y);
+    size_t pos = line.find(text);
+
+    while (pos != std::string::npos)
+    {
+        highlight_text(y, pos, 2, color);
+        pos = line.find(text, pos + text.size());
     }
 }

@@ -94,6 +94,8 @@ namespace gui
         void highlight_text(int y, int start, int count, SDL_Color color);
         void render_unrendered_text(const std::string& visible, int y);
 
+        void highlight_all_occurrences(int y, const std::string& text, SDL_Color color);
+
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
 
