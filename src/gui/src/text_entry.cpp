@@ -826,7 +826,7 @@ void gui::TextEntry::highlight_all_occurrences(int y, const std::string& text, S
 
     while (pos != std::string::npos)
     {
-        highlight_text(y, pos, 2, color);
+        highlight_text(y, pos, text.size(), color);
         pos = line.find(text, pos + text.size());
     }
 }
