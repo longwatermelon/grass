@@ -1,7 +1,9 @@
 # grass
 Grass text editor
 
-Officially supports windows and debian linux
+Officially supports windows and linux, not tested on mac
+
+Tabs do not render correctly, switch to the correct method of using spaces in your code
 
 # Building
 ```
