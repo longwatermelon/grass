@@ -81,7 +81,7 @@ void gui::TextEntry::render_line_numbers(SDL_Renderer* rend)
     // only used once but if calculated m_cached_textures.size() times each frame it can eat up a lot of ram
     int limit = m_text.contents().size();
 
-    SDL_SetRenderDrawColor(rend, BG_COLOR, 255);
+    SDL_SetRenderDrawColor(rend, BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, 255);
 
     SDL_Rect rect = {
         m_rect.x - m_text.char_dim().x - (int)std::to_string(limit).size() * m_text.char_dim().x,

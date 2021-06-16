@@ -22,6 +22,10 @@ public:
 
     plugin::Node* visit_function_call(plugin::Node* node);
 
+    plugin::Node* get_variable_from_name(const std::string& variable_name);
+
+    std::vector<plugin::Node*> variables() { return m_variable_definitions; }
+
 
 private:
     std::vector<Plugin> m_plugins; 

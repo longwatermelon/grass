@@ -89,3 +89,15 @@ plugin::Node* PluginManager::visit_function_call(plugin::Node* node)
     throw std::runtime_error(ss.str());
 }
 
+
+plugin::Node* PluginManager::get_variable_from_name(const std::string& variable_name)
+{
+    for (auto& var : m_variable_definitions)
+    {
+        if (var->variable_definition_name == variable_name)
+            return visit(var->variable_definition_value.get());
+    }
+
+    return 0;
+}
+

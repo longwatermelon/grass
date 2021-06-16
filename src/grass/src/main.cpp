@@ -32,9 +32,6 @@ int main(int argc, char** argv)
 #else
     std::string exe_dir = fs::current_path().string();
 #endif // ifdef NDEBUG
-    
-    PluginManager plugin_manager({ exe_dir + "/res/plugins/set_bg_color" });
-    plugin_manager.run_plugins();
 
     Grass g(exe_dir);
     g.mainloop();

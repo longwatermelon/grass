@@ -7,6 +7,7 @@
 #include "button.h"
 #include "explorer.h"
 #include "tab.h"
+#include "plugin_manager.h"
 #include <memory>
 
 enum class Mode
@@ -36,6 +37,8 @@ public:
     void handle_keyup(SDL_Event& evt, bool& shift_down, bool& ctrl_down);
 
     void handle_mousewheel(SDL_Event& evt, int mx, int my, int wy, bool ctrl_down);
+
+    void configure_from_plugins(PluginManager& manager);
 
 
     bool tab_exists(const std::string& fp);

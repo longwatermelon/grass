@@ -14,6 +14,7 @@
 #include <filesystem>
 #include <thread>
 #include <memory>
+#include <sstream>
 #include <SDL_image.h>
 
 namespace fs = std::filesystem;
@@ -148,6 +149,10 @@ void Grass::mainloop()
             }
         }
     }));
+
+    PluginManager manager({ m_exe_dir + "res/plugins/set_bg_color" });
+    manager.run_plugins();
+    configure_from_plugins(manager);
 
     /* Kb event variables */
 
@@ -320,7 +325,7 @@ void Grass::mainloop()
             SDL_RenderCopy(m_rend, editor_image, nullptr, &dstrect);
         }
 
-        SDL_SetRenderDrawColor(m_rend, BG_COLOR, 255);
+        SDL_SetRenderDrawColor(m_rend, BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, 255);
         SDL_RenderPresent(m_rend);
     }
 
@@ -1275,5 +1280,27 @@ void Grass::select_tab(const std::string& full_path)
                 t->move(diff);
             }
         } 
+    }
+}
+
+
+void Grass::configure_from_plugins(PluginManager& manager)
+{
+    auto variable_list = manager.variables();
+    plugin::Node* bg_color = manager.get_variable_from_name("bg_color");
+
+    if (bg_color)
+    {
+        std::stringstream ss(bg_color->string_value);
+        
+        std::vector<Uint8> color(3);
+        for (int i = 0; i < 3; ++i)
+        {
+            std::string line;
+            std::getline(ss, line, ' ');
+            color[i] = (Uint8)std::stoi(line); 
+        }
+
+        BG_COLOR = { color[0], color[1], color[2] };
     }
 }
