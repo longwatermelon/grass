@@ -1,4 +1,5 @@
 #include "text_entry.h"
+#include <functional>
 #include <iostream>
 
 
@@ -11,7 +12,7 @@ gui::TextEntry::TextEntry(SDL_Rect rect, SDL_Color bg_color, const Cursor& curso
     m_max_bounds = { m_rect.w / m_text.char_dim().x, m_rect.h / m_text.char_dim().y };
 
     m_text.set_contents({ "" });
-    m_cached_textures.emplace_back(nullptr);
+    m_cached_textures.emplace_back(std::vector<LineSection>(0));
     m_ln_textures.emplace_back(nullptr);
 }
 
@@ -26,7 +27,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
     if (m_cursor.display_char_pos(m_rect, m_min_bounds).y >= 0)
         placeholder_at_cache(m_cursor.display_char_pos(m_rect, m_min_bounds).y);
-
+    
     for (int i = 0; i < m_cached_textures.size(); ++i)
     {
         std::string line = m_text.get_line(i + m_min_bounds.y);
@@ -39,21 +40,34 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
         if (visible.empty())
             continue;
-
-        if (!m_cached_textures[i].get())
+        
+        if (m_cached_textures[i].empty())
         {
-            m_cached_textures[i] = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.c_str(), m_text.color()));
-        }
-
-        SDL_Rect rect = {
-            m_rect.x,
-            m_rect.y + m_text.char_dim().y * i
-        };
-
-        if (m_cached_textures[i].get())
+            highlight_text(m_min_bounds.y + i, 4, 7, { 255, 255, 0 });
+//            highlight_text(m_min_bounds.y + i, 7, visible.size() - 7, { 0, 0, 255 });
+            render_unrendered_text(visible, m_min_bounds.y + i);
+        } 
+        
+        for (auto& section : m_cached_textures[i])
         {
-            SDL_QueryTexture(m_cached_textures[i].get(), nullptr, nullptr, &rect.w, &rect.h);
-            SDL_RenderCopy(rend, m_cached_textures[i].get(), nullptr, &rect);
+            if (section.start >= visible.size())
+                continue;
+
+            if (!section.tex.get())
+            {
+                section.tex = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.substr(section.start, std::min(section.count, (int)visible.size() - section.start)).c_str(), section.color));
+            }
+
+            SDL_Rect rect = {
+                m_rect.x + section.start * m_text.char_dim().x,
+                m_rect.y + m_text.char_dim().y * i
+            };
+
+            if (section.tex.get())
+            {
+                SDL_QueryTexture(section.tex.get(), nullptr, nullptr, &rect.w, &rect.h);
+                SDL_RenderCopy(rend, section.tex.get(), nullptr, &rect);
+            }
         }
     }
 
@@ -136,7 +150,7 @@ void gui::TextEntry::insert_char(char c)
         }
 
         m_text.set_line(cursor_coords.y + 1, copied);
-        m_cached_textures.emplace_back(nullptr);
+        m_cached_textures.emplace_back(std::vector<LineSection>(0));
 
         clear_cache();
     }
@@ -184,7 +198,7 @@ void gui::TextEntry::remove_char()
                 m_text.remove_line(cursor_coords.y);
 
                 m_cached_textures.erase(m_cached_textures.begin() + m_cursor.display_char_pos(m_rect, m_min_bounds).y);
-                m_cached_textures.emplace_back(nullptr);
+                m_cached_textures.emplace_back(std::vector<LineSection>(0));
                 placeholder_at_cache(std::max(cursor_coords.y - 1 - m_min_bounds.y, 0));
 
                 int diff = m_text.get_line(cursor_coords.y - 1).size();
@@ -371,9 +385,9 @@ bool gui::TextEntry::out_of_bounds_y()
 
 void gui::TextEntry::clear_cache()
 {
-    for (auto& tex : m_cached_textures)
+    for (auto& line : m_cached_textures)
     {
-        tex = nullptr;
+        line.clear(); 
     }
 }
 
@@ -382,16 +396,16 @@ void gui::TextEntry::placeholder_at_cache(int i)
 {
     if (i >= m_cached_textures.size())
         // just in case something goes wrong
-        m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(i + 1);
+        m_cached_textures = std::vector<std::vector<LineSection>>(i + 1);
 
-    m_cached_textures[i] = nullptr;
+    m_cached_textures[i] = std::vector<LineSection>(0);
 }
 
 
 void gui::TextEntry::update_cache()
 {
     m_cached_textures.clear();
-    m_cached_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::max(std::min(m_max_bounds.y, (int)m_text.contents().size()) - m_min_bounds.y + 1, 1));
+    m_cached_textures = std::vector<std::vector<LineSection>>(std::max(std::min(m_max_bounds.y, (int)m_text.contents().size()) - m_min_bounds.y + 1, 1));
     m_ln_textures = std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>>(std::max(std::min(m_max_bounds.y, (int)m_text.contents().size()) - m_min_bounds.y + 1, 1));
 }
 
@@ -403,7 +417,7 @@ void gui::TextEntry::shift_cache(int y)
         for (int i = 0; i < y; ++i)
         {
             m_cached_textures.erase(m_cached_textures.begin());
-            m_cached_textures.emplace_back(nullptr);
+            m_cached_textures.emplace_back(std::vector<LineSection>(0));
 
             m_ln_textures.erase(m_ln_textures.begin());
             m_ln_textures.emplace_back(nullptr);
@@ -414,7 +428,7 @@ void gui::TextEntry::shift_cache(int y)
         for (int i = y; i < 0; ++i)
         {
             m_cached_textures.pop_back();
-            m_cached_textures.insert(m_cached_textures.begin(), nullptr);
+            m_cached_textures.insert(m_cached_textures.begin(), std::vector<LineSection>(0));
 
             m_ln_textures.pop_back();
             m_ln_textures.insert(m_ln_textures.begin(), nullptr);
@@ -541,8 +555,7 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
     {
         // highlight everything between cursor and origin
         for (int i = cursor_char_coords.y + 1; i < highlight_char_coords.y; ++i)
-        {
-            highlight_line(rend, i);
+        { highlight_line(rend, i);
         }
 
         SDL_Point cursor_coords = m_cursor.pos();
@@ -765,4 +778,43 @@ void gui::TextEntry::resize_text(int size)
 
     resize_to(m_rect.x + m_rect.w, m_rect.y + m_rect.h);
     update_cache();
+}
+
+
+void gui::TextEntry::highlight_text(int y, int start, int count, SDL_Color color)
+{
+    m_cached_textures[y - m_min_bounds.y].emplace_back(LineSection{ start, count, nullptr, color });
+}
+
+
+void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
+{
+    std::vector<LineSection>& sections = m_cached_textures[y - m_min_bounds.y];
+
+    std::function<bool(int)> occupied = [&](int x) {
+        for (auto& s : sections)
+        {
+            if (x >= s.start && x <= s.start + s.count)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    for (int i = 0; i < visible.size(); ++i)
+    {
+        if (occupied(i))
+            continue;
+        
+        int start = i - 1;
+
+        while (i < visible.size() && !occupied(i))
+        {
+            ++i;
+        }
+
+        highlight_text(y, std::max(start, 0), i - start, { 255, 255, 255 });
+    }
 }

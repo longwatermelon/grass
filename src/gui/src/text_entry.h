@@ -13,6 +13,14 @@ namespace gui
         HIGHLIGHT
     };
 
+    struct LineSection
+    {
+        int start;
+        int count;
+        std::unique_ptr<SDL_Texture, common::TextureDeleter> tex;
+        SDL_Color color{ 255, 255, 255 };
+    };
+
     class TextEntry
     {
     public:
@@ -82,7 +90,9 @@ namespace gui
         size_t get_tab_position();
 
         void resize_text(int size);
-
+        
+        void highlight_text(int y, int start, int count, SDL_Color color);
+        void render_unrendered_text(const std::string& visible, int y);
 
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
@@ -111,7 +121,7 @@ namespace gui
 
         String m_text;
 
-        std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_cached_textures;
+        std::vector<std::vector<LineSection>> m_cached_textures;
 
         int m_move_bounds_by{ 5 };
 
