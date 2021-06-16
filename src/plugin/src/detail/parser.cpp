@@ -1,6 +1,7 @@
 #include "parser.h"
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 
 plugin::Parser::Parser(const std::string& plugin_path)

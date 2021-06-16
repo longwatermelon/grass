@@ -5,6 +5,7 @@
 plugin::Lexer::Lexer(const std::string& contents)
     : m_contents(contents)
 {
+    m_current_char = m_contents[0];
 }
 
 
@@ -48,10 +49,10 @@ std::string plugin::Lexer::collect_id()
 {
     size_t start = m_current_index;
 
-    while (isalnum(m_current_char) && m_current_char != '\n')
+    while ((isalnum(m_current_char) || m_current_char == '_') && m_current_char != '\n')
         advance();
 
-    return m_contents.substr(start - 1, m_current_index - start + 1);
+    return m_contents.substr(start, m_current_index - start);
 }
 
 

@@ -33,14 +33,8 @@ int main(int argc, char** argv)
     std::string exe_dir = fs::current_path().string();
 #endif // ifdef NDEBUG
     
-    std::vector<std::string> plugins;
-
-    for (auto& entry : fs::directory_iterator(exe_dir + "/res/plugins", fs::directory_options::skip_permission_denied))
-    {
-        plugins.emplace_back(entry.path().string());
-    }
-
-    PluginManager plugin_manager(plugins);
+    PluginManager plugin_manager({ exe_dir + "/res/plugins/set_bg_color" });
+    plugin_manager.run_plugins();
 
     Grass g(exe_dir);
     g.mainloop();

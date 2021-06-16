@@ -11,14 +11,6 @@ namespace fs = std::filesystem;
 
 Plugin::Plugin(const std::string& plugin_path)
 {
-    std::ifstream ifs(plugin_path);
-
-    std::stringstream ss;
-    std::string line;
-    while (std::getline(ifs, line)) ss << line << "\n";
-
-    ifs.close();
-
     plugin::Parser parser(plugin_path); 
 
     try
