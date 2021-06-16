@@ -91,9 +91,12 @@ namespace gui
 
         void resize_text(int size);
         
+        // y should be a line number 
         void highlight_text(int y, int start, int count, SDL_Color color);
+        // y should be a line number
         void render_unrendered_text(const std::string& visible, int y);
-
+        
+        // y should be a line number
         void highlight_all_occurrences(int y, const std::string& text, SDL_Color color);
 
         void hide() { m_hidden = true; }

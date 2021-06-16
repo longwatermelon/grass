@@ -43,9 +43,6 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         
         if (m_cached_textures[i].empty())
         {
-            //highlight_text(m_min_bounds.y + i, 4, 7, { 255, 255, 0 });
-//            highlight_text(m_min_bounds.y + i, 7, visible.size() - 7, { 0, 0, 255 });
-            highlight_all_occurrences(m_min_bounds.y + i, "if", { 255, 255, 0 });
             render_unrendered_text(visible, m_min_bounds.y + i);
         } 
         
