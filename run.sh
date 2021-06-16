@@ -1,1 +1,1 @@
-cmake --build build && build/src/grass/grass
+build/src/grass/grass

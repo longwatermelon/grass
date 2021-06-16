@@ -6,6 +6,7 @@ project(grass)
 
 add_subdirectory(src/grass)
 add_subdirectory(src/gui)
+add_subdirectory(src/plugin)
 
 set_property(TARGET grass PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
