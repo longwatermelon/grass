@@ -11,6 +11,7 @@ enum class TokenType
     STRING,
     INT,
     COMMA,
+    EQUALS,
     EOF_ 
 };
 

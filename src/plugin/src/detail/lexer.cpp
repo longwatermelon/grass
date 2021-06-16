@@ -76,7 +76,8 @@ Token plugin::Lexer::get_next_token()
             case ';': return advance_w_token({ TokenType::SEMI, ";" }); break;
             case '(': return advance_w_token({ TokenType::LPAREN, "(" }); break;
             case ')': return advance_w_token({ TokenType::RPAREN, ")" }); break;
-            case ',': return advance_w_token({ TokenType::COMMA, ","}); break;
+            case ',': return advance_w_token({ TokenType::COMMA, "," }); break;
+            case '=': return advance_w_token({ TokenType::EQUALS, "=" }); break;
         }
 
         ++m_current_line_num;

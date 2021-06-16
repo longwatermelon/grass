@@ -27,7 +27,8 @@ Plugin::Plugin(const std::string& plugin_path)
     }
     catch (std::runtime_error& ex)
     {
-        std::cout << fs::absolute(fs::path(plugin_path).lexically_normal()).string() << ": " <<  ex.what() << "\n";
+        std::cout << "\033[31merror:\033[0m " << fs::absolute(fs::path(plugin_path).lexically_normal()).string() << ": " <<  ex.what() << "\n";
+        m_ast = 0;
     }
 }
 
