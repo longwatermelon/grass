@@ -109,7 +109,7 @@ void Grass::mainloop()
 
         editor_image = 0;
 
-        load_file(m_exe_dir + "res/help.txt");
+        load_file(m_exe_dir + "res/misc/help.txt");
         }));
 
     m_buttons.emplace_back(new gui::Button(m_rend, gui::String(m_font_tree, { m_text_entries[0].rect().x + m_text_entries[0].rect().w, m_tab_y }, ">", { 255, 255, 255 }), { m_text_entries[0].rect().x + m_text_entries[0].rect().w, m_tab_y, 20, 20 }, { 70, 70, 70 }, [&]() {
