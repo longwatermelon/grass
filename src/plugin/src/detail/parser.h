@@ -22,6 +22,9 @@ namespace plugin
 
         std::unique_ptr<Node> parse_function_call();
 
+        std::unique_ptr<Node> parse_variable();
+        std::unique_ptr<Node> parse_variable_definition();
+
     private:
         Token m_current_token;
         Token m_prev_token;

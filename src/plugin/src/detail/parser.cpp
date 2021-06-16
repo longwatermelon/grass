@@ -91,9 +91,10 @@ std::unique_ptr<plugin::Node> plugin::Parser::parse_int()
 
 std::unique_ptr<plugin::Node> plugin::Parser::parse_id()
 {
-    // so far no other use for ids
-    eat(TokenType::ID);
-    return parse_function_call();
+    if (m_current_token.value == "set")
+        return parse_variable_definition();
+    else
+        return parse_variable();
 }
 
 
@@ -113,5 +114,39 @@ std::unique_ptr<plugin::Node> plugin::Parser::parse_function_call()
 
     eat(TokenType::RPAREN);
     return node;
+}
+
+
+std::unique_ptr<plugin::Node> plugin::Parser::parse_variable()
+{
+    std::string value = m_current_token.value;
+    eat(TokenType::ID);
+
+    if (m_current_token.type == TokenType::LPAREN)
+    {
+        return parse_function_call();
+    }
+
+    std::unique_ptr<Node> variable = std::make_unique<Node>(NodeType::VARIABLE);
+    variable->variable_name = value;
+
+    return variable;
+}
+
+
+std::unique_ptr<plugin::Node> plugin::Parser::parse_variable_definition()
+{
+    eat(TokenType::ID);
+    std::string name = m_current_token.value;
+    eat(TokenType::ID);
+    eat(TokenType::EQUALS);
+
+    std::unique_ptr<Node> value = parse_expr();
+
+    std::unique_ptr<Node> variable_def = std::make_unique<Node>(NodeType::VARIABLE_DEFINITION);
+    variable_def->variable_definition_name = name;
+    variable_def->variable_definition_value = std::move(value);
+
+    return variable_def; 
 }
 

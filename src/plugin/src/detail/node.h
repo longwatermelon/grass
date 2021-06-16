@@ -9,6 +9,8 @@ namespace plugin
     enum class NodeType
     {
         FUNCTION_CALL,
+        VARIABLE,
+        VARIABLE_DEFINITION,
         INT,
         STRING,
         COMPOUND,
@@ -33,5 +35,12 @@ namespace plugin
 
         // compound
         std::vector<std::unique_ptr<Node>> compound_value;
+
+        // variable definition
+        std::string variable_definition_name;
+        std::unique_ptr<Node> variable_definition_value;
+
+        // variable
+        std::string variable_name;
     }; 
 }
