@@ -803,23 +803,9 @@ void gui::TextEntry::highlight_text(int y, int start, int count, SDL_Color color
 
 void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
 {
-    std::vector<LineSection>& sections = m_cached_textures[y - m_min_bounds.y];
-
-    std::function<bool(int)> occupied = [&](int x) {
-        for (auto& s : sections)
-        {
-            if (x >= s.start && x <= s.start + s.count)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
     for (int i = 0; i <= visible.size(); ++i)
     {
-        if (occupied(i))
+        if (occupied(i, y))
         {
             continue;
         }
@@ -827,7 +813,7 @@ void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
         int start = i - 1;
         start = std::max(start, 0);
 
-        while (i <= visible.size() && !occupied(i))
+        while (i <= visible.size() && !occupied(i, y))
         {
             ++i;
         }
@@ -855,23 +841,9 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
     std::string line = m_text.get_line(y);
     size_t pos = line.find(text);
 
-    std::vector<LineSection>& sections = m_cached_textures[y - m_min_bounds.y];
-
-    std::function<bool(int)> occupied = [&](int x) {
-        for (auto& s : sections)
-        {
-            if (x >= s.start && x <= s.start + s.count)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    };
-
     while (pos != std::string::npos)
     {
-        if (occupied(pos))
+        if (occupied(pos, y))
         {
             pos = line.find(text, pos + text.size());
             continue;
@@ -920,5 +892,21 @@ void gui::TextEntry::reset_all_keywords()
     m_types_keywords.clear();
     m_constants_keywords.clear();
     m_control_flow_keywords.clear();
+}
+
+
+bool gui::TextEntry::occupied(int x, int y)
+{
+    std::vector<LineSection>& sections = m_cached_textures[y - m_min_bounds.y];
+
+    for (auto& s : sections)
+    {
+        if (x >= s.start && x <= s.start + s.count)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 

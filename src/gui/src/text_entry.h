@@ -99,6 +99,9 @@ namespace gui
         // y should be a line number
         void highlight_all_occurrences(int y, const std::string& text, SDL_Color color);
         void highlight_all_standalone_occurrences(int y, const std::string& text, SDL_Color color);
+        
+        // checks if the character at x in the line at y has already been highlighted
+        bool occupied(int x, int y);
 
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
