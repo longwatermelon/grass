@@ -149,8 +149,14 @@ void Grass::mainloop()
             }
         }
     }));
+    
+    std::vector<std::string> plugins;
+    for (auto& entry : fs::directory_iterator(m_exe_dir + "res/plugins", fs::directory_options::skip_permission_denied))
+    {
+        plugins.emplace_back(fs::absolute(entry.path()).string()); 
+    }
 
-    PluginManager manager({ m_exe_dir + "res/plugins/set_bg_color" });
+    PluginManager manager(plugins);
     manager.run_plugins();
     configure_from_plugins(manager);
 
