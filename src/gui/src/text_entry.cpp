@@ -851,7 +851,7 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
 
         if (pos > 0)
         {
-            if (isalnum(line[pos - 1]))
+            if (isalnum(line[pos - 1]) || line[pos - 1] == '_')
             {
                 standalone = false;
             }
@@ -859,7 +859,7 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
 
         if (pos + text.size() < line.size())
         {
-            if (isalnum(line[pos + text.size()]))
+            if (isalnum(line[pos + text.size()]) || line[pos + text.size()] == '_')
             {
                 standalone = false;
             }
