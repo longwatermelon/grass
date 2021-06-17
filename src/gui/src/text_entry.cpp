@@ -43,8 +43,10 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         
         if (m_cached_textures[i].empty())
         {
-            render_unrendered_text(visible, m_min_bounds.y + i);
+            highlight_all_standalone_occurrences(m_min_bounds.y + i, "if", { 255, 255, 0 });
         } 
+
+        render_unrendered_text(visible, m_min_bounds.y + i);
         
         for (auto& section : m_cached_textures[i])
         {
@@ -801,15 +803,17 @@ void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
         return false;
     };
 
-    for (int i = 0; i < visible.size(); ++i)
+    for (int i = 0; i <= visible.size(); ++i)
     {
         if (occupied(i))
+        {
             continue;
+        }
         
         int start = i - 1;
         start = std::max(start, 0);
 
-        while (i < visible.size() && !occupied(i))
+        while (i <= visible.size() && !occupied(i))
         {
             ++i;
         }
@@ -830,3 +834,37 @@ void gui::TextEntry::highlight_all_occurrences(int y, const std::string& text, S
         pos = line.find(text, pos + text.size());
     }
 }
+
+
+void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::string& text, SDL_Color color)
+{
+    std::string line = m_text.get_line(y);
+    size_t pos = line.find(text);
+
+    while (pos != std::string::npos)
+    {
+        bool standalone = true;
+
+        if (pos > 0)
+        {
+            if (isalnum(line[pos - 1]))
+            {
+                standalone = false;
+            }
+        }
+
+        if (pos + text.size() < line.size())
+        {
+            if (isalnum(line[pos + text.size()]))
+            {
+                standalone = false;
+            }
+        }
+        
+        if (standalone)
+            highlight_text(y, pos, text.size(), color);
+
+        pos = line.find(text, pos + text.size());
+    }
+}
+
