@@ -1,3 +1,5 @@
-" disabled temporarily ";
+set language_pack = 1;
 set extensions = "cpp cxx c++ h hpp";
-set keywords = "asm else new this auto enum operator throw bool explicit private true break export protected try case extern public typedef catch false register typeid char float reinterpret_cast typename class for return union const friend short unsigned const_cast goto signed using continue if sizeof virtual default inline static void delete int static_cast volatile do long struct wchar_t double mutable switch while dynamic_cast namespace template";
+set control_flow = "asm else this operator throw explicit private break export protected try case extern public typedef catch register reinterpret_cast typename class for return union friend const_cast goto using continue if sizeof virtual default inline delete static_cast volatile do struct mutable switch while dynamic_cast namespace template";
+set types = "short int unsigned long char float double long wchar_t static void bool";
+set constants = "true false";
