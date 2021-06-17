@@ -43,9 +43,19 @@ void gui::TextEntry::render(SDL_Renderer* rend)
        
         if (m_cached_textures[i].empty())
         {
-            for (auto& str : m_highlighted_keywords)
+            for (auto& str : m_types_keywords)
             {
-                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 255, 255, 0 });
+                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 52, 235, 97 });
+            }
+
+            for (auto& str : m_constants_keywords)
+            {
+                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 174, 48, 179 });
+            }
+
+            for (auto& str : m_control_flow_keywords)
+            {
+                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 196, 169, 94 });
             }
         } 
         
@@ -870,5 +880,13 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
 
         pos = line.find(text, pos + text.size());
     }
+}
+
+
+void gui::TextEntry::reset_all_keywords()
+{
+    m_types_keywords.clear();
+    m_constants_keywords.clear();
+    m_control_flow_keywords.clear();
 }
 

@@ -403,18 +403,43 @@ void Grass::load_file(const std::string& fp)
 
     bool recognized_extension = false;
 
-    for (auto& pair : m_syntax_map)
+    for (auto& pair : m_control_flow_keywords)
     {
         if (pair.first == extension)
         {
-            m_text_entries[0].set_keywords(pair.second);
+            m_text_entries[0].set_control_flow_keywords(pair.second);
             recognized_extension = true;
             break;
         } 
     }
 
+    for (auto& pair : m_types_keywords)
+    {
+        if (pair.first == extension)
+        {
+            m_text_entries[0].set_types_keywords(pair.second);
+            recognized_extension = true;
+            break;
+        }
+    }
+
+    for (auto& pair : m_constants_keywords)
+    {
+        if (pair.first == extension)
+        {
+            m_text_entries[0].set_constants_keywords(pair.second);
+            recognized_extension = true;
+            break;
+        }
+    }
+
     if (!recognized_extension)
-        m_text_entries[0].set_keywords({ });
+    {
+        m_text_entries[0].reset_all_keywords();
+        m_types_keywords.clear();
+        m_constants_keywords.clear();
+        m_control_flow_keywords.clear();
+    }
 }
 
 void Grass::close_current_file(std::string& m_current_open_fp)
@@ -1339,15 +1364,36 @@ void Grass::configure_from_plugins(PluginManager& manager)
         std::string buf;
 
         while (std::getline(ss, buf, ' ')) extensions.emplace_back(buf);
-    
-        std::stringstream keywords(plugin->variable_from_name("keywords")->variable_definition_value->string_value);
-        std::vector<std::string> keywords_list;
         
-        while (std::getline(keywords, buf, ' ')) keywords_list.emplace_back(buf);
+        std::stringstream control_flow(plugin->variable_from_name("control_flow")->variable_definition_value->string_value);
+        std::vector<std::string> control_flow_list;
         
+        while (std::getline(control_flow, buf, ' ')) control_flow_list.emplace_back(buf);
+
         for (auto& ext : extensions)
         {
-            m_syntax_map[ext] = keywords_list;
+            m_control_flow_keywords[ext] = control_flow_list;
+        }
+
+
+        std::stringstream constants(plugin->variable_from_name("constants")->variable_definition_value->string_value);
+        std::vector<std::string> constants_list;
+
+        while (std::getline(constants, buf, ' ')) constants_list.emplace_back(buf);
+
+        for (auto& ext : extensions)
+        {
+            m_constants_keywords[ext] = constants_list;
+        }
+
+        std::stringstream types(plugin->variable_from_name("types")->variable_definition_value->string_value);
+        std::vector<std::string> types_list;
+
+        while (std::getline(types, buf, ' ')) types_list.emplace_back(buf);
+
+        for (auto& ext : extensions)
+        {
+            m_types_keywords[ext] = types_list;
         }
     }
 }

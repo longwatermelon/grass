@@ -103,6 +103,8 @@ namespace gui
         void hide() { m_hidden = true; }
         void show() { m_hidden = false; }
 
+        void reset_all_keywords();
+
 
         String* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
@@ -117,7 +119,9 @@ namespace gui
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
         void set_cursor_shown(bool b) { m_show_cursor = b; }
 
-        void set_keywords(const std::vector<std::string>& keywords) { m_highlighted_keywords = keywords; }
+        void set_control_flow_keywords(const std::vector<std::string>& keywords) { m_control_flow_keywords = keywords; }
+        void set_constants_keywords(const std::vector<std::string>& keywords) { m_constants_keywords = keywords; }
+        void set_types_keywords(const std::vector<std::string>& keywords) { m_types_keywords = keywords; }
 
     private:
         SDL_Rect m_rect;
@@ -144,6 +148,8 @@ namespace gui
 
         bool m_show_cursor{ false };
 
-        std::vector<std::string> m_highlighted_keywords;
+        std::vector<std::string> m_control_flow_keywords;
+        std::vector<std::string> m_constants_keywords;
+        std::vector<std::string> m_types_keywords;
     };
 }
