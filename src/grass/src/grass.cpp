@@ -15,6 +15,7 @@
 #include <thread>
 #include <memory>
 #include <sstream>
+#include <map>
 #include <SDL_image.h>
 
 namespace fs = std::filesystem;
@@ -394,6 +395,23 @@ void Grass::load_file(const std::string& fp)
         append_tab(path);
         select_tab(path);
     }
+    
+    std::string extension = fs::path(path).extension();
+    extension.erase(extension.begin());
+    bool recognized_extension = false;
+
+    for (auto& pair : m_syntax_map)
+    {
+        if (pair.first == extension)
+        {
+            m_text_entries[0].set_keywords(pair.second);
+            recognized_extension = true;
+            break;
+        } 
+    }
+
+    if (!recognized_extension)
+        m_text_entries[0].set_keywords({ });
 }
 
 void Grass::close_current_file(std::string& m_current_open_fp)
@@ -1307,5 +1325,26 @@ void Grass::configure_from_plugins(PluginManager& manager)
         }
 
         BG_COLOR = { color[0], color[1], color[2] };
+    }
+
+    std::vector<Plugin*> language_plugins = manager.get_plugins_containing_variable("language_pack");
+
+    for (auto& plugin : language_plugins)
+    {
+        std::stringstream ss(plugin->variable_from_name("extensions")->variable_definition_value->string_value);
+        std::vector<std::string> extensions;
+        std::string buf;
+
+        while (std::getline(ss, buf, ' ')) extensions.emplace_back(buf);
+    
+        std::stringstream keywords(plugin->variable_from_name("keywords")->variable_definition_value->string_value);
+        std::vector<std::string> keywords_list;
+        
+        while (std::getline(keywords, buf, ' ')) keywords_list.emplace_back(buf);
+        
+        for (auto& ext : extensions)
+        {
+            m_syntax_map[ext] = keywords_list;
+        }
     }
 }

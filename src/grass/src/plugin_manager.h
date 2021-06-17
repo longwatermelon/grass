@@ -10,7 +10,7 @@ public:
     PluginManager(const std::vector<std::string>& plugin_paths);
 
     void run_plugins();
-    void run_plugin(Plugin& plugin);
+    void run_plugin(Plugin* plugin);
 
     
     plugin::Node* visit(plugin::Node* node);
@@ -24,8 +24,10 @@ public:
 
     plugin::Node* get_variable_from_name(const std::string& variable_name);
 
+    std::vector<Plugin*> get_plugins_containing_variable(const std::string& variable_name);
+
 
 private:
-    std::vector<Plugin> m_plugins; 
+    std::vector<std::unique_ptr<Plugin>> m_plugins; 
     Plugin* m_current_loading_plugin{ 0 };
 };

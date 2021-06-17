@@ -1,0 +1,3 @@
+set language_pack = 1;
+set extensions = "cpp cxx c++ h hpp";
+set keywords = "for int while void int bool float if else try catch";

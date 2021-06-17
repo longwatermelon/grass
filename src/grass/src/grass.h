@@ -9,6 +9,7 @@
 #include "tab.h"
 #include "plugin_manager.h"
 #include <memory>
+#include <map>
 
 enum class Mode
 {
@@ -80,6 +81,8 @@ private:
     gui::Tab* m_selected_tab{ nullptr };
 
     std::string m_current_open_fp;
+
+    std::map<std::string, std::vector<std::string>> m_syntax_map;    
 
     /* constants */
     const int m_scrollbar_width = 20;

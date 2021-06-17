@@ -1,0 +1,3 @@
+set language_pack = 1;
+set extensions = "py python";
+set keywords = "try except if while else elif for int str float";

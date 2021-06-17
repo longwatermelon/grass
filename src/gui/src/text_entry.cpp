@@ -40,11 +40,15 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
         if (visible.empty())
             continue;
-        
-        for (auto& str : m_highlighted_keywords)
+       
+        if (m_cached_textures[i].empty())
         {
-            highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 255, 255, 0 });
-        }
+            for (auto& str : m_highlighted_keywords)
+            {
+                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 255, 255, 0 });
+            }
+        } 
+        
 
         render_unrendered_text(visible, m_min_bounds.y + i);
         

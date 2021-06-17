@@ -7,9 +7,9 @@ PluginManager::PluginManager(const std::vector<std::string>& plugin_paths)
 {
     for (int i = 0; i < plugin_paths.size(); ++i)
     {
-        m_plugins.emplace_back(Plugin(plugin_paths[i]));
+        m_plugins.emplace_back(std::make_unique<Plugin>(plugin_paths[i]));
         
-        if (m_plugins[m_plugins.size() - 1].ast())
+        if (m_plugins[m_plugins.size() - 1]->ast())
             std::cout << "Loaded plugin '" << plugin_paths[i] << "': " << i + 1 << "/" << plugin_paths.size() << "\n";
     }
 }
@@ -19,15 +19,15 @@ void PluginManager::run_plugins()
 {
     for (auto& plugin : m_plugins)
     {
-        run_plugin(plugin);
+        run_plugin(plugin.get());
     }
 }
 
 
-void PluginManager::run_plugin(Plugin& plugin)
+void PluginManager::run_plugin(Plugin* plugin)
 {
-    plugin::Node* root = plugin.ast();
-    m_current_loading_plugin = &plugin;
+    plugin::Node* root = plugin->ast();
+    m_current_loading_plugin = plugin;
     visit(root);
 }
 
@@ -96,12 +96,26 @@ plugin::Node* PluginManager::get_variable_from_name(const std::string& variable_
 {
     for (auto& plugin : m_plugins)
     {
-        plugin::Node* var = plugin.variable_from_name(variable_name);
+        plugin::Node* var = plugin->variable_from_name(variable_name);
 
         if (var)
             return visit(var->variable_definition_value.get());
     }
 
     return 0;
+}
+
+
+std::vector<Plugin*> PluginManager::get_plugins_containing_variable(const std::string& variable_name)
+{
+    std::vector<Plugin*> plugins;
+
+    for (auto& plugin : m_plugins)
+    {
+        if (plugin->variable_from_name(variable_name))
+            plugins.emplace_back(plugin.get());
+    }
+
+    return plugins;
 }
 
