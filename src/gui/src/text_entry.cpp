@@ -41,11 +41,6 @@ void gui::TextEntry::render(SDL_Renderer* rend)
         if (visible.empty())
             continue;
         
-        if (m_cached_textures[i].empty())
-        {
-            highlight_all_standalone_occurrences(m_min_bounds.y + i, "if", { 255, 255, 0 });
-        } 
-
         render_unrendered_text(visible, m_min_bounds.y + i);
         
         for (auto& section : m_cached_textures[i])
