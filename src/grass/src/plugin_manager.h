@@ -24,11 +24,8 @@ public:
 
     plugin::Node* get_variable_from_name(const std::string& variable_name);
 
-    std::vector<plugin::Node*> variables() { return m_variable_definitions; }
-
 
 private:
     std::vector<Plugin> m_plugins; 
-
-    std::vector<plugin::Node*> m_variable_definitions;
+    Plugin* m_current_loading_plugin{ 0 };
 };

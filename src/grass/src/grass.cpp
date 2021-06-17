@@ -1292,7 +1292,6 @@ void Grass::select_tab(const std::string& full_path)
 
 void Grass::configure_from_plugins(PluginManager& manager)
 {
-    auto variable_list = manager.variables();
     plugin::Node* bg_color = manager.get_variable_from_name("bg_color");
 
     if (bg_color)

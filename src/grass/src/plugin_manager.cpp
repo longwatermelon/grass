@@ -27,6 +27,7 @@ void PluginManager::run_plugins()
 void PluginManager::run_plugin(Plugin& plugin)
 {
     plugin::Node* root = plugin.ast();
+    m_current_loading_plugin = &plugin;
     visit(root);
 }
 
@@ -52,18 +53,19 @@ plugin::Node* PluginManager::visit(plugin::Node* node)
 
 plugin::Node* PluginManager::visit_variable_definition(plugin::Node* node)
 {
-    m_variable_definitions.emplace_back(node);
+    m_current_loading_plugin->add_variable(node);
     return node;
 }
 
 
 plugin::Node* PluginManager::visit_variable(plugin::Node* node)
 {
-    for (auto& def : m_variable_definitions)
+    for (auto& def : m_current_loading_plugin->variables())
     {
         if (def->variable_definition_name == node->variable_name)
             return visit(def->variable_definition_value.get());
     }
+
 
     std::stringstream ss;
     ss << "Undefined variable '" << node->variable_name << "'";
@@ -92,9 +94,11 @@ plugin::Node* PluginManager::visit_function_call(plugin::Node* node)
 
 plugin::Node* PluginManager::get_variable_from_name(const std::string& variable_name)
 {
-    for (auto& var : m_variable_definitions)
+    for (auto& plugin : m_plugins)
     {
-        if (var->variable_definition_name == variable_name)
+        plugin::Node* var = plugin.variable_from_name(variable_name);
+
+        if (var)
             return visit(var->variable_definition_value.get());
     }
 
