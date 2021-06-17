@@ -117,6 +117,8 @@ namespace gui
         void set_bounds_movement(int amount) { m_move_bounds_by = amount; }
         void set_cursor_shown(bool b) { m_show_cursor = b; }
 
+        void set_keywords(const std::vector<std::string>& keywords) { m_highlighted_keywords = keywords; }
+
     private:
         SDL_Rect m_rect;
         Cursor m_cursor;
@@ -141,5 +143,7 @@ namespace gui
         std::vector<std::unique_ptr<SDL_Texture, common::TextureDeleter>> m_ln_textures;
 
         bool m_show_cursor{ false };
+
+        std::vector<std::string> m_highlighted_keywords;
     };
 }
