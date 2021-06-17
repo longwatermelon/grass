@@ -69,7 +69,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
             if (!section.tex.get())
             {
-                section.tex = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.substr(section.start, std::min(section.count, (int)visible.size() - section.start)).c_str(), section.color));
+                section.tex = std::unique_ptr<SDL_Texture, common::TextureDeleter>(common::render_text(rend, m_text.font(), visible.substr(section.start, std::min(section.count, (int)visible.size() - section.start + m_min_bounds.x)).c_str(), section.color));
             }
 
             SDL_Rect rect = {
@@ -876,7 +876,19 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
         }
         
         if (standalone)
-            highlight_text(y, pos, text.size(), color);
+        {
+            int display_pos = pos - m_min_bounds.x;
+            int count = text.size();
+
+            if (display_pos < 0)
+            {
+                count += display_pos;
+                display_pos = 0;
+            }
+            
+            if (count > 0)
+                highlight_text(y, display_pos, count, color);
+        }
 
         pos = line.find(text, pos + text.size());
     }
