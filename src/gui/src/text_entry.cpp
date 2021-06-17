@@ -855,8 +855,28 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
     std::string line = m_text.get_line(y);
     size_t pos = line.find(text);
 
+    std::vector<LineSection>& sections = m_cached_textures[y - m_min_bounds.y];
+
+    std::function<bool(int)> occupied = [&](int x) {
+        for (auto& s : sections)
+        {
+            if (x >= s.start && x <= s.start + s.count)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
     while (pos != std::string::npos)
     {
+        if (occupied(pos))
+        {
+            pos = line.find(text, pos + text.size());
+            continue;
+        }
+
         bool standalone = true;
 
         if (pos > 0)
