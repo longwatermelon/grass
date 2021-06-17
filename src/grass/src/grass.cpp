@@ -397,7 +397,10 @@ void Grass::load_file(const std::string& fp)
     }
     
     std::string extension = fs::path(path).extension();
-    extension.erase(extension.begin());
+
+    if (!extension.empty())
+        extension.erase(extension.begin());
+
     bool recognized_extension = false;
 
     for (auto& pair : m_syntax_map)
