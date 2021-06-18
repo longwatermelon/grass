@@ -560,7 +560,8 @@ void gui::TextEntry::draw_highlighted_areas(SDL_Renderer* rend)
     {
         // highlight everything between cursor and origin
         for (int i = cursor_char_coords.y + 1; i < highlight_char_coords.y; ++i)
-        { highlight_line(rend, i);
+        {
+            highlight_line(rend, i);
         }
 
         SDL_Point cursor_coords = m_cursor.pos();
