@@ -1,6 +1,8 @@
 # grass
 Grass text editor
 
+![screenshot](https://user-images.githubusercontent.com/73869536/122597274-01a42e80-d020-11eb-9863-db7c73e3f10d.png)
+
 Officially supports windows and linux, not tested on mac
 
 Tabs do not render correctly, switch to the correct method of using spaces in your code
