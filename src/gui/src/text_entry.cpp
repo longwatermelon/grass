@@ -645,6 +645,11 @@ void gui::TextEntry::highlight_section(SDL_Renderer* rend, int y_index, int x1, 
         m_text.char_dim().y
     };
 
+    if (rect.x + rect.w < m_rect.x)
+    {
+        rect.w = m_rect.x - rect.x;
+    }
+
     SDL_RenderFillRect(rend, &rect);
 }
 
