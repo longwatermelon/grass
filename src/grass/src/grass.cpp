@@ -1371,7 +1371,7 @@ void Grass::configure_from_plugins(PluginManager& manager)
 
         while (std::getline(ss, buf, ' ')) extensions.emplace_back(buf);
         
-        std::stringstream control_flow(plugin->variable_from_name("control_flow")->variable_definition_value->string_value);
+        std::stringstream control_flow(plugin->variable_from_name("control")->variable_definition_value->string_value);
         std::vector<std::string> control_flow_list;
         
         while (std::getline(control_flow, buf, ' ')) control_flow_list.emplace_back(buf);
@@ -1412,4 +1412,32 @@ void Grass::configure_from_plugins(PluginManager& manager)
             m_misc_keywords[ext] = misc_list;
         }
     }
+
+    auto assign_keywords_to_extensions = [&](Plugin* plugin, std::map<std::string, std::vector<std::string>>& syntax_map, const std::string& variable_name, const std::vector<std::string>& extensions) {
+        std::stringstream ss(plugin->variable_from_name(variable_name)->variable_definition_value->string_value);
+        std::vector<std::string> list;
+        std::string buf;
+
+        while (std::getline(ss, buf, ' ')) list.emplace_back(buf);
+
+        for (auto& ext : extensions)
+        {
+            syntax_map[ext] = list;
+        }
+    };
+
+    for (auto& plugin : language_plugins)
+    {
+        std::stringstream ss(plugin->variable_from_name("extensions")->variable_definition_value->string_value);
+        std::vector<std::string> extensions;
+        std::string buf;
+
+        while (std::getline(ss, buf, ' ')) extensions.emplace_back(buf);
+
+        assign_keywords_to_extensions(plugin, m_control_flow_keywords, "control", extensions);
+        assign_keywords_to_extensions(plugin, m_constants_keywords, "constants", extensions);
+        assign_keywords_to_extensions(plugin, m_types_keywords, "types", extensions);
+        assign_keywords_to_extensions(plugin, m_misc_keywords, "misc", extensions);
+    }
 }
+

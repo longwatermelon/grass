@@ -1,6 +1,6 @@
 set language_pack = 1;
 set extensions = "cpp cxx c++ h hpp";
-set control_flow = "public private virtual protected asm else throw explicit break export try case extern catch register reinterpret_cast for return const_cast goto continue if sizeof delete static_cast volatile do switch while dynamic_cast namespace template";
-set types = "short int unsigned long char float double long wchar_t static void bool enum class typename union const struct mutable";
+set control = "public private virtual protected asm else throw explicit break export try case extern catch register reinterpret_cast for return const_cast goto continue if sizeof delete static_cast volatile do switch while dynamic_cast namespace template";
+set types = "short int unsigned long char float double long wchar_t static void bool enum class typename union const struct mutable auto noexcept";
 set constants = "true false this";
-set misc = "#include #pragma #define noexcept operator typedef friend using virtual default inline";
+set misc = "#include #pragma #define operator typedef friend using virtual default inline";
