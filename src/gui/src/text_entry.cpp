@@ -812,8 +812,7 @@ void gui::TextEntry::render_unrendered_text(const std::string& visible, int y)
             continue;
         }
         
-        int start = i - 1;
-        start = std::max(start, 0);
+        int start = i;
 
         while (i <= visible.size() && !occupied(i, y))
         {
@@ -887,7 +886,7 @@ bool gui::TextEntry::occupied(int x, int y)
 
     for (auto& s : sections)
     {
-        if (x >= s.start && x <= s.start + s.count)
+        if (x >= s.start && x < s.start + s.count)
         {
             return true;
         }
