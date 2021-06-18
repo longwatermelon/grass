@@ -111,6 +111,7 @@ namespace gui
 
         void highlight_all_strings(int y);
         void highlight_all_ints(int y);
+        void highlight_all_comments(int y);
         
         void highlight_keywords(int y, const std::vector<std::string>& keywords, SDL_Color color);
 
@@ -131,6 +132,7 @@ namespace gui
         void set_constants_keywords(const std::vector<std::string>& keywords) { m_constants_keywords = keywords; }
         void set_types_keywords(const std::vector<std::string>& keywords) { m_types_keywords = keywords; }
         void set_misc_keywords(const std::vector<std::string>& keywords) { m_misc_keywords = keywords; }
+        void set_comment_indicators(const std::vector<std::string>& keywords) { m_comment_indicators = keywords; }
 
     private:
         SDL_Rect m_rect;
@@ -157,6 +159,6 @@ namespace gui
 
         bool m_show_cursor{ false };
 
-        std::vector<std::string> m_control_flow_keywords, m_constants_keywords, m_types_keywords, m_misc_keywords;
+        std::vector<std::string> m_control_flow_keywords, m_constants_keywords, m_types_keywords, m_misc_keywords, m_comment_indicators;
     };
 }

@@ -4,3 +4,4 @@ set control = "await else pass break except in raise class finally is return and
 set constants = "True False None";
 set types = "str int list dict tuple float lambda";
 set misc = "from import";
+set comment = "#";

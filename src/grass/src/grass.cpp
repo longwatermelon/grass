@@ -400,14 +400,13 @@ void Grass::load_file(const std::string& fp)
     if (!extension.empty())
         extension.erase(extension.begin());
 
-    bool recognized_extension = false;
+    m_text_entries[0].reset_all_keywords();
 
     for (auto& pair : m_control_flow_keywords)
     {
         if (pair.first == extension)
         {
             m_text_entries[0].set_control_flow_keywords(pair.second);
-            recognized_extension = true;
             break;
         } 
     }
@@ -417,7 +416,6 @@ void Grass::load_file(const std::string& fp)
         if (pair.first == extension)
         {
             m_text_entries[0].set_types_keywords(pair.second);
-            recognized_extension = true;
             break;
         }
     }
@@ -427,7 +425,6 @@ void Grass::load_file(const std::string& fp)
         if (pair.first == extension)
         {
             m_text_entries[0].set_constants_keywords(pair.second);
-            recognized_extension = true;
             break;
         }
     }
@@ -437,14 +434,17 @@ void Grass::load_file(const std::string& fp)
         if (pair.first == extension)
         {
             m_text_entries[0].set_misc_keywords(pair.second);
-            recognized_extension = true;
             break;
         }
     }
-    
-    if (!recognized_extension)
+
+    for (auto& pair : m_comment_indicators)
     {
-        m_text_entries[0].reset_all_keywords();
+        if (pair.first == extension)
+        {
+            m_text_entries[0].set_comment_indicators(pair.second);
+            break;
+        }
     }
 }
 
@@ -1438,6 +1438,7 @@ void Grass::configure_from_plugins(PluginManager& manager)
         assign_keywords_to_extensions(plugin, m_constants_keywords, "constants", extensions);
         assign_keywords_to_extensions(plugin, m_types_keywords, "types", extensions);
         assign_keywords_to_extensions(plugin, m_misc_keywords, "misc", extensions);
+        assign_keywords_to_extensions(plugin, m_comment_indicators, "comment", extensions);
     }
 }
 
