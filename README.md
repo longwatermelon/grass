@@ -14,7 +14,7 @@ On windows, go to C:\Users\\[user]\Program Files\grass [version]\bin\res\plugins
 
 On linux, go to /usr/share/grass/res/plugins
 
-Create a new file and follow the structure of the other config files
+Create a new file and follow the structure of the other config files in res/plugins
 
 # Building
 ```
