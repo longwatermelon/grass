@@ -6,6 +6,8 @@ Officially supports windows and linux, not tested on mac
 Tabs do not render correctly, switch to the correct method of using spaces in your code
 
 # Enabling syntax highlighting
+Grass automatically comes with syntax highlighting for python and c++, though you should probably replace them if you want accurate syntax highlighting since they are missing some keywords.
+
 On windows, go to C:\Users\\[user]\Program Files\grass [version]\bin\res\plugins
 
 On linux, go to /usr/share/grass/res/plugins
