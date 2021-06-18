@@ -432,13 +432,10 @@ void Grass::load_file(const std::string& fp)
             break;
         }
     }
-
+    
     if (!recognized_extension)
     {
         m_text_entries[0].reset_all_keywords();
-        m_types_keywords.clear();
-        m_constants_keywords.clear();
-        m_control_flow_keywords.clear();
     }
 }
 
