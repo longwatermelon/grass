@@ -49,6 +49,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             highlight_keywords(m_min_bounds.y + i, m_types_keywords, { 52, 235, 97 });
             highlight_keywords(m_min_bounds.y + i, m_constants_keywords, { 174, 48, 179 });
             highlight_keywords(m_min_bounds.y + i, m_control_flow_keywords, { 196, 169, 94 });
+            highlight_keywords(m_min_bounds.y + i, m_misc_keywords, { 143, 232, 235 });
         }
 
         render_unrendered_text(visible, m_min_bounds.y + i);
@@ -869,6 +870,7 @@ void gui::TextEntry::reset_all_keywords()
     m_types_keywords.clear();
     m_constants_keywords.clear();
     m_control_flow_keywords.clear();
+    m_misc_keywords.clear();
 }
 
 

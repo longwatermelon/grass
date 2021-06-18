@@ -232,8 +232,6 @@ void Grass::mainloop()
             }
         }
 
-        
-
         m_tree->reload_outdated_folders(m_rend, false);
         m_tree->render(m_rend);
 
@@ -429,6 +427,16 @@ void Grass::load_file(const std::string& fp)
         if (pair.first == extension)
         {
             m_text_entries[0].set_constants_keywords(pair.second);
+            recognized_extension = true;
+            break;
+        }
+    }
+
+    for (auto& pair : m_misc_keywords)
+    {
+        if (pair.first == extension)
+        {
+            m_text_entries[0].set_misc_keywords(pair.second);
             recognized_extension = true;
             break;
         }
@@ -1392,6 +1400,16 @@ void Grass::configure_from_plugins(PluginManager& manager)
         for (auto& ext : extensions)
         {
             m_types_keywords[ext] = types_list;
+        }
+
+        std::stringstream misc(plugin->variable_from_name("misc")->variable_definition_value->string_value);
+        std::vector<std::string> misc_list;
+
+        while (std::getline(misc, buf, ' ')) misc_list.emplace_back(buf);
+
+        for (auto& ext : extensions)
+        {
+            m_misc_keywords[ext] = misc_list;
         }
     }
 }

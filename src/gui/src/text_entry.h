@@ -130,6 +130,7 @@ namespace gui
         void set_control_flow_keywords(const std::vector<std::string>& keywords) { m_control_flow_keywords = keywords; }
         void set_constants_keywords(const std::vector<std::string>& keywords) { m_constants_keywords = keywords; }
         void set_types_keywords(const std::vector<std::string>& keywords) { m_types_keywords = keywords; }
+        void set_misc_keywords(const std::vector<std::string>& keywords) { m_misc_keywords = keywords; }
 
     private:
         SDL_Rect m_rect;
@@ -159,5 +160,6 @@ namespace gui
         std::vector<std::string> m_control_flow_keywords;
         std::vector<std::string> m_constants_keywords;
         std::vector<std::string> m_types_keywords;
+        std::vector<std::string> m_misc_keywords;
     };
 }
