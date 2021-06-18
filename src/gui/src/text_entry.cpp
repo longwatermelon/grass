@@ -27,7 +27,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
     if (m_cursor.display_char_pos(m_rect, m_min_bounds).y >= 0)
         placeholder_at_cache(m_cursor.display_char_pos(m_rect, m_min_bounds).y);
-    
+
     for (int i = 0; i < m_cached_textures.size(); ++i)
     {
         std::string line = m_text.get_line(i + m_min_bounds.y);
@@ -40,10 +40,11 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
         if (visible.empty())
             continue;
-       
+
         if (m_cached_textures[i].empty())
         {
             highlight_all_strings();
+            highlight_all_ints();
 
             for (auto& str : m_types_keywords)
             {
@@ -59,8 +60,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             {
                 highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 196, 169, 94 });
             }
-        } 
-        
+        }
 
         render_unrendered_text(visible, m_min_bounds.y + i);
         
@@ -167,8 +167,6 @@ void gui::TextEntry::insert_char(char c)
 
         m_text.set_line(cursor_coords.y + 1, copied);
         m_cached_textures.emplace_back(std::vector<LineSection>(0));
-
-        clear_cache();
     }
     else
     {
@@ -403,8 +401,10 @@ void gui::TextEntry::clear_cache()
 {
     for (auto& line : m_cached_textures)
     {
-        line.clear(); 
+        line.clear();
     }
+
+    update_cache();
 }
 
 
@@ -940,5 +940,52 @@ void gui::TextEntry::safe_highlight_text(int y, int start, int count, SDL_Color 
     {
         highlight_text(y, start, count, color);
     }
+}
+
+
+void gui::TextEntry::highlight_all_ints()
+{
+    for (int i = 0; i < m_cached_textures.size(); ++i)
+    {
+        std::string line = m_text.get_line(m_min_bounds.y + i);
+        int start = 0;
+        int count = 0;
+        bool currently_on_int = false;
+
+        for (int x = 0; x < line.size(); ++x)
+        {
+            if (isdigit(line[x]))
+            {
+                if (currently_on_int)
+                {
+                    ++count;
+                }
+                else
+                {
+                    start = x;
+                    count = 1;
+                    currently_on_int = true;
+                }
+            }
+            else
+            {
+                if (currently_on_int)
+                {
+                    if (!isalpha(line[x]) && !isalpha(line[start - 1]))
+                        safe_highlight_text(m_min_bounds.y + i, start, count, { 174, 48, 179 });
+
+                    currently_on_int = false;
+                    start = 0;
+                    count = 0;
+                }
+            }
+        }
+            
+        // if the last character of the line is a digit it will never hit the else block to isdigit(line[x])
+        if (currently_on_int && !isalpha(line[start - 1]))
+        {
+            safe_highlight_text(m_min_bounds.y + i, start, count, { 174, 48, 179 });
+        }
+    } 
 }
 

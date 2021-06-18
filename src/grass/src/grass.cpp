@@ -376,6 +376,7 @@ void Grass::load_file(const std::string& fp)
     ifs.close();
 
     m_text_entries[0].text()->set_contents(lines);
+    m_text_entries[0].update_cache();
     reset_entry_to_default(m_text_entries[0]);
 
     SDL_SetWindowTitle(m_window, ("Grass | Editing " + fs::path(fp).filename().string() + (m_tree->is_unsaved(fs::absolute(fp).string()) ? " - UNSAVED" : "")).c_str());    

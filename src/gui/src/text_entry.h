@@ -110,6 +110,7 @@ namespace gui
         void reset_all_keywords();
 
         void highlight_all_strings();
+        void highlight_all_ints();
 
 
         String* text() { return &m_text; }
