@@ -14,23 +14,7 @@ On windows, go to C:\Users\\[user]\Program Files\grass [version]\bin\res\plugins
 
 On linux, go to /usr/share/grass/res/plugins
 
-Create a new file and follow this general layout
-```
-set language_pack = 1;
-set extensions = "all file extensions associated with the language";
-set control_flow = "language control flow keywords (if, else, while)";
-set constants = "language constants (true, false, nullptr)";
-set types = "langauge types (int, short, long, float)";
-```
-
-Example python config file
-```
-set language_pack = 1;
-set extensions = "py python";
-set control_flow = "if while else elif";
-set constants = "True False";
-set types = "int str float";
-```
+Create a new file and follow the structure of the other config files
 
 # Building
 ```
