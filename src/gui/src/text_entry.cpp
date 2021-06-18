@@ -954,12 +954,13 @@ void gui::TextEntry::highlight_all_ints(int y)
             start = i;
             count = 1;
             
-            while (i < line.size() - 1 && isdigit(line[++i]))
+            while (i < line.size() && isdigit(line[++i]))
             {
                 ++count;
             }
-
-            safe_highlight_text(m_min_bounds.y + y, start, count, { 174, 48, 179 });
+            
+            if (!isalpha(line[i]) && !isalpha(line[start - 1])) 
+                safe_highlight_text(m_min_bounds.y + y, start, count, { 174, 48, 179 });
         }
     }
 }
