@@ -845,12 +845,6 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
 
     while (pos != std::string::npos)
     {
-        if (occupied(pos, y))
-        {
-            pos = line.find(text, pos + text.size());
-            continue;
-        }
-
         bool standalone = true;
 
         if (pos > 0)
@@ -871,17 +865,7 @@ void gui::TextEntry::highlight_all_standalone_occurrences(int y, const std::stri
         
         if (standalone)
         {
-            int display_pos = pos - m_min_bounds.x;
-            int count = text.size();
-
-            if (display_pos < 0)
-            {
-                count += display_pos;
-                display_pos = 0;
-            }
-            
-            if (count > 0)
-                highlight_text(y, display_pos, count, color);
+            safe_highlight_text(y, (int)pos, (int)text.size(), color); 
         }
 
         pos = line.find(text, pos + text.size());
