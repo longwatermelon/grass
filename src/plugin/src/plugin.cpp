@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 
 Plugin::Plugin(const std::string& plugin_path)
-    : m_name(fs::path(plugin_path).filename())
+    : m_name(fs::path(plugin_path).filename().string())
 {
     plugin::Parser parser(plugin_path); 
 

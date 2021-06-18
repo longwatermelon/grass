@@ -397,7 +397,7 @@ void Grass::load_file(const std::string& fp)
         select_tab(path);
     }
     
-    std::string extension = fs::path(path).extension();
+    std::string extension = fs::path(path).extension().string();
 
     if (!extension.empty())
         extension.erase(extension.begin());
