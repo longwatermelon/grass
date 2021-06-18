@@ -109,7 +109,7 @@ namespace gui
 
         void reset_all_keywords();
 
-        void highlight_all_strings();
+        void highlight_all_strings(int y);
         void highlight_all_ints(int y);
 
 

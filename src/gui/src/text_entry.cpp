@@ -43,7 +43,7 @@ void gui::TextEntry::render(SDL_Renderer* rend)
 
         if (m_cached_textures[i].empty())
         {
-            highlight_all_strings();
+            highlight_all_strings(i);
             highlight_all_ints(i);
 
             for (auto& str : m_types_keywords)
@@ -899,25 +899,22 @@ bool gui::TextEntry::occupied(int x, int y)
 }
 
 
-void gui::TextEntry::highlight_all_strings()
+void gui::TextEntry::highlight_all_strings(int y)
 {
-    for (int i = 0; i < m_cached_textures.size(); ++i)
+    std::string line = m_text.get_line(m_min_bounds.y + y);
+
+    size_t pos = line.find('"');
+
+    while (pos != std::string::npos)
     {
-        std::string line = m_text.get_line(m_min_bounds.y + i);
+        size_t end = pos + 1;
+        
+        while (line[end++] != '"' && end < line.size())
+            ;
 
-        size_t pos = line.find('"');
+        safe_highlight_text(m_min_bounds.y + y, (int)pos, (int)end - (int)pos, { 174, 48, 179 });
 
-        while (pos != std::string::npos)
-        {
-            size_t end = pos + 1;
-            
-            while (line[end++] != '"' && end < line.size())
-                ;
-
-            safe_highlight_text(m_min_bounds.y + i, (int)pos, (int)end - (int)pos, { 174, 48, 179 });
-
-            pos = line.find('"', end);
-        }
+        pos = line.find('"', end);
     }
 }
 
