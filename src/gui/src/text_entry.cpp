@@ -46,20 +46,9 @@ void gui::TextEntry::render(SDL_Renderer* rend)
             highlight_all_strings(i);
             highlight_all_ints(i);
 
-            for (auto& str : m_types_keywords)
-            {
-                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 52, 235, 97 });
-            }
-
-            for (auto& str : m_constants_keywords)
-            {
-                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 174, 48, 179 });
-            }
-
-            for (auto& str : m_control_flow_keywords)
-            {
-                highlight_all_standalone_occurrences(m_min_bounds.y + i, str, { 196, 169, 94 });
-            }
+            highlight_keywords(m_min_bounds.y + i, m_types_keywords, { 52, 235, 97 });
+            highlight_keywords(m_min_bounds.y + i, m_constants_keywords, { 174, 48, 179 });
+            highlight_keywords(m_min_bounds.y + i, m_control_flow_keywords, { 196, 169, 94 });
         }
 
         render_unrendered_text(visible, m_min_bounds.y + i);
@@ -964,6 +953,15 @@ void gui::TextEntry::highlight_all_ints(int y)
             if (!isalpha(line[i]) && !isalpha(line[start - 1])) 
                 safe_highlight_text(m_min_bounds.y + y, start, count, { 174, 48, 179 });
         }
+    }
+}
+
+
+void gui::TextEntry::highlight_keywords(int y, const std::vector<std::string>& keywords, SDL_Color color)
+{
+    for (auto& str : keywords)
+    {
+        highlight_all_standalone_occurrences(y, str, color);
     }
 }
 

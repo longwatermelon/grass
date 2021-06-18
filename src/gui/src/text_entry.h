@@ -111,7 +111,8 @@ namespace gui
 
         void highlight_all_strings(int y);
         void highlight_all_ints(int y);
-
+        
+        void highlight_keywords(int y, const std::vector<std::string>& keywords, SDL_Color color);
 
         String* text() { return &m_text; }
         SDL_Rect rect() { return m_rect; }
