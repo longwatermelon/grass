@@ -927,31 +927,35 @@ void gui::TextEntry::highlight_all_strings()
             
             while (line[end++] != '"' && end < line.size())
                 ;
-            
-            bool is_occupied = false;
 
-            for (int j = pos; j <= pos + end; ++j)
-            {
-                if (occupied(j - m_min_bounds.x, m_min_bounds.y + i))
-                {
-                    is_occupied = true;
-                }
-            }
-            
-            int start = (int)pos - m_min_bounds.x;
-            int count = end - pos;
-
-            if (start < 0)
-            {
-                count += start;
-                start = 0;
-            }
-
-            if (!is_occupied && count > 0)
-                highlight_text(m_min_bounds.y + i, start, count, { 174, 48, 179 });
+            safe_highlight_text(m_min_bounds.y + i, (int)pos, (int)end - (int)pos, { 174, 48, 179 });
 
             pos = line.find('"', end);
         }
+    }
+}
+
+
+void gui::TextEntry::safe_highlight_text(int y, int start, int count, SDL_Color color)
+{
+    bool is_occupied = false;
+    for (int i = start; i <= start + count; ++i)
+    {
+        if (occupied(i - m_min_bounds.x, y))
+           is_occupied = true; 
+    }
+
+    start -= m_min_bounds.x;
+    
+    if (start < 0)
+    {
+        count += start;
+        start = 0;
+    }
+
+    if (!is_occupied && count > 0)
+    {
+        highlight_text(y, start, count, color);
     }
 }
 

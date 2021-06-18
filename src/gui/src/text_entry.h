@@ -93,6 +93,7 @@ namespace gui
         
         // y should be a line number 
         void highlight_text(int y, int start, int count, SDL_Color color);
+        void safe_highlight_text(int y, int start, int count, SDL_Color color);
         // y should be a line number
         void render_unrendered_text(const std::string& visible, int y);
         
