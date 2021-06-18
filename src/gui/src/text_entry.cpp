@@ -896,18 +896,19 @@ void gui::TextEntry::highlight_all_strings(int y)
 {
     std::string line = m_text.get_line(m_min_bounds.y + y);
 
-    size_t pos = line.find('"');
-
-    while (pos != std::string::npos)
+    for (int i = 0; i < line.size(); ++i)
     {
-        size_t end = pos + 1;
-        
-        while (line[end++] != '"' && end < line.size())
-            ;
+        if (line[i] == '\'' || line[i] == '"')
+        {
+            size_t start = i;
 
-        safe_highlight_text(m_min_bounds.y + y, (int)pos, (int)end - (int)pos, { 174, 48, 179 });
+            while (line[++i] != line[start])
+                ;
 
-        pos = line.find('"', end);
+            ++i;
+
+            safe_highlight_text(m_min_bounds.y + y, start, i - start, { 174, 48, 179 });
+        } 
     }
 }
 
