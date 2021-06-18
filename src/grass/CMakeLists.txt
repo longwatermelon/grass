@@ -12,5 +12,10 @@ target_link_libraries(grass PRIVATE gui plugin)
 
 install(TARGETS grass DESTINATION bin)
 # hacky solution but it works
-install(DIRECTORY ${CMAKE_BINARY_DIR}/src/grass/Release/ DESTINATION bin FILES_MATCHING PATTERN "*.dll")
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION bin/res)
+if (WIN32)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/src/grass/Release/ DESTINATION bin FILES_MATCHING PATTERN "*.dll")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION bin/res)
+else()
+    file(MAKE_DIRECTORY /usr/share/grass)
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/res/ DESTINATION /usr/share/grass/res)
+endif()
