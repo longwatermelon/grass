@@ -7,6 +7,7 @@ Tabs do not render correctly, switch to the correct method of using spaces in yo
 
 # Enabling syntax highlighting
 On windows, go to C:\Users\[user]\Program Files\grass [version]\bin\res\plugins
+
 On linux, go to /usr/share/grass/res/plugins
 
 Create a new file and then follow this general layout
