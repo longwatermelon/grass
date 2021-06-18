@@ -1,7 +1,7 @@
 # grass
 Grass text editor
 
-![screenshot](https://user-images.githubusercontent.com/73869536/122615905-37f0a680-d03e-11eb-8485-52f406a599c1.png)
+![screenshot](https://user-images.githubusercontent.com/73869536/122617594-6b810000-d041-11eb-9dd8-005962d91034.png)
 
 Officially supports windows and linux, not tested on mac
 
