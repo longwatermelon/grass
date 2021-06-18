@@ -157,9 +157,6 @@ namespace gui
 
         bool m_show_cursor{ false };
 
-        std::vector<std::string> m_control_flow_keywords;
-        std::vector<std::string> m_constants_keywords;
-        std::vector<std::string> m_types_keywords;
-        std::vector<std::string> m_misc_keywords;
+        std::vector<std::string> m_control_flow_keywords, m_constants_keywords, m_types_keywords, m_misc_keywords;
     };
 }

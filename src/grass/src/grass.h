@@ -82,10 +82,7 @@ private:
 
     std::string m_current_open_fp;
 
-    std::map<std::string, std::vector<std::string>> m_control_flow_keywords;    
-    std::map<std::string, std::vector<std::string>> m_constants_keywords;
-    std::map<std::string, std::vector<std::string>> m_types_keywords;
-    std::map<std::string, std::vector<std::string>> m_misc_keywords;
+    std::map<std::string, std::vector<std::string>> m_control_flow_keywords, m_constants_keywords, m_types_keywords, m_misc_keywords;
 
     /* constants */
     const int m_scrollbar_width = 20;
