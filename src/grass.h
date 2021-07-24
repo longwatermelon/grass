@@ -1,13 +1,13 @@
 #pragma once
-#include "text_entry.h"
-#include "basic_text_entry.h"
-#include "file_tree.h"
-#include "scrollbar.h"
-#include "menu.h"
-#include "button.h"
-#include "explorer.h"
-#include "tab.h"
 #include "plugin_manager.h"
+#include "gui/text_entry.h"
+#include "gui/basic_text_entry.h"
+#include "gui/file_tree.h"
+#include "gui/scrollbar.h"
+#include "gui/menu.h"
+#include "gui/button.h"
+#include "gui/explorer.h"
+#include "gui/tab.h"
 #include <memory>
 #include <map>
 
