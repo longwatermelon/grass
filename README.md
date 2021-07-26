@@ -21,9 +21,9 @@ Create a new file and follow the structure of the other config files in res/plug
 # Building
 If you want to install grass and you:
 
-    1. Want the most up to date version
+* Want the most up to date version
 
-    2. Are not on windows or a debian based linux distribution
+* Are not on windows or a debian based linux distribution
 
 Then follow the instructions below to install from source.
 ```
@@ -34,6 +34,10 @@ make
 sudo make install
 ```
 
+You should be able to run grass by either typing `grass` into the terminal or selcting it by hitting the meta key and typing grass. Grass doesn't come with a logo so it might look something like this:
+
+![Running grass on KDE Plasma](https://user-images.githubusercontent.com/73869536/127052574-ec0297bf-ede8-4bc7-b696-bfb687fffaa1.png)
+
 To uninstall, run:
 ```
 cat install_manifest.txt | sudo xargs rm
@@ -42,6 +46,11 @@ cat install_manifest.txt | sudo xargs rm
 Read install_manifest.txt first before running this command to make sure it isn't removing any important files. Everything in install_manifest.txt will be removed.
 
 If grass gives a segmentation fault when you try to run it after installation, go in CMakeLists.txt and put `target_compile_definitions(grass PRIVATE NDEBUG)` below the add_executable() call and then rebuild. This tells grass you're not debugging so it shouldn't look for the resources folder in the current working directory. It's inconvenient but I am a cmake noob and I couldn't find anything better online.
+
+# Bugs
+Anything that's not in the list below should be reported in issues.
+* Grass crashes when an image file is open and you change directories
+* Open file dialog doesn't respond to moving up a directory sometimes
 
 # Resources
 [Closed folder](https://iconarchive.com/show/sleek-xp-basic-icons-by-hopstarter/Folder-icon.html)
