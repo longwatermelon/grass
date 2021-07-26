@@ -34,8 +34,10 @@ sudo make install
 
 To uninstall, run:
 ```
-xargs rm < install_manifest.txt
+cat install_manifest.txt | sudo xargs rm
 ```
+
+Read install_manifest.txt first before running this command to make sure it isn't removing any important files. Everything in install_manifest.txt will be removed.
 
 If grass gives a segmentation fault when you try to run it after installation, go in CMakeLists.txt and put `add_compile_definitions(grass PRIVATE NDEBUG)` below the line `project(grass)` and then rebuild. This tells grass you're not debugging so it shouldn't look for the resources folder in the current working directory. It's inconvenient but I am a cmake noob and I couldn't find anything better online.
 
