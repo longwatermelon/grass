@@ -5,3 +5,5 @@ ctrl-d to discard changes from current file
 ctrl-o to change directory
 
 Right click a file or folder in the file tree for options
+
+If the text size feels too small or big, hold the ctrl key down and scroll the mouse wheel to resize the text.
