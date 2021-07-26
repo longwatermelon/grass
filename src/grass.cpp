@@ -327,6 +327,23 @@ void Grass::mainloop()
                 img_h
             };
 
+            // make sure the image still fits in the text box
+            if (img_x < m_main_text_dimensions.x)
+            {
+                int diff = m_main_text_dimensions.x - img_x;
+                dstrect.x += diff;
+                dstrect.y += diff;
+                dstrect.w -= diff;
+                dstrect.h -= diff;
+            }
+
+            if (dstrect.x + dstrect.w >= m_text_entries[0].rect().x + m_text_entries[0].rect().w)
+            {
+                int diff = (m_text_entries[0].rect().x + m_text_entries[0].rect().w) - (dstrect.x + dstrect.w);
+                dstrect.w += diff;
+                dstrect.h += diff;
+            }
+
             SDL_RenderCopy(m_rend, editor_image, nullptr, &dstrect);
         }
 

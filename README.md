@@ -19,15 +19,17 @@ On linux, go to /usr/share/grass/res/plugins
 Create a new file and follow the structure of the other config files in res/plugins
 
 # Building
+If you want to install grass and you:
+
+    1. Want the most up to date version
+
+    2. Are not on windows or a debian based linux distribution
+
+Then follow the instructions below to install from source.
 ```
 mkdir build
 cd build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=path_to_vcpkg/scripts/buildsystems/vcpkg.cmake
-```
-
-If you want to install grass and you're not on windows or a debian based linux distribution, use this:
-```
-cd build
+sudo cmake .. -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake
 make
 sudo make install
 ```
