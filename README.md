@@ -30,6 +30,7 @@ If you want to install grass and you:
 Then follow the instructions below to build from source.
 ```
 git clone https://github.com/longwatermelon/grass
+cd grass
 mkdir build
 cd build
 sudo cmake .. -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake
