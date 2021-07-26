@@ -25,6 +25,18 @@ cd build
 cmake .. -DCMAKE_TOOLCHAIN_FILE=path_to_vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
+If you want to install grass and you're not on windows or a debian based linux distribution, use this:
+```
+cd build
+make
+sudo make install
+```
+
+To uninstall, run:
+```
+xargs rm < install_manifest.txt
+```
+
 # Resources
 [Closed folder](https://iconarchive.com/show/sleek-xp-basic-icons-by-hopstarter/Folder-icon.html)
 
