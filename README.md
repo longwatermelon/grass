@@ -37,7 +37,7 @@ To uninstall, run:
 xargs rm < install_manifest.txt
 ```
 
-If grass gives a segmentation fault when you try to run it after installation, go in CMakeLists.txt and put `add_compile_definitions(grass PRIVATE NDEBUG)` and then rebuild, to tell grass it isn't running in debug mode so it shouldn't look for the resources folder in the current working directory. It's inconvenient but I am a cmake noob and I couldn't find anything better online.
+If grass gives a segmentation fault when you try to run it after installation, go in CMakeLists.txt and put `add_compile_definitions(grass PRIVATE NDEBUG)` below the line `project(grass)` and then rebuild. This tells grass you're not debugging so it shouldn't look for the resources folder in the current working directory. It's inconvenient but I am a cmake noob and I couldn't find anything better online.
 
 # Resources
 [Closed folder](https://iconarchive.com/show/sleek-xp-basic-icons-by-hopstarter/Folder-icon.html)
