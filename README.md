@@ -38,9 +38,7 @@ make
 sudo make install
 ```
 
-You should be able to run grass by either typing `grass` into the terminal or selcting it by hitting the meta key and typing grass. Grass doesn't come with a logo so it might look something like this:
-
-![Running grass on KDE Plasma](https://user-images.githubusercontent.com/73869536/127052574-ec0297bf-ede8-4bc7-b696-bfb687fffaa1.png)
+You should be able to run grass by either typing `grass` into the terminal or selcting it by hitting the meta key and typing grass.
 
 To uninstall, run:
 ```
