@@ -1,5 +1,5 @@
 # grass
-The code is extremely messy but it works somehow, grass.cpp is an abomination and I hope nobody ever looks inside of that file.
+The code is extremely messy but it works somehow, grass.cpp is an abomination and I hope nobody ever looks inside of that file. It's almost half of the codebase, but I didn't know how to split the code up into multiple files when I wrote this.
 
 ![Screenshot_20210726_131750](https://user-images.githubusercontent.com/73869536/127053377-710eb3b1-f9ba-4a5d-b994-e215e4ece837.png)
 
