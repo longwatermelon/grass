@@ -1,5 +1,5 @@
 # grass
-The code is extremely messy but it works somehow, grass.cpp is an abomination and I hope nobody ever looks inside of that file. It's almost half of the codebase, but I didn't know how to split the code up into multiple files when I wrote this.
+Please don't look at src/grass.cpp
 
 ![Screenshot_20210726_131750](https://user-images.githubusercontent.com/73869536/127053377-710eb3b1-f9ba-4a5d-b994-e215e4ece837.png)
 
@@ -21,13 +21,7 @@ Create a new file and follow the structure of the other config files in res/plug
 # Building
 You need [vcpkg](https://github.com/microsoft/vcpkg) to build grass.
 
-If you want to install grass and you:
-
-* Want the most up to date version
-
-* Are not on windows or a debian based linux distribution
-
-Then follow the instructions below to build from source.
+If none of the releases work or you want the most updated version, just build it from source.
 ```
 git clone https://github.com/longwatermelon/grass
 cd grass
@@ -38,7 +32,7 @@ make
 sudo make install
 ```
 
-You should be able to run grass by either typing `grass` into the terminal or selcting it by hitting the meta key and typing grass.
+You should be able to run grass by either typing `grass` into the terminal, grass is also available through the start menu but it doesn't have an icon.
 
 To uninstall, run:
 ```
