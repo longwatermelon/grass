@@ -1,6 +1,4 @@
 # grass
-Please don't look at src/grass.cpp
-
 ![Screenshot_20210726_131750](https://user-images.githubusercontent.com/73869536/127053377-710eb3b1-f9ba-4a5d-b994-e215e4ece837.png)
 
 Officially supports windows and linux, not tested on mac
